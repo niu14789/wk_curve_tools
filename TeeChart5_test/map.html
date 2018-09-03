@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>矢量图标</title>
+<style type="text/css">
+body, html {width: 100%;height: 100%;margin:0;font-family:"微软雅黑";}
+    #allmap{width:100%;height:100%;}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=sH9MAZeuckkm5l0PX4N1HQo1hZ9nigbO"></script>
+</head>
+
+<body>
+
+  <div id="allmap"></div>
+<div id="control">
+    <input type="button" onclick="hide()" value="hide">
+    <input type="button" onclick="show()" value="show">
+</div>
+
+</body>
+
+<script type="text/javascript">
+var map = new BMap.Map("allmap");
+var point = new BMap.Point(113.913834,22.55618);
+map.centerAndZoom(point, 20);
+map.enableScrollWheelZoom(true);
+map.addControl(new BMap.MapTypeControl());
+
+var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// 左上角，添加比例尺
+var top_left_navigation = new BMap.NavigationControl();
+
+map.addControl(top_left_control);        
+map.addControl(top_left_navigation); 
+var lat_s;
+var lon_s;
+
+//设置marker图标为飞机
+var vectorPlane = new BMap.Marker(new BMap.Point(point.lng,point.lat), {
+  // 初始化小飞机Symbol
+  icon: new BMap.Symbol(BMap_Symbol_SHAPE_PLANE, {
+    scale: 2,
+    fillColor:'red',
+    fillOpacity:1,
+    strokeWeight:2,
+    rotation: 0
+  })
+});
+
+var lon_last ,lon_orig = 113.913881,lat_last,lat_orig = 22.556144;
+
+var marker = new BMap.Marker(point);
+
+map.addOverlay(marker);
+marker.hide();
+
+map.addOverlay(vectorPlane);
+
+map.setViewport({center:new BMap.Point(113.913834,22.55618),zoom:20})
+
+function hide(){
+   vectorPlane.hide();
+}
+function show(){
+   vectorPlane.show();
+}
+
+function show_home(){
+   map.setViewport({center:new BMap.Point(113.913834,22.55618),zoom:20})
+}
+
+function show_aircraft(v1,v2){
+   transfer_start(v1,v2);
+ //  map.setViewport({center:new BMap.Point(v1 ,v2),zoom:20})
+}
+
+function show_aircraft_position(v1,v2){
+  lon_s = v1;
+  lat_s = v2;
+}
+function show_aircraft_psi(v1){
+ //设置marker图标为飞机
+   
+    var x = lon_s;
+    var y = lat_s;
+    var ggPoint = new BMap.Point(x,y);
+    
+    //坐标转换完之后的回调函数
+    translateCallback = function (data){
+      if(data.status === 0) {
+       vectorPlane.setPosition(data.points[0]);
+       vectorPlane.setRotation(v1);
+  
+       var polyline = new BMap.Polyline([
+		new BMap.Point(lon_orig,lat_orig),
+		new BMap.Point(data.points[0].lng,data.points[0].lat)
+		
+	], {strokeColor:"red", strokeWeight:2, strokeOpacity:0.8});   //创建折线
+	map.addOverlay(polyline);   //增加折线
+        lon_orig = data.points[0].lng;
+        lat_orig = data.points[0].lat;
+      }
+    }
+
+    setTimeout(function(){
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(ggPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback)
+    }, 1); 
+}
+
+function transfer_start(v1,v2){
+    var x = v1;
+    var y = v2;
+    var ggPoint = new BMap.Point(x,y);
+    
+    //坐标转换完之后的回调函数
+    translateCallback = function (data){
+      if(data.status === 0) {
+        marker.show();
+        var label = new BMap.Label("start",{offset:new BMap.Size(20,-10)});
+        marker.setLabel(label); //添加百度label
+        map.setCenter(data.points[0]);
+        marker.setPosition(data.points[0]);
+        lon_orig = data.points[0].lng;
+        lat_orig = data.points[0].lat;
+       // map.setViewport({center:new BMap.Point(lon_orig ,lat_orig),zoom:20})
+      }
+    }
+
+    setTimeout(function(){
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(ggPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback)
+    }, 1);
+}
+
+</script>
+
+</html>
+
+
+
+
+

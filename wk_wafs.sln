@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TeeChart5_test", "TeeChart5_test\TeeChart5_test.vcxproj", "{1F78D597-5EAC-4CBA-9D7B-7B441B71745C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1F78D597-5EAC-4CBA-9D7B-7B441B71745C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1F78D597-5EAC-4CBA-9D7B-7B441B71745C}.Debug|Win32.Build.0 = Debug|Win32
+		{1F78D597-5EAC-4CBA-9D7B-7B441B71745C}.Release|Win32.ActiveCfg = Release|Win32
+		{1F78D597-5EAC-4CBA-9D7B-7B441B71745C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

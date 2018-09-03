@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+<title>ʸ��ͼ��</title>
+<style type="text/css">
+body, html {width: 100%;height: 100%;margin:0;font-family:"΢���ź�";}
+    #allmap{width:100%;height:100%;}
+</style>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=sH9MAZeuckkm5l0PX4N1HQo1hZ9nigbO"></script>
+<!--���������ƹ���-->
+<script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+<link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+<!--���ؼ�����Ϣ����-->
+<script type="text/javascript" src="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.js"></script>
+<link rel="stylesheet" href="http://api.map.baidu.com/library/SearchInfoWindow/1.4/src/SearchInfoWindow_min.css" />
+<title>�����ƹ���</title>
+</head>
+
+<body>
+
+  <div id="allmap"></div>
+
+
+</body>
+
+
+<script type="text/javascript">
+var map = new BMap.Map("allmap");
+var point = new BMap.Point(113.913834,22.55618);
+map.centerAndZoom(point, 20);
+map.enableScrollWheelZoom(true);
+map.addControl(new BMap.MapTypeControl(BMAP_SATELLITE_MAP));
+map.setMapType(BMAP_SATELLITE_MAP);
+//var top_left_control = new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT});// ���Ͻǣ���ӱ�����
+//var top_left_navigation = new BMap.NavigationControl();
+
+//map.addControl(top_left_control);        
+//map.addControl(top_left_navigation); 
+var lat_s;
+var lon_s;
+
+//����markerͼ��Ϊ�ɻ�
+var vectorPlane = new BMap.Marker(new BMap.Point(point.lng,point.lat), {
+  // ��ʼ��С�ɻ�Symbol
+  icon: new BMap.Symbol(BMap_Symbol_SHAPE_PLANE, {
+    scale: 2,
+    fillColor:'red',
+    fillOpacity:0.8,
+    strokeWeight:2,
+    rotation: 0
+  })
+});
+
+var lon_last ,lon_orig = 0,lat_last,lat_orig = 0;
+
+var marker = new BMap.Marker(point);
+
+map.addOverlay(marker);
+marker.hide();
+
+//map.addOverlay(vectorPlane);
+
+map.setViewport({center:new BMap.Point(113.913834,22.55618),zoom:20})
+
+function hide(){
+   vectorPlane.hide();
+}
+function show(){
+   vectorPlane.show();
+}
+
+
+var polygon_g = new BMap.Polygon;
+
+var point_g = new Array();
+var point_g_num = 0;
+
+function show_home()
+{
+
+   
+//point_g[0] = new BMap.Point(113.902313,22.54426);
+//point_g[1] = new BMap.Point(113.911888,22.5437164);
+//point_g[2] = new BMap.Point(113.914406,22.5425758);
+//point_g[3] = new BMap.Point(113.913437,22.5404758);
+
+polygon_g.setPath(point_g);
+
+  polygon_g.setStrokeColor("blue");
+   polygon_g.setStrokeWeight(2);
+   polygon_g.setStrokeOpacity(0.8);  
+
+   map.addOverlay(polygon_g);   //���Ӷ����
+}
+
+function show_aircraft(v1,v2){
+   transfer_start(v1,v2);
+ //  map.setViewport({center:new BMap.Point(v1 ,v2),zoom:20})
+}
+
+function show_aircraft_position(v1,v2){
+  lon_s = v1;
+  lat_s = v2;
+}
+
+var flag_aircraft = 0;
+
+function show_aircraft_psi(v1,v2)
+{
+ //����markerͼ��Ϊ�ɻ�
+   
+    var x = lon_s;
+    var y = lat_s;
+    var ggPoint = new BMap.Point(x,y);
+    
+    //����ת����֮��Ļص�����
+    translateCallback = function (data)
+    {
+        if(data.status === 0) 
+        {
+            if( v2 != 3 )
+            {
+                vectorPlane.setPosition(data.points[0]);
+                vectorPlane.setRotation(v1);
+            }
+            if( lon_orig != 0 )
+            {
+                var polyline = new BMap.Polyline([
+                new BMap.Point(lon_orig,lat_orig),
+                new BMap.Point(data.points[0].lng,data.points[0].lat)
+                
+                ], {strokeColor:"blue", strokeWeight:2, strokeOpacity:0.8});   //��������
+                
+                    if( v2 == 1 || v2 == 3 )
+                    {
+                        polyline.setStrokeColor("yellow");
+                        polyline.setStrokeOpacity(1);
+                        map.addOverlay(polyline);
+                    }else if( v2 == 2 )
+                    {
+                        polyline.setStrokeColor("red");
+                        map.addOverlay(polyline);
+                        if( flag_aircraft === 0 )
+                        {
+                            map.addOverlay(vectorPlane);
+                            show(); 
+                            flag_aircraft = 1;
+                        }
+                    }
+                    polyline.enableMassClear();
+            }else
+            {
+                if( v2 != 3 )
+                {
+                    map.addOverlay(vectorPlane);
+                    show();
+                }
+            }
+        //��������
+            lon_orig = data.points[0].lng;
+            lat_orig = data.points[0].lat;
+        }
+    }
+
+    setTimeout(function(){
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(ggPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback)
+    }, 1); 
+}
+
+function transfer_start(v1,v2)
+{
+    var x = v1;
+    var y = v2;
+    var ggPoint = new BMap.Point(x,y);
+    
+    //����ת����֮��Ļص�����
+    translateCallback = function (data){
+      if(data.status === 0) {
+        marker.show();
+        var label = new BMap.Label("start:1",{offset:new BMap.Size(20,-10)});
+        marker.setLabel(label); //��Ӱٶ�label
+        map.setCenter(data.points[0]);
+        marker.setPosition(data.points[0]);
+
+        map.addOverlay(marker);
+        
+        map.setViewport({center:new BMap.Point(data.points[0].lng ,data.points[0].lat),zoom:17});
+      }
+    }
+
+    setTimeout(function(){
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(ggPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback)
+    }, 1);
+}
+
+var lat_e ,lon_e;
+var point_start_flags;
+var point_num_cnt;
+var lng_g = new Array();
+var lat_g = new Array();
+
+function showInfo(e)
+{
+//     var tl = e.point.lng;
+//     var ta = e.point.lat;
+
+//     var x = e.point.lng;
+//     var y = e.point.lat;
+
+//     var ggPoint = new BMap.Point(x,y);
+    
+//     translateCallback = function (data)
+//     {
+//       if(data.status === 0) 
+//       {
+//         lon_e = data.points[0].lng;
+//         lat_e = data.points[0].lat;
+//         //alert(lon_e  + ", " + lat_e );
+//         if( point_start_flags === 1 )
+//         {
+//            point_g[point_g_num] = new BMap.Point(tl,ta);
+
+//            lng_g[point_num_cnt] = lon_e;
+//            lat_g[point_num_cnt] = lat_e;
+           
+//            point_num_cnt = point_num_cnt + 1;
+//            point_g_num = point_g_num + 1;
+
+//            //overlays.getPath();
+//         } 
+//       }
+//     }
+
+//    setTimeout(function()
+//    {
+//         var convertor = new BMap.Convertor();
+//         var pointArr = [];
+//         pointArr.push(ggPoint);
+//         convertor.translate(pointArr, 3, 5, translateCallback)
+//     }, 1);
+}
+
+function get_info(v1,v2)
+{
+  if( v2 === 0 )
+  {
+     return  lng_g[v1];
+  }else
+  {
+     return lat_g [v1];
+  }
+}
+
+function get_overlays_num()
+{
+  return overlays.length;
+}
+
+function get_point_num()
+{
+  return lat_e; 
+}
+
+function set_point_start()
+{
+//    point_start_flags = 1;
+//    point_num_cnt = 0;
+//    point_g_num = 0;
+   return 1;
+}
+
+function set_point_stopt()
+{
+//    point_start_flags = 0;
+//    point_num_cnt = 0;
+//    point_g_num = 0;
+}
+
+function get_point_num(v1,v2)
+{
+  return v1;
+}
+//---------------------------------------------------------------------------
+/*-----------------------------*/
+var polyline_g = new BMap.Polyline;
+/*-----------------------------*/
+var point_pl = new Array();
+var point_pl_num = 0;
+//---------------------------------------------------------------------------
+function set_polyline_data(v1,v2)
+{
+    var x = v1;
+    var y = v2;
+    /*----------*/  
+    var gPoint = new BMap.Point(x,y);
+    /*------------------------------*/
+    translateCallback = function (data)
+    {
+      if(data.status === 0) 
+      {
+        /*------------------------*/
+        point_pl[point_pl_num] = new BMap.Point(data.points[0].lng ,data.points[0].lat);
+        /*-----------------------*/
+        point_pl_num = point_pl_num + 1;
+        /*--------------------*/
+        return x + y;
+      }
+    }
+
+   setTimeout(function()
+   {
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(gPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback)
+    }, 1);    
+}
+/*----------------------------*/
+function set_polygon_data(v1,v2)
+{
+    var x = v1;
+    var y = v2;
+    /*----------*/  
+    var gPoint = new BMap.Point(x,y);
+    /*------------------------------*/
+    translateCallback = function (data)
+    {
+      if(data.status === 0) 
+      {
+        /*------------------------*/
+        point_g[point_g_num] = new BMap.Point(data.points[0].lng ,data.points[0].lat);
+        /*-----------------------*/
+        point_g_num = point_g_num + 1;
+        /*--------------------*/
+        return x + y;
+      }
+    }
+
+   setTimeout(function()
+   {
+        var convertor = new BMap.Convertor();
+        var pointArr = [];
+        pointArr.push(gPoint);
+        convertor.translate(pointArr, 1, 5, translateCallback)
+    }, 1);    
+}
+/*----------*/
+function draw_start()
+{
+    point_pl_num = 0;
+}
+function draw_pgon_start()
+{
+    point_g_num = 0;
+}
+/*-------*/
+function draw_lines(v1)
+{        
+    /*------------------------------*/
+    if( point_pl_num != 0 )
+    {
+       
+        /*-----------------------------*/
+        polyline_g.setStrokeColor("blue");
+        polyline_g.setStrokeWeight(2);
+        polyline_g.setStrokeOpacity(0.8);
+        polyline_g.enableMassClear();         
+        /*-----------------------------*/
+        polyline_g.setPath(point_pl);
+        /*--------------------*/
+        map.addOverlay(polyline_g);  
+        /*--------------------*/
+        point_pl_num = 0;          
+    }                
+}
+/*--------------------*/
+function draw_plogon(v1)
+{        
+    polygon_g.setPath(point_g);
+
+    polygon_g.setStrokeColor("green");
+    polygon_g.setStrokeWeight(3);
+    polygon_g.setStrokeOpacity(0.8);  
+
+    map.addOverlay(polygon_g);   //���Ӷ���� 
+
+    point_g_num = 0;               
+}
+
+//map.addEventListener("click", showInfo);
+
+    var overlays = [];
+	var overlaycomplete = function(e){
+        overlays.push(e.overlay);
+    };
+    var styleOptions = {
+        strokeColor:"red",    //������ɫ��
+        fillColor:"yellow",      //�����ɫ��������Ϊ��ʱ��Բ�ν�û�����Ч����
+        strokeWeight: 2,       //���ߵĿ�ȣ�������Ϊ��λ��
+        strokeOpacity: 0.8,	   //����͸���ȣ�ȡֵ��Χ0 - 1��
+        fillOpacity: 0.4,      //����͸���ȣ�ȡֵ��Χ0 - 1��
+        strokeStyle: 'solid' //���ߵ���ʽ��solid��dashed��
+    }  
+
+
+    function clearAll() 
+    {
+	for(var i = 0; i < overlays.length; i++)
+        {
+            map.removeOverlay(overlays[i]);
+        }
+        overlays.length = 0   
+        map.clearOverlays();
+        lon_orig = 0;
+        lat_orig = 0;
+        flag_aircraft = 0;
+    } 
+    
+    function start_draw() 
+    {
+           //ʵ���������ƹ���
+    var drawingManager = new BMapLib.DrawingManager(map, {
+        isOpen: false, //�Ƿ������ģʽ
+        enableDrawingTool: true, //�Ƿ���ʾ������
+        drawingToolOptions: {
+            anchor: BMAP_ANCHOR_TOP_RIGHT,
+            offset: new BMap.Size(130, 5)},
+
+        circleOptions: styleOptions, //Բ����ʽ
+        polylineOptions: styleOptions, //�ߵ���ʽ
+        polygonOptions: styleOptions, //����ε���ʽ
+        rectangleOptions: styleOptions //���ε���ʽ
+    });
+
+	 //��������ƹ��߼����¼������ڻ�ȡ���ƽ��
+    drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
+    }
+
+</script>
+
+</html>
+
+
+
+
+
