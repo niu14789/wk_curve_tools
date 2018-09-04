@@ -231,7 +231,7 @@ void C_PROCOTOL_CREATE::OnBnClickedButton4()
 		}		
 	}
 	/*-----------*/
-	CFG_CURRENT.cfs_global_msg.procotol_select = 1;
+	CFG_CURRENT.cfs_global_msg.procotol_select = protocol_select;
 	/*------------get block size-------------*/
 	unsigned int tmp;
 	if( get_dex_edit(IDC_EDIT4, &tmp,sizeof(tmp)) == 0 )
@@ -955,7 +955,7 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 	/*------type-----*/
 	m_combox_protocol_type.SetCurSel(CFG_CURRENT.cfs_global_msg.procotol_type);
 	/* select */
-	m_combox_protocol_type.SetCurSel(CFG_CURRENT.cfs_global_msg.procotol_select);
+	m_global_select.SetCurSel(CFG_CURRENT.cfs_global_msg.procotol_select);
 	/*----length----*/
 	sprintf_s(buffer,"%d",CFG_CURRENT.cfs_global_msg.block_size);
 	show = A2T(buffer);

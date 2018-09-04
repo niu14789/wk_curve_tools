@@ -161,6 +161,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg);
 	void CTeeChart5_testDlg::take_a_photo(void);
 	void CTeeChart5_testDlg::reset(void);
 	void CTeeChart5_testDlg::pic_feedback_show(void);

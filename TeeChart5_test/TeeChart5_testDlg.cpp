@@ -2485,13 +2485,14 @@ void CTeeChart5_testDlg::Arm_Distortion(char * path,unsigned int if_check)
 		}
 	}
 	/* show the msg */
-	sprintf(show_buffer,"机臂变形参数：%f , 自动判断：%s", (float)ctrlsum,result_buffer);
+	sprintf(show_buffer,"%f , 自动判断：%s", (float)ctrlsum,result_buffer);
     CString show;
     USES_CONVERSION;
 	/*--------------*/
 	show = A2T(show_buffer);
 	/* show */
-	MessageBox(show,_T("tips"),0);
+	//MessageBox(show,_T("tips"),0);
+	m_taps.SetWindowTextW(show);
 }
 
 void CTeeChart5_testDlg::On32786()
@@ -2539,4 +2540,32 @@ void CTeeChart5_testDlg::disable_all_timer(void)
 	KillTimer(4);
 	KillTimer(5);
 }
-
+/* Key process */
+BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
+{
+   //判断是否为键盘消息
+   if (WM_KEYFIRST <= pMsg->message && pMsg->message <= WM_KEYLAST)
+   {
+      //判断是否按下键盘Enter键
+      if(pMsg->message==WM_KEYDOWN)
+      {
+		  switch(pMsg->wParam)
+		  {
+			  case VK_F2:
+				  On32771();
+				  break;
+			  case VK_F3:
+				  On32777();
+				  break;
+			  case VK_F4:
+				  On32781();
+				  break;
+			  default:
+				  break;
+		  }
+		  /*------------------*/
+          return TRUE;
+      }
+   }
+ return CDialog::PreTranslateMessage(pMsg);
+}
