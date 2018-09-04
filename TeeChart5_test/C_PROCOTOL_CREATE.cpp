@@ -58,6 +58,7 @@ BEGIN_MESSAGE_MAP(C_PROCOTOL_CREATE, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &C_PROCOTOL_CREATE::OnCbnSelchangeCombo1)
 	ON_BN_CLICKED(IDC_BUTTON24, &C_PROCOTOL_CREATE::OnBnClickedButton24)
 	ON_BN_CLICKED(IDC_BUTTON23, &C_PROCOTOL_CREATE::OnBnClickedButton23)
+	ON_BN_CLICKED(IDC_BUTTON3, &C_PROCOTOL_CREATE::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -255,7 +256,7 @@ void C_PROCOTOL_CREATE::OnBnClickedButton4()
 	/* ok */
 	CFG_CURRENT.cfs_global_msg.ok = 0xff;
 	/* save file */
-	flush_cfs(0);
+	flush_cfs(1);
 }
 /*-------------------*/
 void C_PROCOTOL_CREATE::combox_update(void)
@@ -836,13 +837,13 @@ void C_PROCOTOL_CREATE::flush_cfs(unsigned int msg)
 		/*---------------------*/
 		return;
 	}
-    /* check data num */
-	if( CFG_CURRENT.cfs_global_msg.sample_num == 0 )
-	{
-		msg_out("当前没有保存采样数据点");
-		/*---------------------*/
-		return;
-	}
+ //   /* check data num */
+	//if( CFG_CURRENT.cfs_global_msg.sample_num == 0 )
+	//{
+	//	msg_out("当前没有保存采样数据点");
+	//	/*---------------------*/
+	//	return;
+	//}
 	/* ok */
 	if( fp_cfs == NULL )
 	{
@@ -902,7 +903,7 @@ void C_PROCOTOL_CREATE::flush_cfs(unsigned int msg)
 /* save CFS file */
 void C_PROCOTOL_CREATE::OnBnClickedButton23()
 {
-	flush_cfs(1);
+	
 }
 /* read_file_to_buffer */
 void C_PROCOTOL_CREATE::read_file_to_current(char *path)
@@ -978,4 +979,9 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 	show = A2T(buffer);
 	m_math_num.SetWindowTextW(show);
 
+}
+
+void C_PROCOTOL_CREATE::OnBnClickedButton3()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }
