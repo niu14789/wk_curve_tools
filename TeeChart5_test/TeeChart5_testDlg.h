@@ -161,6 +161,11 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode);
+	void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode);
+	void * CTeeChart5_testDlg::Get_2axis_source(unsigned int *num);
+	void * CTeeChart5_testDlg::Get_point_source(unsigned int *num);
+	void CTeeChart5_testDlg::m3d_display(void);
 	BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg);
 	void CTeeChart5_testDlg::take_a_photo(void);
 	void CTeeChart5_testDlg::reset(void);
@@ -223,7 +228,7 @@ public:
 	BOOL CTeeChart5_testDlg::OnDeviceChange(UINT nEventType,DWORD dwData)  ;
 	void CTeeChart5_testDlg::Legend_handle( unsigned int mode );
 	int CTeeChart5_testDlg::allocate_file_area( char * path , unsigned int len);
-	void CTeeChart5_testDlg::clear_all_line(void);
+	void CTeeChart5_testDlg::clear_all_line(unsigned int mode);
 	void CTeeChart5_testDlg::chart_line_init(void);
 	void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode);
 	void CTeeChart5_testDlg::Line_flash(void);

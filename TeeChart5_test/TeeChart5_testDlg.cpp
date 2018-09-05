@@ -19,7 +19,8 @@
 #include "limit_setting.h"
 #include "map.h"
 #include "motor.h"
-
+#include "CAspect.h"
+#include "CPoint3DSeries.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -31,13 +32,16 @@ extern SYS_LIST_CHESE_DEF chese_list;
 extern SYS_LIST_CHESE_DEF  limit_file;
 extern LINE_MULIT_DEF line_mulit[128];
 static CFG_FILE_DEF READ_CFS;
-static PARAM_LIST_DEF param_list_show;
+PARAM_LIST_DEF param_list_show;
 static unsigned char read_buffer_block[10240];//10KB
 static unsigned char * dynamic_area = NULL;
 static unsigned char sempher = 0;
 int list_click_seq = 0;
 int start_stop_flags = 0;
 unsigned char motor_close = 0;
+/*--------------*/
+static unsigned int last_postion = 0;
+static unsigned int gsof_last_postion = 0;
 /* multi thread */
 CWinThread * handle_com_read;
 //int create_thread(void);
@@ -45,7 +49,7 @@ UINT ThreadProc(LPVOID pParam);
 void thread_suspend(unsigned int mode);
 /*----------------------------*/
 //static CSeries lineSeries_s[20];
-static unsigned int avs[20];
+static unsigned int avs[40];
 static double last_dou[1024];
 /*------------------------------------*/
 SYSTEM_CONFIG_INF_DEF system_config_inf;
@@ -415,7 +419,9 @@ void CTeeChart5_testDlg::OnBnClickedButton8()
 		clear_all_exist_lines(0);
 	}else
 	{
-		clear_all_line();
+		clear_all_line(0);
+		last_postion = 0;
+		gsof_last_postion = 0;
 	}
 }
 
@@ -1296,7 +1302,7 @@ int CTeeChart5_testDlg::math_transfer(unsigned char * base,unsigned char * buffe
 void CTeeChart5_testDlg::chart_line_init(void)
 {
     /* get */
-	for( int i = 0 ; i < 20 ; i ++ )
+	for( int i = 0 ; i < 40 ; i ++ )
 	{
 		/* create lines */
 		CSeries line_cfs = (CSeries)m_chart.Series(i);
@@ -1312,6 +1318,36 @@ void * CTeeChart5_testDlg::Get_line_source(unsigned int *num)
 {
 	/*----------------------*/
 	for( int i = 0 ; i < 20 ; i ++ )
+	{
+		if( avs[i] == 0 )
+		{
+			avs[i] = 1;
+			*num = i;
+			return ( void * )0x12345678;
+		}
+	}
+	/*   */
+	return 0;
+}
+void * CTeeChart5_testDlg::Get_2axis_source(unsigned int *num)
+{
+	/*----------------------*/
+	for( int i = 20 ; i < 30 ; i ++ )
+	{
+		if( avs[i] == 0 )
+		{
+			avs[i] = 1;
+			*num = i;
+			return ( void * )0x12345678;
+		}
+	}
+	/*   */
+	return 0;
+}
+void * CTeeChart5_testDlg::Get_point_source(unsigned int *num)
+{
+	/*----------------------*/
+	for( int i = 30 ; i < 40 ; i ++ )
 	{
 		if( avs[i] == 0 )
 		{
@@ -1354,9 +1390,9 @@ void CTeeChart5_testDlg::Legend_handle( unsigned int mode )
 	}
 }
 /*---------------------------*/
-void CTeeChart5_testDlg::clear_all_line(void)
+void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 {
-	for( unsigned int i = 0 ; i < 20 ; i ++ )
+	for( unsigned int i = 0 ; i < 40 ; i ++ )
 	{
 		CSeries line_cfs = (CSeries)m_chart.Series(i);
 		/* setting */
@@ -1365,9 +1401,12 @@ void CTeeChart5_testDlg::clear_all_line(void)
 		avs[i] = 0;
 	}
 	/*----------------*/
-	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	if( mode == 0 )
 	{
-		param_list_show.param_list[i].status = 0;
+		for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+		{
+			param_list_show.param_list[i].status = 0;
+		}
 	}
 	/*--------------*/
     Legend_handle(0);//hide
@@ -1385,7 +1424,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode)
 	/* clear all line */
 	if( mode == 0 )
 	{
-	   clear_all_line();
+	   clear_all_line(0);
 	}else
 	{
 		release_current_line(num);
@@ -1477,7 +1516,7 @@ void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
 
 void CTeeChart5_testDlg::OnBnClickedButton5()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	
 }
 
 
@@ -2560,6 +2599,15 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 			  case VK_F4:
 				  On32781();
 				  break;
+			  case VK_F9:
+				  Position_axis_bin(m_check_hold.GetCheck()?1:0);
+				  break;
+			  case VK_F8:
+				  Position_axis_gsof(m_check_hold.GetCheck()?1:0);
+				  break;
+			  case 0x31:
+				  Position_axis_bin(m_check_hold.GetCheck()?1:0);
+				  break;
 			  default:
 				  break;
 		  }
@@ -2568,4 +2616,194 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
       }
    }
  return CDialog::PreTranslateMessage(pMsg);
+}
+/* show lat lon */
+void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
+{
+	int lat_pos = 0xffff;
+	int lon_pos = 0xffff;
+	/* find the lat and lon in param list */
+	for( int i = last_postion ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT_BIN") != NULL )
+		{
+			lat_pos = i;
+		}
+
+		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON_BIN") != NULL )
+		{
+			lon_pos = i;
+		}
+		/*--*/
+		if( lat_pos != 0xffff && lon_pos != 0xffff )
+		{
+			last_postion = i+1;
+			break;
+		}
+	}
+	/*-------------------------------*/
+	if( lat_pos == 0xffff || lon_pos == 0xffff )
+	{
+		AfxMessageBox(_T("数据表中不存在GPS_LAT_BIN或GPS_LON_BIN或已经绘制"));
+		return;
+	}
+	// TODO: 在此添加控件通知处理程序代码
+	unsigned int num;
+	/* none data avild */
+	if( Get_2axis_source(&num) == NULL )
+	{
+		AfxMessageBox(_T("曲线数量超过10条！"));
+		return;
+	}
+    /* show */
+	double * lat_line = (double *)param_list_show.param_list[lat_pos].data;
+	double * lon_line = (double *)param_list_show.param_list[lon_pos].data;
+	/* check 0 */
+	int j;
+	/*---------------------------------------*/
+	for( j = 0 ; j < param_list_show.param_list[lat_pos].point_num ; j ++ )
+	{
+		if( lat_line[j] != 0 && lon_line[j] != 0 )
+		{
+			break;
+		}
+	}
+	/*---------------------------------*/
+	if( j == param_list_show.param_list[lat_pos].point_num )
+	{
+		AfxMessageBox(_T("无可用数据！"));
+		return;
+	}
+	/*---------------------------------------*/
+	if( mode == 0 )
+	{
+       clear_all_line(0);
+	}
+	/*---------------------------------------*/
+	CSeries line = (CSeries)m_chart.Series(num);
+    /*---------------------------------*/
+	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i += 2 )
+	{
+		line.AddXY(lat_line[i],lon_line[i],NULL,NULL);
+	}
+	/*-------------------------*/
+    /* show legend */
+	Legend_handle(1);
+	/* transfer */
+	USES_CONVERSION;
+	/*----------------------*/
+	char buffer[200];
+	memset(buffer,0,sizeof(buffer));
+	/*----------------------------*/
+	sprintf(buffer,"%s_bin_axis",param_list_show.param_list[lat_pos].name);
+	/*----------------------------*/
+	CString show = A2T(buffer);
+	/*-----------------------------*/
+	line.put_Title(show);
+	/* show legend */
+	line.put_ShowInLegend(1);
+	/* put color */
+	/*-----------*/
+	unsigned int colorR = (unsigned char)rand();
+	unsigned int colorG = (unsigned char)rand();
+	unsigned int colorB = (unsigned char)rand();
+	/*-----------*/
+	unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+	/*-----------*/
+	line.put_Color(cols);
+}
+/* gsof */
+void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
+{
+	int lat_pos = 0xffff;
+	int lon_pos = 0xffff;
+	/* find the lat and lon in param list */
+	for( int i = gsof_last_postion ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GSOF_LAT") != NULL )
+		{
+			lat_pos = i;
+		}
+
+		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GSOF_LON") != NULL )
+		{
+			lon_pos = i;
+		}
+		/*--*/
+		if( lat_pos != 0xffff && lon_pos != 0xffff )
+		{
+			gsof_last_postion = i+1;
+			break;
+		}
+	}
+	/*-------------------------------*/
+	if( lat_pos == 0xffff || lon_pos == 0xffff )
+	{
+		AfxMessageBox(_T("数据表中不存在GSOF_LAT或GSOF_LON或已经绘制"));
+		return;
+	}
+	// TODO: 在此添加控件通知处理程序代码
+	unsigned int num;
+	/* none data avild */
+	if( Get_2axis_source(&num) == NULL )
+	{
+		AfxMessageBox(_T("曲线数量超过10条！"));
+		return;
+	}
+    /* show */
+	double * lat_line = (double *)param_list_show.param_list[lat_pos].data;
+	double * lon_line = (double *)param_list_show.param_list[lon_pos].data;
+	/* check 0 */
+	int j;
+	/*---------------------------------------*/
+	for( j = 0 ; j < param_list_show.param_list[lat_pos].point_num ; j ++ )
+	{
+		if( lat_line[j] != 0 && lon_line[j] != 0 )
+		{
+			break;
+		}
+	}
+	/*---------------------------------*/
+	if( j == param_list_show.param_list[lat_pos].point_num )
+	{
+		AfxMessageBox(_T("无可用数据！"));
+		return;
+	}
+	/*---------------------------------------*/
+	if( mode == 0 )
+	{
+       clear_all_line(0);
+	}
+	/*---------------------------------------*/
+	CSeries line = (CSeries)m_chart.Series(num);
+    /*---------------------------------*/
+	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i += 2 )
+	{
+		line.AddXY(lat_line[i],lon_line[i],NULL,NULL);
+	}
+	/*-------------------------*/
+    /* show legend */
+	Legend_handle(1);
+	/* transfer */
+	USES_CONVERSION;
+	/*----------------------*/
+	char buffer[200];
+	memset(buffer,0,sizeof(buffer));
+	/*----------------------------*/
+	sprintf(buffer,"%s_gsof_axis",param_list_show.param_list[lat_pos].name);
+	/*----------------------------*/
+	CString show = A2T(buffer);
+	/*-----------------------------*/
+	line.put_Title(show);
+	/* show legend */
+	line.put_ShowInLegend(1);
+	/* put color */
+	/*-----------*/
+	unsigned int colorR = (unsigned char)rand();
+	unsigned int colorG = (unsigned char)rand();
+	unsigned int colorB = (unsigned char)rand();
+	/*-----------*/
+	unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+	/*-----------*/
+	line.put_Color(cols);
 }
