@@ -41,7 +41,7 @@ int start_stop_flags = 0;
 unsigned char motor_close = 0;
 /*--------------*/
 static unsigned int last_postion = 0;
-static unsigned int gsof_last_postion = 0;
+static unsigned int lane_last_postion = 0;
 /* multi thread */
 CWinThread * handle_com_read;
 //int create_thread(void);
@@ -421,7 +421,7 @@ void CTeeChart5_testDlg::OnBnClickedButton8()
 	{
 		clear_all_line(0);
 		last_postion = 0;
-		gsof_last_postion = 0;
+		lane_last_postion = 0;
 	}
 }
 
@@ -2599,14 +2599,11 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 			  case VK_F4:
 				  On32781();
 				  break;
-			  case VK_F9:
+			  case VK_F7:
 				  Position_axis_bin(m_check_hold.GetCheck()?1:0);
 				  break;
 			  case VK_F8:
-				  Position_axis_gsof(m_check_hold.GetCheck()?1:0);
-				  break;
-			  case 0x31:
-				  Position_axis_bin(m_check_hold.GetCheck()?1:0);
+				  Position_point_lane(m_check_hold.GetCheck()?1:0);
 				  break;
 			  default:
 				  break;
@@ -2625,12 +2622,12 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode)//mode == 0 is sing
 	/* find the lat and lon in param list */
 	for( int i = last_postion ; i < param_list_show.param_list_num ; i ++ )
 	{
-		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT_BIN") != NULL )
+		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT") != NULL )
 		{
 			lat_pos = i;
 		}
 
-		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON_BIN") != NULL )
+		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON") != NULL )
 		{
 			lon_pos = i;
 		}
@@ -2644,7 +2641,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode)//mode == 0 is sing
 	/*-------------------------------*/
 	if( lat_pos == 0xffff || lon_pos == 0xffff )
 	{
-		AfxMessageBox(_T("数据表中不存在GPS_LAT_BIN或GPS_LON_BIN或已经绘制"));
+		AfxMessageBox(_T("数据表中不存在GPS_LAT或GPS_LON或已经绘制"));
 		return;
 	}
 	// TODO: 在此添加控件通知处理程序代码
@@ -2695,7 +2692,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode)//mode == 0 is sing
 	char buffer[200];
 	memset(buffer,0,sizeof(buffer));
 	/*----------------------------*/
-	sprintf(buffer,"%s_bin_axis",param_list_show.param_list[lat_pos].name);
+	sprintf(buffer,"%s_axis",param_list_show.param_list[lat_pos].name);
 	/*----------------------------*/
 	CString show = A2T(buffer);
 	/*-----------------------------*/
@@ -2712,40 +2709,47 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode)//mode == 0 is sing
 	/*-----------*/
 	line.put_Color(cols);
 }
+# if 1
 /* gsof */
-void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
+void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
 {
 	int lat_pos = 0xffff;
 	int lon_pos = 0xffff;
+	int lane_pic_pos = 0xffff;
 	/* find the lat and lon in param list */
-	for( int i = gsof_last_postion ; i < param_list_show.param_list_num ; i ++ )
+	for( int i = lane_last_postion ; i < param_list_show.param_list_num ; i ++ )
 	{
-		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GSOF_LAT") != NULL )
+		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT_LANE") != NULL )
 		{
 			lat_pos = i;
 		}
 
-		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GSOF_LON") != NULL )
+		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON_LANE") != NULL )
 		{
 			lon_pos = i;
 		}
-		/*--*/
-		if( lat_pos != 0xffff && lon_pos != 0xffff )
+		/*----------------------------*/
+		if( lane_pic_pos == 0xffff && strstr(param_list_show.param_list[i].name,"LANE_PIC_FC") != NULL )
 		{
-			gsof_last_postion = i+1;
+			lane_pic_pos = i;
+		}
+		/*--*/
+		if( lat_pos != 0xffff && lon_pos != 0xffff && lane_pic_pos != 0xffff )
+		{
+		    lane_last_postion = i+1;
 			break;
 		}
 	}
 	/*-------------------------------*/
-	if( lat_pos == 0xffff || lon_pos == 0xffff )
+	if( lat_pos == 0xffff || lon_pos == 0xffff || lane_pic_pos == 0xffff )
 	{
-		AfxMessageBox(_T("数据表中不存在GSOF_LAT或GSOF_LON或已经绘制"));
+		AfxMessageBox(_T("数据表中不存在GPS_LAT_LANE或GPS_LON_LANE或已经绘制"));
 		return;
 	}
 	// TODO: 在此添加控件通知处理程序代码
 	unsigned int num;
 	/* none data avild */
-	if( Get_2axis_source(&num) == NULL )
+	if( Get_point_source(&num) == NULL )
 	{
 		AfxMessageBox(_T("曲线数量超过10条！"));
 		return;
@@ -2753,22 +2757,7 @@ void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode)//mode == 0 is sin
     /* show */
 	double * lat_line = (double *)param_list_show.param_list[lat_pos].data;
 	double * lon_line = (double *)param_list_show.param_list[lon_pos].data;
-	/* check 0 */
-	int j;
-	/*---------------------------------------*/
-	for( j = 0 ; j < param_list_show.param_list[lat_pos].point_num ; j ++ )
-	{
-		if( lat_line[j] != 0 && lon_line[j] != 0 )
-		{
-			break;
-		}
-	}
-	/*---------------------------------*/
-	if( j == param_list_show.param_list[lat_pos].point_num )
-	{
-		AfxMessageBox(_T("无可用数据！"));
-		return;
-	}
+	double * lane_pic_fc = (double *)param_list_show.param_list[lane_pic_pos].data;
 	/*---------------------------------------*/
 	if( mode == 0 )
 	{
@@ -2777,9 +2766,16 @@ void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode)//mode == 0 is sin
 	/*---------------------------------------*/
 	CSeries line = (CSeries)m_chart.Series(num);
     /*---------------------------------*/
-	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i += 2 )
+	double last_lane = 0;
+	/*---------------------------------------------------------------------------*/
+	for( int i = 0 ; i < param_list_show.param_list[lane_pic_pos].point_num ; i ++ )
 	{
-		line.AddXY(lat_line[i],lon_line[i],NULL,NULL);
+		if( last_lane != lane_pic_fc[i] )
+		{
+			last_lane = lane_pic_fc[i];
+
+			line.AddXY(lat_line[i],lon_line[i],NULL,NULL);
+		}
 	}
 	/*-------------------------*/
     /* show legend */
@@ -2790,7 +2786,7 @@ void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode)//mode == 0 is sin
 	char buffer[200];
 	memset(buffer,0,sizeof(buffer));
 	/*----------------------------*/
-	sprintf(buffer,"%s_gsof_axis",param_list_show.param_list[lat_pos].name);
+	sprintf(buffer,"%s_pic_axis",param_list_show.param_list[lat_pos].name);
 	/*----------------------------*/
 	CString show = A2T(buffer);
 	/*-----------------------------*/
@@ -2807,3 +2803,4 @@ void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode)//mode == 0 is sin
 	/*-----------*/
 	line.put_Color(cols);
 }
+#endif

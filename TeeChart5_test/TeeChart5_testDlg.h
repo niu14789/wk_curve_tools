@@ -161,7 +161,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
-	void CTeeChart5_testDlg::Position_axis_gsof(unsigned int mode);
+	void CTeeChart5_testDlg::Position_point_lane(unsigned int mode);
 	void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode);
 	void * CTeeChart5_testDlg::Get_2axis_source(unsigned int *num);
 	void * CTeeChart5_testDlg::Get_point_source(unsigned int *num);
