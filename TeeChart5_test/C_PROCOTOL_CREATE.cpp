@@ -116,6 +116,9 @@ int C_PROCOTOL_CREATE::get_string_edit( int id,void * data , unsigned int len )
 	char c_string[256];
     int len_t;
 
+	memset(get_cs,0,sizeof(get_cs));
+	memset(c_string,0,sizeof(c_string));
+
 	len_t = GetDlgItem(id)->GetWindowTextW(get_cs,512);
 
 	for( int i = 0 ; i < len_t ; i ++  )
@@ -551,6 +554,9 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 {
 	/* set math type and math value */
 	char math_buffer[64][64];
+	/* clear the buffer */
+	memset(DATA_COMBOX.param_data[index].buffer,0,sizeof(DATA_COMBOX.param_data[index].buffer));
+	/*------------------*/
 	int math_cnt = get_string_edit(IDC_EDIT17,DATA_COMBOX.param_data[index].buffer,sizeof(DATA_COMBOX.param_data[index].buffer));
 	/* memset */
 	memset(math_buffer,0,sizeof(math_buffer));
@@ -815,7 +821,6 @@ void C_PROCOTOL_CREATE::OnCbnSelchangeCombo1()
 	/* show buffer */
 	a_if.SetWindowTextW(show);
 }
-
 
 void C_PROCOTOL_CREATE::OnBnClickedButton24()
 {

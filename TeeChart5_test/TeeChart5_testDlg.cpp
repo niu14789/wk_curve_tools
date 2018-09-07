@@ -754,7 +754,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 			{
 			    memcpy( file_man.file[index].file_name , &file_man.file[index].file_path[ len_str - i ],i - len_point - 1);
 				/* point */
-				memcpy( file_man.file[index].file_point,&file_man.file[index].file_path[ len_str - len_point ],len_str - len_point);
+				memcpy( file_man.file[index].file_point,&file_man.file[index].file_path[ len_str - len_point ],len_point);
 			}else
 			{
 				file_man.file[index].file_enable = 0;
@@ -851,19 +851,29 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	param_list_show.now_num = 0;
 	start_addr = param_list_show.param_list_num;
 	/* get file name */
-	char file_name_buffer_t[12];
+	char file_name_buffer_tmp[64];
+	char file_point_buffer_tmp[32];
 	unsigned int len_fnb = 0;
+	unsigned int len_point_tmp = 0;
 	/*-------------------*/
-	memset(file_name_buffer_t,0,sizeof(file_name_buffer_t));
+	memset(file_name_buffer_tmp,0,sizeof(file_name_buffer_tmp));
+	memset(file_point_buffer_tmp,0,sizeof(file_point_buffer_tmp));
 	/* get file name len */
 	len_fnb = strlen(file_man.file[index].file_name);
+	len_point_tmp = strlen(file_man.file[index].file_point);
 	/* length than 8 ? */
 	if(  len_fnb > 8 )
 	{
        len_fnb = 8;
 	}
+	/* length than 32 */
+	if( len_point_tmp > 8 )
+	{
+		len_point_tmp = 8;
+	}
 	/* copy data */
-	memcpy(file_name_buffer_t,file_man.file[index].file_name,len_fnb);
+	memcpy(file_name_buffer_tmp,file_man.file[index].file_name,len_fnb);
+	memcpy(file_point_buffer_tmp,file_man.file[index].file_point,len_point_tmp);
 	/* get file size */
 	FILE * pf_read_log;
 	/* open */
@@ -884,7 +894,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	for( unsigned int i = 0 ; i < READ_CFS.cfs_global_msg.sample_num ; i ++ )
 	{
 		sprintf(param_list_show.param_list[param_list_show.param_list_num].name,"%s->%s",
-		file_name_buffer_t,READ_CFS.pmd[i].name);
+		file_name_buffer_tmp,READ_CFS.pmd[i].name);
 		/* add to combox */
 		show = A2T(param_list_show.param_list[param_list_show.param_list_num].name);
 		/*--------------*/
@@ -2599,6 +2609,9 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 			  case VK_F4:
 				  On32781();
 				  break;
+			  case VK_F5:
+				  reflush_chart();
+				  break;
 			  case VK_F7:
 				  Position_axis_bin(m_check_hold.GetCheck()?1:0);
 				  break;
@@ -2804,3 +2817,40 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	line.put_Color(cols);
 }
 #endif
+/*----------------------------------------------*/
+void CTeeChart5_testDlg::reflush_chart(void)
+{
+	int hold = m_check_hold.GetCheck()?1:0;
+	/* clear without clear line msg */
+	clear_all_line(1);
+	/*-----------------------------*/
+	param_list_show.param_list_num = 0;
+	/*-----------------------------*/
+	for( int j = 0 ; j < file_man.num ; j ++ )
+	{
+		if( file_man.file[j].file_enable == 1 )
+		{
+			/* do decode */
+	        Read_Procotol_decode_waves(j);
+			/* return ok */
+		}
+	}
+	/* redraw */
+	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( param_list_show.param_list[i].status == 0xff )
+		{
+			
+			/* has not show */
+			if( param_list_show.param_list_num )
+			{
+			  /*---------------------------------*/
+			  draw_single(i,hold);
+			}else if( COM.radio_status == 1 )
+			{
+				//============================
+				Get_line_group_index(i);
+			}
+		}
+	}
+}
