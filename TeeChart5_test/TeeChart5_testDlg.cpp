@@ -2694,7 +2694,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode)//mode == 0 is sing
     /*---------------------------------*/
 	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i += 2 )
 	{
-		line.AddXY(lat_line[i],lon_line[i],NULL,NULL);
+		line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
 	}
 	/*-------------------------*/
     /* show legend */
@@ -2787,7 +2787,7 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 		{
 			last_lane = lane_pic_fc[i];
 
-			line.AddXY(lat_line[i],lon_line[i],NULL,NULL);
+			line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
 		}
 	}
 	/*-------------------------*/
