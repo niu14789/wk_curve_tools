@@ -161,9 +161,13 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	int CTeeChart5_testDlg::pos_read_one_line(char * buffer,unsigned int len,char * dst,unsigned int dst_len);
+	int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode);
+	void * CTeeChart5_testDlg::Get_star_source(unsigned int *num);
+	void CTeeChart5_testDlg::standart_diviaton(unsigned int mode);
 	void CTeeChart5_testDlg::reflush_chart(void);
 	void CTeeChart5_testDlg::Position_point_lane(unsigned int mode);
-	void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode);
+	void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l);
 	void * CTeeChart5_testDlg::Get_2axis_source(unsigned int *num);
 	void * CTeeChart5_testDlg::Get_point_source(unsigned int *num);
 	void CTeeChart5_testDlg::m3d_display(void);

@@ -146,6 +146,7 @@
     <ClCompile Include="explorer1.cpp" />
     <ClCompile Include="fm_link.cpp" />
     <ClCompile Include="fm_link_lowlevel.cpp" />
+    <ClCompile Include="FPOS_DECODE.cpp" />
     <ClCompile Include="limit_setting.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="motor.cpp" />

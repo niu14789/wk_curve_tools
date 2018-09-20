@@ -108,6 +108,8 @@ void C_PROCOTOL_CREATE::OnBnClickedButton22()
 	memset(&DATA_COMBOX,0,sizeof(DATA_COMBOX));
 
 	m_global_protocol_name.SetWindowTextW(_T(""));
+
+	fp_cfs = NULL;
 }
 /* public function */
 int C_PROCOTOL_CREATE::get_string_edit( int id,void * data , unsigned int len )
@@ -199,6 +201,7 @@ void C_PROCOTOL_CREATE::OnBnClickedButton4()
 	char buffer[512];
 	int len;
 	/*---------*/
+	memset(buffer,0,sizeof(buffer));
     /* get global name */
     len = get_string_edit(IDC_EDIT2,buffer,512);
     /* le */
@@ -860,21 +863,56 @@ void C_PROCOTOL_CREATE::flush_cfs(unsigned int msg)
 		/* ok ? */
 		if( fp_cfs == NULL )
 		{
-			msg_out("文件创建失败");
-			/*---------------------*/
-			return;
+			CString show;
+			USES_CONVERSION;
+			/*---------------------------------------------*/
+			show = A2T(buffer);
+			/*---------------------------------------------*/
+			if( DeleteFile(show) == 0 )
+			{
+				/*---------------------------------------------*/
+				msg_out("文件无法删除");
+				/*---------------------*/
+				return;
+			}
+			/* create again */
+			fopen_s(&fp_cfs,buffer,"wb+");
+			/*-------------*/
+			if( fp_cfs == NULL )
+			{
+				msg_out("文件创建失败");
+				/*---------------------*/
+				return;
+			}
 		}
 	}else
 	{
-		fclose(fp_cfs);
 		/* create */
 		fopen_s(&fp_cfs,file_name_buffer,"wb+");
 		/* ok ? */
 		if( fp_cfs == NULL )
 		{
-			msg_out("文件创建失败");
-			/*---------------------*/
-			return;
+			CString show;
+			USES_CONVERSION;
+			/*---------------------------------------------*/
+			show = A2T(file_name_buffer);
+			/*---------------------------------------------*/
+			if( DeleteFile(show) == 0 )
+			{
+				/*---------------------------------------------*/
+				msg_out("文件无法删除");
+				/*---------------------*/
+				return;
+			}
+			/* create again */
+			fopen_s(&fp_cfs,file_name_buffer,"wb+");
+			/*-------------*/
+			if( fp_cfs == NULL )
+			{
+				msg_out("文件创建失败");
+				/*---------------------*/
+				return;
+			}
 		}
 	}
     /* start write */
@@ -920,10 +958,14 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 	{
 		msg_out("读取文件失败");
 		/*---------------------*/
+		fclose(fp_cfs);
+		/*---------------------*/
 		return;
 	}
 	/*----------------------*/
 	int len = fread(&CFG_CURRENT,1,sizeof(CFG_CURRENT),fp_cfs);
+	/*-----------------*/
+	fclose(fp_cfs);
 	/*  lose some data */
 	if( len == sizeof(CFG_CURRENT) )
 	{
@@ -937,7 +979,6 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 		if( CFG_CURRENT.pmd[i].cmd != 1 )
 		{
 			msg_out("数据块读取错误");
-			fclose(fp_cfs);
 			fp_cfs = NULL;
 			/*----------*/
 			return;

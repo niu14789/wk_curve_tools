@@ -7,7 +7,8 @@
 typedef struct 
 {
 	unsigned int file_enable;//0 is enaable
-	char file_path[256];
+	char file_path[512];
+	char file_tmp[512];
 	unsigned int default_procotol_type;
 	char file_name[32];
 	char file_point[32];
