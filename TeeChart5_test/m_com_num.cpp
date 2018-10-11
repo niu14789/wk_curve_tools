@@ -50,6 +50,8 @@ void m_com_num::DoDataExchange(CDataExchange* pDX)
 	{
 	    m_auto_link.SetCheck(0);
 	}
+	/*------------------------*/
+	m_baurate.SetCurSel(COM.com_bd);
     /*------------------------*/
 	if( open_flag )
 	{
@@ -94,8 +96,22 @@ void m_com_num::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	int seq = m_com.GetCurSel();
+	int bd = m_baurate.GetCurSel();
+	/*---------------*/
+	if( bd < 5 )
+	{
+		COM.com_bd = bd;
+	}else
+	{
+		AfxMessageBox(_T("不支持的波特率！"));
+		return;
+	}
 	/* open the gate */
-	ctm->Get_COM_STATUS(COM.com_detail[seq].com_det);
+	if( ctm->Get_COM_STATUS(COM.com_detail[seq].com_det) != 0 )
+	{
+		AfxMessageBox(_T("串口错误！"));
+		return;
+	}
 	/*---------*/
 	open_flag = 1;
 	/*---------------*/

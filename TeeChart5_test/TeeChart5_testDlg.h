@@ -156,6 +156,15 @@ typedef struct{
 	unsigned int inf[256];
 }SYSTEM_CONFIG_INF_DEF;
 
+typedef struct
+{
+	unsigned int auto_scale;
+	unsigned int smart_scale;
+	unsigned int enable;
+	double min;
+	double max;
+}SYSTEM_AUTO_SCALE_DEF;
+
 // CTeeChart5_testDlg ¶Ô»°¿ò
 class CTeeChart5_testDlg : public CDialogEx
 {

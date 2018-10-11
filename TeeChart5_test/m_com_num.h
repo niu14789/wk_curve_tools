@@ -11,6 +11,7 @@ typedef struct
 typedef struct
 {
   unsigned int com_num_using;
+  unsigned int com_bd;
   unsigned int seq;
   unsigned int auto_link;
   unsigned int opened;

@@ -21,6 +21,7 @@
 #include "motor.h"
 #include "CAspect.h"
 #include "CPoint3DSeries.h"
+#include "Auto_set.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -62,6 +63,8 @@ unsigned int pic_take_public_s = 0;
 unsigned int pic_take_now = 0;
 unsigned int pic_feedback_err = 0;
 unsigned int pic_feedback_ok = 0;
+/*------------------------------------*/
+SYSTEM_AUTO_SCALE_DEF auto_scale_g;
 /*------------------------------------*/
 motor motor_dlg;
 // ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
@@ -253,6 +256,8 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	}
 	/*----------------------*/
 	m_pic_cnt.SetCurSel(0);
+	/*----------------------*/
+	auto_scale_g.auto_scale = 1;
 	/* return */
 	return TRUE; 
 }
@@ -398,11 +403,29 @@ void CTeeChart5_testDlg::OnBnClickedButton4()
 
 	//chartaxis.put_Visible(0);
 
-	left_axis.put_Automatic(0);
+	//left_axis.put_Automatic(0);
 
-	left_axis.put_Maximum(2);
-	left_axis.put_Minimum(-2);
-
+	//left_axis.put_Maximum(2);
+	//left_axis.put_Minimum(-2);
+	Auto_set dl;
+	dl.DoModal();
+	/*------set scale------*/
+	if( auto_scale_g.auto_scale == 1 )
+	{
+		left_axis.put_Automatic(1);
+	}else
+	{
+		if( auto_scale_g.enable == 1 )
+		{
+			auto_scale_g.enable = 0;
+			/*--------------------*/
+			left_axis.put_Automatic(0);
+			/*------------------------*/
+			left_axis.put_Minimum(auto_scale_g.min);
+			left_axis.put_Maximum(auto_scale_g.max);
+		}
+	}
+	/*---------------------*/
 }
 
 
@@ -1602,7 +1625,10 @@ void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
 
 void CTeeChart5_testDlg::OnBnClickedButton5()
 {
-	
+	memset(&param_list_show,0,sizeof(param_list_show));
+	memset(&file_man,0,sizeof(file_man));
+	m_combox_param_show.ResetContent();
+	OnBnClickedButton8();
 }
 
 
@@ -1805,7 +1831,7 @@ int CTeeChart5_testDlg::open_mscomm(unsigned int num)
 		//	GetCommState(hCom,&DCB_U);
 		//}
 	/* some params */
-	static unsigned baudrate = 2;
+	unsigned int baudrate = COM.com_bd;
 	/*-------------------*/
     if( num != 0 )//has not opened
 	{
@@ -1824,16 +1850,22 @@ int CTeeChart5_testDlg::open_mscomm(unsigned int num)
 		/* set bandrate */
 		if( baudrate == 0 )
 		{
-           m_mscomm.put_Settings(_T("115200,n,8,1"));
+           m_mscomm.put_Settings(_T("9600,n,8,1"));
 		}else if( baudrate == 1 )
 		{
-           m_mscomm.put_Settings(_T("921600,n,8,1"));
+           m_mscomm.put_Settings(_T("57600,n,8,1"));
 		}else if( baudrate == 2 )
 		{
-           m_mscomm.put_Settings(_T("9600,n,8,1"));
+           m_mscomm.put_Settings(_T("115200,n,8,1"));
+		}else if( baudrate == 3 )
+		{
+           m_mscomm.put_Settings(_T("38400,n,8,1"));
+		}else if( baudrate == 4 )
+		{
+           m_mscomm.put_Settings(_T("961200,n,8,1"));
 		}else
 		{
-           m_mscomm.put_Settings(_T("115200,n,8,1"));
+			return (-1);
 		}
         /* get status */
         if (!m_mscomm.get_PortOpen())
@@ -1868,7 +1900,7 @@ void CTeeChart5_testDlg::OnBnClickedButton11()
 /* int get com_status */
 int CTeeChart5_testDlg::Get_COM_STATUS(unsigned int mode)
 {
-	unsigned int i;
+//	unsigned int i;
 	/*------------*/
 	Refresh_com_list();
 	/*------------*/
@@ -1887,37 +1919,37 @@ int CTeeChart5_testDlg::Get_COM_STATUS(unsigned int mode)
 		reflesh_global_status(1);
 	}
 	/*---------------*/
-	for( i = 0 ; i < COM.Available_com_num ; i ++ )
-	{
-		if( strstr(COM.com_detail[i].name,"Silabser") != NULL )
-		{
-			break;
-		}
-	}
-	/* if */
-	if( i == COM.Available_com_num )
-	{
-		if( COM.opened = 1 )
-		{
-			//reflesh the com status
-			COM.opened = 0;
-			/*----------*/
-			m_taps.SetWindowTextW(_T("提示信息：电台已断开连接......"));
-			/*----------*/
-			reflesh_global_status(0);
-		}
-		/* return */
-		return (-1);
-	}
+	//for( i = 0 ; i < COM.Available_com_num ; i ++ )
+	//{
+	//	if( strstr(COM.com_detail[i].name,"Silabser") != NULL )
+	//	{
+	//		break;
+	//	}
+	//}
+	///* if */
+	//if( i == COM.Available_com_num )
+	//{
+	//	if( COM.opened = 1 )
+	//	{
+	//		//reflesh the com status
+	//		COM.opened = 0;
+	//		/*----------*/
+	//		m_taps.SetWindowTextW(_T("提示信息：电台已断开连接......"));
+	//		/*----------*/
+	//		reflesh_global_status(0);
+	//	}
+	//	/* return */
+	//	return (-1);
+	//}
 	/* opened or not */
 	if( COM.opened == 0 )
 	{
 		/* we got the correct radio */
-		COM.com_num_using = COM.com_detail[i].com_det;
-		/*--------------------------*/
-		m_taps.SetWindowTextW(_T("提示信息：正在连接电台......"));
-		/*-------start time-------*/
-		reflesh_global_status(1);
+		//COM.com_num_using = COM.com_detail[i].com_det;
+		///*--------------------------*/
+		//m_taps.SetWindowTextW(_T("提示信息：正在连接电台......"));
+		///*-------start time-------*/
+		//reflesh_global_status(1);
 //		COM.opened = 1;//opened parse
 		/*------------------------*/
 	}
@@ -2818,7 +2850,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	/*---------------------------------------*/
 	CSeries line = (CSeries)m_chart.Series(num);
     /*---------------------------------*/
-	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i += 2 )
+	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i ++ )
 	{
 		line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
 	}
