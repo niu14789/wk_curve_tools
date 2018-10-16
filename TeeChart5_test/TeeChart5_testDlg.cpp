@@ -1287,7 +1287,22 @@ int CTeeChart5_testDlg::math_transfer(unsigned char * base,unsigned char * buffe
 			{
 				unsigned char red = ( unsigned char )READ_CFS.pmd[index].f_math[0];
 				/* */
-			    ret = (double)(red & tmp_buffer[0]);
+				unsigned char red_tmp = red & tmp_buffer[0];
+				/* right */
+				for( int i = 0 ; i < 8 ; i ++ )
+				{
+					if( red & 0x1 )
+					{
+						break;
+					}else
+					{
+						red_tmp >>= 1;
+					}
+					/*----------------*/
+					red >>= 1;
+				}
+				/*-------------------------*/
+			    ret = (double)(red_tmp);
 				/*--------*/
 				*value = ret;
 				/*--------*/
