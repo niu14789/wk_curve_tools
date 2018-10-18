@@ -158,11 +158,20 @@ typedef struct{
 
 typedef struct
 {
+    char title[64];
+	unsigned int index;
+	unsigned int opened;
 	unsigned int auto_scale;
-	unsigned int smart_scale;
 	unsigned int enable;
 	double min;
 	double max;
+}SYSTEM_LINE_CFS;
+
+typedef struct
+{
+	unsigned int global_auto;
+	unsigned int mutiple_axis;
+	SYSTEM_LINE_CFS line_cfg[20];
 }SYSTEM_AUTO_SCALE_DEF;
 
 // CTeeChart5_testDlg 对话框
@@ -170,6 +179,9 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // 构造
 public:
+	void CTeeChart5_testDlg::axis_reset(void);
+	void CTeeChart5_testDlg::axis_color(unsigned int num,unsigned int color,unsigned int mode);
+	void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int);
 	int CTeeChart5_testDlg::pos_read_one_line(char * buffer,unsigned int len,char * dst,unsigned int dst_len);
 	int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode);
 	void * CTeeChart5_testDlg::Get_star_source(unsigned int *num);

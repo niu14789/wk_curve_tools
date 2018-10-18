@@ -22,6 +22,13 @@
 #include "CAspect.h"
 #include "CPoint3DSeries.h"
 #include "Auto_set.h"
+#include "CEnvironment.h"
+#include "CAxisTitle.h"
+#include "CAxisTitle0.h"
+#include "CPen0.h"
+#include "CTeeFont.h"
+#include "CAxisLabels.h"
+#include "CAxisLabels0.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -67,6 +74,8 @@ unsigned int pic_feedback_ok = 0;
 SYSTEM_AUTO_SCALE_DEF auto_scale_g;
 /*------------------------------------*/
 motor motor_dlg;
+/*------------------------------------*/
+/*------------------------------------*/
 // ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
 
 class CAboutDlg : public CDialogEx
@@ -257,7 +266,18 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	/*----------------------*/
 	m_pic_cnt.SetCurSel(0);
 	/*----------------------*/
-	auto_scale_g.auto_scale = 1;
+	CEnvironment evn = m_chart.get_Environment();
+	evn.put_MouseWheelScroll(0);
+	/*----------------------*/
+	// should be read from files
+	auto_scale_g.mutiple_axis = 0;
+	auto_scale_g.global_auto = 0;
+	/*-------------------------*/
+	for(int i = 0 ; i < 20; i ++ )
+	{
+	  auto_scale_g.line_cfg[i].auto_scale = 1;
+	}
+	/* file end */
 	/* return */
 	return TRUE; 
 }
@@ -313,7 +333,45 @@ HCURSOR CTeeChart5_testDlg::OnQueryDragIcon()
 /*------------code------------*/
 void CTeeChart5_testDlg::OnBnClickedButton1()
 {
-
+	 CAxes chartaxis =(CAxes)m_chart.get_Axis();
+	 /*---------------------------------------*/
+	 CAxis axis,axis_bottom;
+	 /*---------------------------------------*/
+	 for( int i = 0 ; i < 19 ; i ++ )
+	 {
+		 if( avs[i] == 1 )
+		 {
+			if( i == 0 )
+			{
+				axis = (CAxis)chartaxis.get_Left();
+			}else
+			{
+				axis = (CAxis)chartaxis.get_Custom(i-1);
+			}
+			/*------set scale------*/
+			if( auto_scale_g.global_auto )
+			{
+				axis.put_Automatic(1);
+			}else
+			{
+				/*--- others ---------------------------------*/
+				if( auto_scale_g.line_cfg[i].auto_scale )
+				{
+					axis.put_Automatic(1);
+				}else
+				{
+					axis.put_Automatic(0);
+					axis.put_Minimum(auto_scale_g.line_cfg[i].min);
+					axis.put_Maximum(auto_scale_g.line_cfg[i].max);
+				}
+				/*---------------------------------------------*/
+			}
+		 }
+	 }
+	/*----------------------------*/
+	axis_bottom = (CAxis)chartaxis.get_Bottom();
+	axis_bottom.put_Automatic(1);
+	/*----------------------------*/
 }
 
 
@@ -337,7 +395,68 @@ void CTeeChart5_testDlg::OnBnClickedButton2()
 		param_list_show.param_list[num].color = cols;
 		/*---------------*/
 		line_cfs.put_Color(cols);
+		/* axis color */
+		axis_color(param_list_show.param_list[num].line_num,cols,0);
 	}
+}
+/* axis reset */
+void CTeeChart5_testDlg::axis_reset(void)
+{
+	CAxes chartaxis =(CAxes)m_chart.get_Axis();
+	CAxis axis;
+	/*--------------------------*/		
+	axis = (CAxis)chartaxis.get_Left();
+	/*------------------------------*/
+	axis.put_Visible(1);
+	/*------------------------------*/
+	axis_color(0,0,1);
+	/*------------------------------*/
+	CAxisTitle Custom_title = axis.get_Title();
+	Custom_title.put_Visible(0);
+	/*--------------------*/
+	axis.put_Automatic(1);
+	/* others line */
+	for( int i = 0 ; i < 20; i ++ )
+	{
+		axis = (CAxis)chartaxis.get_Custom(i);
+		/*----------------------------------*/
+		axis.put_Visible(0);
+		/*----------------------------------*/
+		axis.put_Automatic(1);
+	}
+}
+/*----------------------------------------------------------*/
+void CTeeChart5_testDlg::axis_color(unsigned int num,unsigned int color,unsigned int mode)
+{
+	if( auto_scale_g.mutiple_axis == 0 && mode == 0 )
+	{
+		return;
+	}
+	/* some defines */
+	CAxes chartaxis =(CAxes)m_chart.get_Axis();
+	CAxis Custom_axis;
+	/* show axis */
+	if( num >= 1 )
+	{
+		Custom_axis = (CAxis)chartaxis.get_Custom(num-1);
+	}else
+	{
+		Custom_axis = (CAxis)chartaxis.get_Left();
+	}
+	/* get title */
+	CAxisTitle Custom_title = Custom_axis.get_Title();
+	/* font set */
+	CTeeFont font = Custom_title.get_Font();
+	font.put_Color(color);
+	/*--------------------------------*/
+	CPen0 pen = Custom_axis.get_AxisPen(); 
+	/*--------------------------------*/
+	pen.put_Color(color);
+	/*-------------------------------*/
+	CAxisLabels label = Custom_axis.get_Labels();
+	font = label.get_Font();
+	font.put_Color(color);
+	/*---------------------------------*/
 }
 
 void CTeeChart5_testDlg::page_show(unsigned int now,unsigned int total)
@@ -399,42 +518,88 @@ void CTeeChart5_testDlg::OnBnClickedButton4()
 {
    	CAxes chartaxis =(CAxes)m_chart.get_Axis();
 	
-	CAxis left_axis = (CAxis)chartaxis.get_Left();
-
-	//chartaxis.put_Visible(0);
-
-	//left_axis.put_Automatic(0);
-
-	//left_axis.put_Maximum(2);
-	//left_axis.put_Minimum(-2);
+	CAxis axis = (CAxis)chartaxis.get_Left();
+	/*----------------------------------*/
+	int axis_changed = auto_scale_g.mutiple_axis;
+	/*----------------------------------*/
 	Auto_set dl;
 	dl.DoModal();
 	/*------set scale------*/
-	if( auto_scale_g.auto_scale == 1 )
+	if( auto_scale_g.global_auto )
 	{
-		left_axis.put_Automatic(1);
+		axis.put_Automatic(1);
+		/*----------------------*/
+		for( int i = 0 ; i < 20 ; i ++ )
+		{
+			axis = (CAxis)chartaxis.get_Custom(i);
+			/* put automatic */
+			axis.put_Automatic(1);
+		}
 	}else
 	{
-		if( auto_scale_g.enable == 1 )
+		if( auto_scale_g.line_cfg[0].auto_scale )
 		{
-			auto_scale_g.enable = 0;
-			/*--------------------*/
-			left_axis.put_Automatic(0);
-			/*------------------------*/
-			left_axis.put_Minimum(auto_scale_g.min);
-			left_axis.put_Maximum(auto_scale_g.max);
+			axis.put_Automatic(1);
+		}else
+		{
+			axis.put_Automatic(0);
+			axis.put_Minimum(auto_scale_g.line_cfg[0].min);
+			axis.put_Maximum(auto_scale_g.line_cfg[0].max);
 		}
+		/*--- others ---------------------------------*/
+		for( int i = 0 ; i < 19 ; i ++ )
+		{
+			axis = (CAxis)chartaxis.get_Custom(i);
+			/*---------------------------------*/
+			if( auto_scale_g.line_cfg[i+1].auto_scale )
+			{
+				axis.put_Automatic(1);
+			}else
+			{
+				axis.put_Automatic(0);
+				axis.put_Minimum(auto_scale_g.line_cfg[i+1].min);
+				axis.put_Maximum(auto_scale_g.line_cfg[i+1].max);
+			}
+		}
+		/*---------------------------------------------*/
 	}
-	/*---------------------*/
+	/*-------------------------------------------------*/
+	if( axis_changed != auto_scale_g.mutiple_axis )
+	{
+		reflush_chart();
+	}
+	/*-------------------------------------------------*/
 }
 
 
 void CTeeChart5_testDlg::OnBnClickedButton6()
 {
-	/* get cline_num;*/
-	int seq = m_combox_param_show.GetCurSel();
+	/*------------------------------*/
+	for( int i = 0 ; i < 20 ; i ++ )
+	{
+		if( avs[20-i-1] == 1 )
+		{
+			/* clear */
+			for( int j = 0 ; j < param_list_show.param_list_num ; j++ )
+			{
+				if( param_list_show.param_list[j].status == 0xff )
+				{
+					if( param_list_show.param_list[j].line_num == 20-i-1 )
+					{
+						release_current_line(j);
+						/*--------------------------*/
+
+						/*--------------------------*/
+					}
+				}
+			}
+			/*----------------------*/
+			break;
+			/*---------------------*/
+			
+		}
+	}
 	/* clear */
-	release_current_line(seq);
 }
 
 
@@ -1492,6 +1657,27 @@ void CTeeChart5_testDlg::release_current_line(unsigned int num)
 		line_cfs.put_ShowInLegend(0);
 		avs[param_list_show.param_list[num].line_num] = 0;
 		param_list_show.param_list[num].status = 0;
+		/*-----------------------*/
+		if( auto_scale_g.mutiple_axis )
+		{
+			/*---------------------------*/
+			CAxes chartaxis =(CAxes)m_chart.get_Axis();
+			CAxis axis;
+			/*---------------------------*/
+			if( param_list_show.param_list[num].line_num >= 1 )
+			{
+				 /*---------------------------------------------------*/
+				 axis = (CAxis)chartaxis.get_Custom( param_list_show.param_list[num].line_num - 1 );
+				 /*---------------------------------------------------*/
+				 axis.put_Visible(0);
+			}else
+			{
+				axis_reset();
+			}
+		}
+		/*--------------------------*/
+		auto_scale_g.line_cfg[param_list_show.param_list[num].line_num].opened = 0;
+		/*--------------------------*/
 	}
 }
 /*----------------------------*/
@@ -1521,6 +1707,10 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 		line_cfs.Clear();
 		line_cfs.put_ShowInLegend(0);
 		avs[i] = 0;
+		if( i < 20 )
+		{
+			auto_scale_g.line_cfg[i].opened = 0;
+		}
 	}
 	/*----------------*/
 	if( mode == 0 )
@@ -1532,6 +1722,82 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 	}
 	/*--------------*/
     Legend_handle(0);//hide
+	/* axis hide */
+    if( auto_scale_g.mutiple_axis )
+	{
+		CAxes chartaxis =(CAxes)m_chart.get_Axis();
+		/* for loop */
+		for( unsigned int i = 0 ; i < 20 ; i ++ )
+		{
+			/*---------------------------------------------------*/
+			CAxis axis = (CAxis)chartaxis.get_Custom( i );
+			/*---------------------------------------------------*/
+			axis.put_Visible(0);
+		}
+		/*---------------------------------------------------*/
+		axis_reset();
+		/*---------------------------------------------------*/
+	}
+	/*-----------*/
+	if( mode == 1 )
+	{
+		axis_reset();
+	}
+}
+/*--------------------------*/
+void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int mode)
+{
+	/* mutiple axis supple flags */
+	if( auto_scale_g.mutiple_axis == 0 && mode == 0 )
+	{
+		CSeries * line_now = (CSeries *)line;
+		line_now->put_VerticalAxis(0);
+		return;
+	}
+	/*-----------------------------*/
+	CAxes chartaxis =(CAxes)m_chart.get_Axis();
+	CAxis Custom_axis;
+	CAxisTitle Custom_title;
+	CTeeFont font;
+	CPen0 pen;
+	CAxisLabels label;
+	/* define lines */
+	CSeries * line_now = (CSeries *)line;
+	/* show axis */
+	if( num >= 1 )
+	{
+		/* get axis */
+		Custom_axis = (CAxis)chartaxis.get_Custom(num-1);
+	}else
+	{
+		Custom_axis = (CAxis)chartaxis.get_Left();
+	}
+	/* set position */
+	Custom_axis.put_PositionPercent(num*6);
+	/* get title */
+	Custom_title = Custom_axis.get_Title();
+	/* put vision */
+	Custom_axis.put_Visible(1);
+	/*-------------------*/
+	Custom_title.put_Caption(*title);
+	Custom_title.put_Angle(90);
+	Custom_title.put_Visible(1);
+	/* font set */
+	font = Custom_title.get_Font();
+	font.put_Color(color);
+	font.put_Size(13);
+	font.put_Bold(TRUE);
+	/*--------------------------------*/
+	pen = Custom_axis.get_AxisPen(); 
+	/*--------------------------------*/
+	pen.put_Color(color);
+	/*-------------------------------*/
+	label = Custom_axis.get_Labels();
+	font = label.get_Font();
+	font.put_Color(color);
+	/*-------------------------------*/
+	line_now->put_VerticalAxisCustom(num-1);
+	/*-------------------------------*/
 }
 /*--------------------------*/
 void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode)
@@ -1566,6 +1832,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode)
 	{
 		line_cfs.Clear();//clear 
 	}
+	/* get axis */
 	/*--------------------------*/
 	double *line_data = (double *)param_list_show.param_list[num].data;
 	/*------init------*/
@@ -1617,6 +1884,21 @@ void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode)
 	line_cfs.put_ShowInLegend(1);
 	/* put color */
 	line_cfs.put_Color(cols);
+	/*---------------------*/
+	draw_axis(line_num,&line_cfs,&show,cols,0);
+	/*---------------------*/
+	auto_scale_g.line_cfg[line_num].opened = 1;
+	int len_name;
+	if( strlen(param_list_show.param_list[num].name) > 64 )
+	{
+		len_name = 64;
+	}else
+	{
+		len_name = strlen(param_list_show.param_list[num].name);
+	}
+	/*------------------------------------------------------------------------------------*/
+	memcpy(auto_scale_g.line_cfg[line_num].title,param_list_show.param_list[num].name,len_name);
+	/*---------------------*/
 }
 /*---------------------------------------------*/
 void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
