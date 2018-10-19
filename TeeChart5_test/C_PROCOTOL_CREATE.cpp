@@ -115,20 +115,18 @@ void C_PROCOTOL_CREATE::OnBnClickedButton22()
 int C_PROCOTOL_CREATE::get_string_edit( int id,void * data , unsigned int len )
 {
 	wchar_t get_cs[512];
-	char c_string[256];
     int len_t;
-
+	/*--------------------*/
 	memset(get_cs,0,sizeof(get_cs));
-	memset(c_string,0,sizeof(c_string));
-
+	/*--------------------*/
 	len_t = GetDlgItem(id)->GetWindowTextW(get_cs,512);
-
-	for( int i = 0 ; i < len_t ; i ++  )
-	{
-		c_string[i] = (char)get_cs[i];
-	}
+    /*--------------------*/
+	/* transfer */
+	USES_CONVERSION;
+	/* transfer */
+	char * path_c = T2A(get_cs);
 	/*----------------------*/
-	memcpy(data,c_string,len_t);
+	memcpy(data,path_c,strlen(path_c));
 	/*----------------------*/
 	return len_t;
 }

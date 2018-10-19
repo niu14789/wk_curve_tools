@@ -75,6 +75,7 @@ SYSTEM_AUTO_SCALE_DEF auto_scale_g;
 /*------------------------------------*/
 motor motor_dlg;
 /*------------------------------------*/
+static unsigned int color_index = 0;
 /*------------------------------------*/
 // ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
 
@@ -384,13 +385,13 @@ void CTeeChart5_testDlg::OnBnClickedButton2()
 	/*-----------------------*/
 	if( param_list_show.param_list[num].status != 0 )
 	{
-		srand(time(NULL));
-		/*------*/
-		unsigned int colorR = rand()%0xff;
-		unsigned int colorG = rand()%0xff;
-		unsigned int colorB = rand()%0xff;
-		/*-----------*/
-		unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+		//srand(time(NULL));
+		///*------*/
+		//unsigned int colorR = rand()%0xff;
+		//unsigned int colorG = rand()%0xff;
+		//unsigned int colorB = rand()%0xff;
+		///*-----------*/
+		unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 		/*---------------*/
 		param_list_show.param_list[num].color = cols;
 		/*---------------*/
@@ -424,6 +425,8 @@ void CTeeChart5_testDlg::axis_reset(void)
 		/*----------------------------------*/
 		axis.put_Automatic(1);
 	}
+	/*----------------*/
+	color_index = 0;
 }
 /*----------------------------------------------------------*/
 void CTeeChart5_testDlg::axis_color(unsigned int num,unsigned int color,unsigned int mode)
@@ -511,7 +514,7 @@ void CTeeChart5_testDlg::move_test(void)
 }
 void CTeeChart5_testDlg::OnBnClickedButton3()
 {
-
+	AfxMessageBox(_T("功能开发中"));
 }
 
 void CTeeChart5_testDlg::OnBnClickedButton4()
@@ -588,7 +591,10 @@ void CTeeChart5_testDlg::OnBnClickedButton6()
 					{
 						release_current_line(j);
 						/*--------------------------*/
-
+						if( color_index > 0 )
+						{
+							color_index --;
+						}
 						/*--------------------------*/
 					}
 				}
@@ -1140,8 +1146,8 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	/*---------------param_list------------*/
 	for( unsigned int i = 0 ; i < READ_CFS.cfs_global_msg.sample_num ; i ++ )
 	{
-		sprintf(param_list_show.param_list[param_list_show.param_list_num].name,"%s->%s",
-		file_name_buffer_tmp,READ_CFS.pmd[i].name);
+		sprintf(param_list_show.param_list[param_list_show.param_list_num].name,"%s:%s->%s",
+		file_man.file[index].file_point,file_name_buffer_tmp,READ_CFS.pmd[i].name);
 		/* add to combox */
 		show = A2T(param_list_show.param_list[param_list_show.param_list_num].name);
 		/*--------------*/
@@ -1743,6 +1749,9 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 	{
 		axis_reset();
 	}
+	/*------------------*/
+	color_index = 0;
+	/*------------------*/
 }
 /*--------------------------*/
 void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int mode)
@@ -1773,7 +1782,7 @@ void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title 
 		Custom_axis = (CAxis)chartaxis.get_Left();
 	}
 	/* set position */
-	Custom_axis.put_PositionPercent(num*6);
+	Custom_axis.put_PositionPercent(num*3);
 	/* get title */
 	Custom_title = Custom_axis.get_Title();
 	/* put vision */
@@ -1791,10 +1800,12 @@ void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title 
 	pen = Custom_axis.get_AxisPen(); 
 	/*--------------------------------*/
 	pen.put_Color(color);
+	pen.put_Width(2);
 	/*-------------------------------*/
 	label = Custom_axis.get_Labels();
 	font = label.get_Font();
 	font.put_Color(color);
+	font.put_Bold(TRUE);
 	/*-------------------------------*/
 	line_now->put_VerticalAxisCustom(num-1);
 	/*-------------------------------*/
@@ -1860,13 +1871,13 @@ void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode)
 	/* show the line */
 	line_cfs.AddArray(param_list_show.param_list[num].point_num,YValue,XValue);
 	/*------------*/
-	srand(time(NULL));
+	//srand(time(NULL));
+	///*-----------*/
+	//unsigned int colorR = (unsigned char)rand();
+	//unsigned int colorG = (unsigned char)rand();
+	//unsigned int colorB = (unsigned char)rand();
 	/*-----------*/
-	unsigned int colorR = (unsigned char)rand();
-	unsigned int colorG = (unsigned char)rand();
-	unsigned int colorB = (unsigned char)rand();
-	/*-----------*/
-	unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*---------------*/
 	param_list_show.param_list[num].color = cols;
 	param_list_show.param_list[num].status = 0xff;//has not drawed
@@ -3174,13 +3185,13 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	/* show legend */
 	line.put_ShowInLegend(1);
 	/* put color */
-	srand(time(NULL));
+	//srand(time(NULL));
+	///*-----------*/
+	//unsigned int colorR = (unsigned char)rand();
+	//unsigned int colorG = (unsigned char)rand();
+	//unsigned int colorB = (unsigned char)rand();
 	/*-----------*/
-	unsigned int colorR = (unsigned char)rand();
-	unsigned int colorG = (unsigned char)rand();
-	unsigned int colorB = (unsigned char)rand();
-	/*-----------*/
-	unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*-----------*/
 	line.put_Color(cols);
 }
@@ -3269,13 +3280,13 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	/* show legend */
 	line.put_ShowInLegend(1);
 	/* put color */
-	srand(time(NULL));
+	//srand(time(NULL));
+	///*-----------*/
+	//unsigned int colorR = (unsigned char)rand();
+	//unsigned int colorG = (unsigned char)rand();
+	//unsigned int colorB = (unsigned char)rand();
 	/*-----------*/
-	unsigned int colorR = (unsigned char)rand();
-	unsigned int colorG = (unsigned char)rand();
-	unsigned int colorB = (unsigned char)rand();
-	/*-----------*/
-	unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*-----------*/
 	line.put_Color(cols);
 }
@@ -3347,13 +3358,13 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 	line.put_ShowInLegend(1);
 	/* put color */
 	/*-----------*/
-	srand(time(NULL));
-	/*--------------------------------------*/
-	unsigned int colorR = (unsigned char)rand();
-	unsigned int colorG = (unsigned char)rand();
-	unsigned int colorB = (unsigned char)rand();
+	//srand(time(NULL));
+	///*--------------------------------------*/
+	//unsigned int colorR = (unsigned char)rand();
+	//unsigned int colorG = (unsigned char)rand();
+	//unsigned int colorB = (unsigned char)rand();
 	/*-----------*/
-	unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*-----------*/
 	line.put_Color(cols);
 }
@@ -3398,4 +3409,40 @@ void CTeeChart5_testDlg::reflush_chart(void)
 			}
 		}
 	}
+}
+/* get color */
+unsigned int CTeeChart5_testDlg::get_color(unsigned int mode)
+{
+	/*------------------------------*/
+	unsigned int color_tabal[7] = {0x1BC700,0xFEB610,0xFF0000,0x0,0xBA398E,0x1044F3,0x2EA8ED};
+	/*------------*/
+	unsigned int color_tmp;
+	//	srand(time(NULL));
+	///*-----------*/
+	//unsigned int colorR = (unsigned char)rand();
+	//unsigned int colorG = (unsigned char)rand();
+	//unsigned int colorB = (unsigned char)rand();
+	/*--------------*/
+	if( color_index< 7 )
+	{
+		srand(time(NULL));
+		/*-----------*/
+		unsigned int fucse = rand() % 10 ;
+		/*-----------------------------*/
+		color_tmp = color_tabal[color_index];
+	}else
+	{
+		srand(time(NULL));
+		/*-----------*/
+		unsigned int colorR = (unsigned char)rand();
+		unsigned int colorG = (unsigned char)rand();
+		unsigned int colorB = (unsigned char)rand();
+		unsigned long cols = (colorB<<16)|(colorG<<8)|(colorR);
+		/*----------------*/
+		color_tmp = cols;
+	}
+	/*-------------------------*/
+	color_index++;
+	/*------------------------*/
+	return color_tmp;
 }

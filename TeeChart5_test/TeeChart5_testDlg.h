@@ -179,6 +179,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	unsigned int CTeeChart5_testDlg::get_color(unsigned int mode);
 	void CTeeChart5_testDlg::axis_reset(void);
 	void CTeeChart5_testDlg::axis_color(unsigned int num,unsigned int color,unsigned int mode);
 	void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int);
