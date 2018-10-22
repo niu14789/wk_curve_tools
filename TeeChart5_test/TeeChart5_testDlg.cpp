@@ -278,6 +278,8 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	{
 	  auto_scale_g.line_cfg[i].auto_scale = 1;
 	}
+	/*----------*/
+	create_color_table();
 	/* file end */
 	/* return */
 	return TRUE; 
@@ -585,7 +587,7 @@ void CTeeChart5_testDlg::OnBnClickedButton6()
 			/* clear */
 			for( int j = 0 ; j < param_list_show.param_list_num ; j++ )
 			{
-				if( param_list_show.param_list[j].status == 0xff )
+				if( param_list_show.param_list[j].status != 0 )
 				{
 					if( param_list_show.param_list[j].line_num == 20-i-1 )
 					{
@@ -622,6 +624,9 @@ void CTeeChart5_testDlg::OnBnClickedButton8()
 		last_sd = 0;
 		lat_pos_point = 0;
 	}
+	/* recreative the color table */
+	create_color_table();
+	/*----------------------------*/
 }
 
 void CTeeChart5_testDlg::check_list_show(unsigned char flags)
@@ -1656,7 +1661,7 @@ void * CTeeChart5_testDlg::Get_star_source(unsigned int *num)
 void CTeeChart5_testDlg::release_current_line(unsigned int num)
 {
 	/* has drawed . then clear */
-	if( param_list_show.param_list[num].status != 0 )
+	if( param_list_show.param_list[num].status == 0xff )
 	{
 		CSeries line_cfs = (CSeries)m_chart.Series(param_list_show.param_list[num].line_num);
 		line_cfs.Clear();
@@ -1725,6 +1730,15 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 		{
 			param_list_show.param_list[i].status = 0;
 		}
+	}else
+	{
+		for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+		{
+			if( param_list_show.param_list[i].status == 0xff )
+			{
+				param_list_show.param_list[i].status = 0xFE;
+			}
+		}
 	}
 	/*--------------*/
     Legend_handle(0);//hide
@@ -1751,7 +1765,9 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 	}
 	/*------------------*/
 	color_index = 0;
-	/*------------------*/
+	/* recreative the color table */
+	create_color_table();
+	/*----------------------------*/
 }
 /*--------------------------*/
 void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int mode)
@@ -1782,7 +1798,7 @@ void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title 
 		Custom_axis = (CAxis)chartaxis.get_Left();
 	}
 	/* set position */
-	Custom_axis.put_PositionPercent(num*3);
+	Custom_axis.put_PositionPercent(num*4);
 	/* get title */
 	Custom_title = Custom_axis.get_Title();
 	/* put vision */
@@ -3157,7 +3173,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	}
 	/*---------------------------------------*/
 	CSeries line = (CSeries)m_chart.Series(num);
-    /*---------------------------------*/
+	/*---------------------------------*/
 	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i ++ )
 	{
 		line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
@@ -3194,6 +3210,9 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*-----------*/
 	line.put_Color(cols);
+	/*------------*/
+	///* get axis */
+	//draw_axis(num,&line,&show,cols,0);
 }
 # if 1
 /* gsof */
@@ -3251,7 +3270,7 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	}
 	/*---------------------------------------*/
 	CSeries line = (CSeries)m_chart.Series(num);
-    /*---------------------------------*/
+	/*---------------------------------*/
 	double last_lane = 0;
 	/*---------------------------------------------------------------------------*/
 	for( int i = 0 ; i < param_list_show.param_list[lane_pic_pos].point_num ; i ++ )
@@ -3289,6 +3308,8 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*-----------*/
 	line.put_Color(cols);
+	///* get axis */
+	//draw_axis(num,&line,&show,cols,0);
 }
 #endif
 void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
@@ -3331,7 +3352,7 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 	}
 	/*---------------------------------------*/
 	CSeries line = (CSeries)m_chart.Series(num);
-    /*---------------------------------*/
+	/*---------------------------------*/
 	double sd_last = 0;
 	/*---------------------------------------------------------------------------*/
 	for( int i = 0 ; i < param_list_show.param_list[sd_pos].point_num - 1; i ++ )
@@ -3367,6 +3388,8 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*-----------*/
 	line.put_Color(cols);
+	///* get axis */
+	//draw_axis(num,&line,&show,cols,0);
 }
 /*----------------------------------------------*/
 void CTeeChart5_testDlg::reflush_chart(void)
@@ -3379,6 +3402,14 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	lane_last_postion = 0;
 	last_sd = 0;
 	lat_pos_point = 0;
+	/* release the memeries */
+	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( param_list_show.param_list[i].data != NULL )
+		{
+			free(param_list_show.param_list[i].data);
+		}
+	}
 	/*-----------------------------*/
 	param_list_show.param_list_num = 0;
 	/*-----------------------------*/
@@ -3394,7 +3425,7 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	/* redraw */
 	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
-		if( param_list_show.param_list[i].status == 0xff )
+		if( param_list_show.param_list[i].status != 0 )
 		{
 			
 			/* has not show */
@@ -3408,13 +3439,16 @@ void CTeeChart5_testDlg::reflush_chart(void)
 				Get_line_group_index(i);
 			}
 		}
+		/*----------------------------*/
+		/*----------------------------*/
 	}
 }
+/*------------------------------*/
+static unsigned int color_tabal[7];
+const unsigned int color_tabal_tmp[7] = {0x1BC700,0xFEB610,0xFF0000,0x0,0xBA398E,0x1044F3,0x2EA8ED};
 /* get color */
 unsigned int CTeeChart5_testDlg::get_color(unsigned int mode)
 {
-	/*------------------------------*/
-	unsigned int color_tabal[7] = {0x1BC700,0xFEB610,0xFF0000,0x0,0xBA398E,0x1044F3,0x2EA8ED};
 	/*------------*/
 	unsigned int color_tmp;
 	//	srand(time(NULL));
@@ -3445,4 +3479,20 @@ unsigned int CTeeChart5_testDlg::get_color(unsigned int mode)
 	color_index++;
 	/*------------------------*/
 	return color_tmp;
+}
+/* create the color table */
+void CTeeChart5_testDlg::create_color_table(void)
+{
+	srand(time(NULL));
+	unsigned int tmp;
+	/*-----------*/
+	for( int i = 0 ; i < 7 ; i++ )
+	{
+		tmp = rand() % 7;
+	}
+	/*---------------*/
+	for( int i = 0 ; i < 7 ; i++ )
+	{
+		color_tabal[i] = color_tabal_tmp[(i+tmp)%7];
+	}
 }
