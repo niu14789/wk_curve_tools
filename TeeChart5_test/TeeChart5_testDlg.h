@@ -179,6 +179,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::create_version_line(unsigned int mode);
 	void CTeeChart5_testDlg::create_color_table(void);
 	unsigned int CTeeChart5_testDlg::get_color(unsigned int mode);
 	void CTeeChart5_testDlg::axis_reset(void);
@@ -258,7 +259,7 @@ public:
 	int CTeeChart5_testDlg::allocate_file_area( char * path , unsigned int len);
 	void CTeeChart5_testDlg::clear_all_line(unsigned int mode);
 	void CTeeChart5_testDlg::chart_line_init(void);
-	void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode);
+	void CTeeChart5_testDlg::draw_single(unsigned int num);
 	void CTeeChart5_testDlg::Line_flash(void);
 	void CTeeChart5_testDlg::release_current_line(unsigned int num);
 	void * CTeeChart5_testDlg::Get_line_source(unsigned int *mode);

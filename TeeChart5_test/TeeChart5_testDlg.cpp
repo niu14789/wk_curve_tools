@@ -77,6 +77,8 @@ motor motor_dlg;
 /*------------------------------------*/
 static unsigned int color_index = 0;
 /*------------------------------------*/
+static unsigned int version_ctrl = 0;
+/*------------------------------------*/
 // ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
 
 class CAboutDlg : public CDialogEx
@@ -585,7 +587,7 @@ void CTeeChart5_testDlg::OnBnClickedButton6()
 		if( avs[20-i-1] == 1 )
 		{
 			/* clear */
-			for( int j = 0 ; j < param_list_show.param_list_num ; j++ )
+			for( unsigned int j = 0 ; j < param_list_show.param_list_num ; j++ )
 			{
 				if( param_list_show.param_list[j].status != 0 )
 				{
@@ -623,6 +625,7 @@ void CTeeChart5_testDlg::OnBnClickedButton8()
 		lane_last_postion = 0;
 		last_sd = 0;
 		lat_pos_point = 0;
+		version_ctrl = 0;
 	}
 	/* recreative the color table */
 	create_color_table();
@@ -1023,7 +1026,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	{
 		char buffer_other[1024];
 
-		sprintf(buffer_other,"D200_%s.CFS",file_man.file[index].file_point);
+		sprintf_s(buffer_other,"D200_%s.CFS",file_man.file[index].file_point);
 
 		/* open */
 		fopen_s(&pf_cfs_file,buffer_other,"rb");
@@ -1032,7 +1035,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		{
 			char buffer_tmp[1024];
 
-			sprintf(buffer_tmp,"找不到.%s文件对应的配置文件%s",file_man.file[index].file_point,buffer_other);
+			sprintf_s(buffer_tmp,"找不到.%s文件对应的配置文件%s",file_man.file[index].file_point,buffer_other);
 
 			CString d = A2T(buffer_tmp);
 
@@ -1151,7 +1154,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	/*---------------param_list------------*/
 	for( unsigned int i = 0 ; i < READ_CFS.cfs_global_msg.sample_num ; i ++ )
 	{
-		sprintf(param_list_show.param_list[param_list_show.param_list_num].name,"%s:%s->%s",
+		sprintf_s(param_list_show.param_list[param_list_show.param_list_num].name,"%s:%s->%s",
 		file_man.file[index].file_point,file_name_buffer_tmp,READ_CFS.pmd[i].name);
 		/* add to combox */
 		show = A2T(param_list_show.param_list[param_list_show.param_list_num].name);
@@ -1827,8 +1830,9 @@ void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title 
 	/*-------------------------------*/
 }
 /*--------------------------*/
-void CTeeChart5_testDlg::draw_single(unsigned int num,unsigned int mode)
+void CTeeChart5_testDlg::draw_single(unsigned int num)
 {
+	unsigned int mode = m_check_hold.GetCheck()?1:0;
     /* number */
     unsigned int line_num;
 	/* safearray */
@@ -1932,13 +1936,11 @@ void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
 {
 	/* get cline_num;*/
 	int seq = m_combox_param_show.GetCurSel();
-	/*---------------------------------*/
-	int hold = m_check_hold.GetCheck()?1:0;
 	/* has not show */
 	if( param_list_show.param_list_num )
 	{
 	  /*---------------------------------*/
-	  draw_single(seq,hold);
+	  draw_single(seq);
 	}else if( COM.radio_status == 1 )
 	{
 		//============================
@@ -1952,6 +1954,13 @@ void CTeeChart5_testDlg::OnBnClickedButton5()
 	memset(&param_list_show,0,sizeof(param_list_show));
 	memset(&file_man,0,sizeof(file_man));
 	m_combox_param_show.ResetContent();
+	/*-----------------------------*/
+	memset(last_dou,0,sizeof(last_dou));
+	/*-----------------------------*/
+	CString show = _T("<可绘制曲线的参数列表>");
+	m_combox_param_show.AddString(show);
+	m_combox_param_show.SetCurSel(0);
+	/*-----------------------------*/
 	OnBnClickedButton8();
 }
 
@@ -2713,7 +2722,7 @@ void CTeeChart5_testDlg::take_pic_btn_event(unsigned int otk)
 		/*--------------------------*/
 		char buffer[100];
 		/*--------------------------*/
-		sprintf(buffer,"停止(%d）",pic_take_now);
+		sprintf_s(buffer,"停止(%d）",pic_take_now);
 		/*--------------------------*/
 		CString show;
 		USES_CONVERSION;
@@ -2816,7 +2825,7 @@ void CTeeChart5_testDlg::pic_feedback_show(void)
 	/* show */
 	char buffer[100];
 	/*--------------------------*/
-	sprintf(buffer,"%d",pic_feedback_ok);
+	sprintf_s(buffer,"%d",pic_feedback_ok);
 	/*--------------------------*/
 	CString show;
 	USES_CONVERSION;
@@ -2950,23 +2959,23 @@ void CTeeChart5_testDlg::Arm_Distortion(char * path,unsigned int if_check)
 	/* Arm_DsTn_cnt */
 	if( Arm_DsTn_cnt < 20 )
 	{
-      sprintf(result_buffer,"起飞时间不够");
+      sprintf_s(result_buffer,"起飞时间不够");
 	}else
 	{
 		/*---------------*/
 		if( (float)ctrlsum < 0.5f )
 		{
-			sprintf(result_buffer,"优秀");
+			sprintf_s(result_buffer,"优秀");
 		}else if( (float)ctrlsum < 1.0f )
-		{
-			sprintf(result_buffer,"及格");
+		{ 
+			sprintf_s(result_buffer,"及格");
 		}else
 		{
-			sprintf(result_buffer,"已变形");
+			sprintf_s(result_buffer,"已变形");
 		}
 	}
 	/* show the msg */
-	sprintf(show_buffer,"%f , 自动判断：%s", (float)ctrlsum,result_buffer);
+	sprintf_s(show_buffer,"%f , 自动判断：%s", (float)ctrlsum,result_buffer);
     CString show;
     USES_CONVERSION;
 	/*--------------*/
@@ -3055,6 +3064,10 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  break;
 			  case VK_F9:
 				  standart_diviaton(m_check_hold.GetCheck()?1:0);
+			  case 0x56:
+				  /* show version . one by one */
+				  create_version_line(0);
+				  /*---------------------------*/
 			  default:
 				  break;
 		  }
@@ -3072,7 +3085,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	/* find the lat and lon in param list */
 	if( p_or_l == 0 )
 	{
-		for( int i = last_postion ; i < param_list_show.param_list_num ; i ++ )
+		for( unsigned int i = last_postion ; i < param_list_show.param_list_num ; i ++ )
 		{
 			if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT") != NULL )
 			{
@@ -3098,7 +3111,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 		}
 	}else if( p_or_l == 1 )
 	{
-		for( int i = lat_pos_point ; i < param_list_show.param_list_num ; i ++ )
+		for( unsigned int i = lat_pos_point ; i < param_list_show.param_list_num ; i ++ )
 		{
 			if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT") != NULL )
 			{
@@ -3151,7 +3164,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	double * lat_line = (double *)param_list_show.param_list[lat_pos].data;
 	double * lon_line = (double *)param_list_show.param_list[lon_pos].data;
 	/* check 0 */
-	int j;
+	unsigned int j = 0;
 	/*---------------------------------------*/
 	for( j = 0 ; j < param_list_show.param_list[lat_pos].point_num ; j ++ )
 	{
@@ -3174,7 +3187,7 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	/*---------------------------------------*/
 	CSeries line = (CSeries)m_chart.Series(num);
 	/*---------------------------------*/
-	for( int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i ++ )
+	for( unsigned int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i ++ )
 	{
 		line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
 	}
@@ -3189,10 +3202,10 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 	/*----------------------------*/
 	if( p_or_l == 0 )//line
 	{
-		sprintf(buffer,"%s_axis",param_list_show.param_list[lat_pos].name);
+		sprintf_s(buffer,"%s_axis",param_list_show.param_list[lat_pos].name);
 	}else if(  p_or_l == 1 )//line
 	{
-		sprintf(buffer,"%s_point",param_list_show.param_list[lat_pos].name);
+		sprintf_s(buffer,"%s_point",param_list_show.param_list[lat_pos].name);
 	}
 	/*----------------------------*/
 	CString show = A2T(buffer);
@@ -3222,7 +3235,7 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	int lon_pos = 0xffff;
 	int lane_pic_pos = 0xffff;
 	/* find the lat and lon in param list */
-	for( int i = lane_last_postion ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = lane_last_postion ; i < param_list_show.param_list_num ; i ++ )
 	{
 		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT_LANE") != NULL )
 		{
@@ -3273,7 +3286,7 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	/*---------------------------------*/
 	double last_lane = 0;
 	/*---------------------------------------------------------------------------*/
-	for( int i = 0 ; i < param_list_show.param_list[lane_pic_pos].point_num ; i ++ )
+	for( unsigned int i = 0 ; i < param_list_show.param_list[lane_pic_pos].point_num ; i ++ )
 	{
 		if( last_lane != lane_pic_fc[i] )
 		{
@@ -3291,7 +3304,7 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 	char buffer[200];
 	memset(buffer,0,sizeof(buffer));
 	/*----------------------------*/
-	sprintf(buffer,"%s_pic_axis",param_list_show.param_list[lat_pos].name);
+	sprintf_s(buffer,"%s_pic_axis",param_list_show.param_list[lat_pos].name);
 	/*----------------------------*/
 	CString show = A2T(buffer);
 	/*-----------------------------*/
@@ -3316,7 +3329,7 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 {
 	int sd_pos = 0xffff;
 	/* find the lat and lon in param list */
-	for( int i = last_sd ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = last_sd ; i < param_list_show.param_list_num ; i ++ )
 	{
 		if( sd_pos == 0xffff && strstr(param_list_show.param_list[i].name,"DV_SD") != NULL )
 		{
@@ -3355,7 +3368,7 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 	/*---------------------------------*/
 	double sd_last = 0;
 	/*---------------------------------------------------------------------------*/
-	for( int i = 0 ; i < param_list_show.param_list[sd_pos].point_num - 1; i ++ )
+	for( unsigned int i = 0 ; i < param_list_show.param_list[sd_pos].point_num - 1; i ++ )
 	{
 		sd_last = sd_line[i+1] - sd_line[i];
 
@@ -3370,7 +3383,7 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 	char buffer[200];
 	memset(buffer,0,sizeof(buffer));
 	/*----------------------------*/
-	sprintf(buffer,"%s_dv",param_list_show.param_list[sd_pos].name);
+	sprintf_s(buffer,"%s_dv",param_list_show.param_list[sd_pos].name);
 	/*----------------------------*/
 	CString show = A2T(buffer);
 	/*-----------------------------*/
@@ -3394,7 +3407,6 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 /*----------------------------------------------*/
 void CTeeChart5_testDlg::reflush_chart(void)
 {
-	int hold = m_check_hold.GetCheck()?1:0;
 	/* clear without clear line msg */
 	clear_all_line(1);
 	/*-----------------------------*/
@@ -3403,7 +3415,7 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	last_sd = 0;
 	lat_pos_point = 0;
 	/* release the memeries */
-	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
 		if( param_list_show.param_list[i].data != NULL )
 		{
@@ -3413,7 +3425,11 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	/*-----------------------------*/
 	param_list_show.param_list_num = 0;
 	/*-----------------------------*/
-	for( int j = 0 ; j < file_man.num ; j ++ )
+	memset(last_dou,0,sizeof(last_dou));
+	/*-----------------------------*/
+	version_ctrl = 0;
+	/*-----------------------------*/
+	for( unsigned int j = 0 ; j < file_man.num ; j ++ )
 	{
 		if( file_man.file[j].file_enable == 1 )
 		{
@@ -3423,7 +3439,7 @@ void CTeeChart5_testDlg::reflush_chart(void)
 		}
 	}
 	/* redraw */
-	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
 		if( param_list_show.param_list[i].status != 0 )
 		{
@@ -3432,7 +3448,7 @@ void CTeeChart5_testDlg::reflush_chart(void)
 			if( param_list_show.param_list_num )
 			{
 			  /*---------------------------------*/
-			  draw_single(i,hold);
+			  draw_single(i);
 			}else if( COM.radio_status == 1 )
 			{
 				//============================
@@ -3459,14 +3475,11 @@ unsigned int CTeeChart5_testDlg::get_color(unsigned int mode)
 	/*--------------*/
 	if( color_index< 7 )
 	{
-		srand(time(NULL));
-		/*-----------*/
-		unsigned int fucse = rand() % 10 ;
 		/*-----------------------------*/
 		color_tmp = color_tabal[color_index];
 	}else
 	{
-		srand(time(NULL));
+		srand((unsigned int)time(NULL));
 		/*-----------*/
 		unsigned int colorR = (unsigned char)rand();
 		unsigned int colorG = (unsigned char)rand();
@@ -3483,7 +3496,7 @@ unsigned int CTeeChart5_testDlg::get_color(unsigned int mode)
 /* create the color table */
 void CTeeChart5_testDlg::create_color_table(void)
 {
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 	unsigned int tmp;
 	/*-----------*/
 	for( int i = 0 ; i < 7 ; i++ )
@@ -3496,3 +3509,49 @@ void CTeeChart5_testDlg::create_color_table(void)
 		color_tabal[i] = color_tabal_tmp[(i+tmp)%7];
 	}
 }
+/* VERSION_TABLE */
+const char *version_table[19] = {"VERSION_FC_NEW","VERSION_GPS","VERSION_BOTTOM","VERSION_MAG1","VERSION_MAG2","VERSION_SONAR",
+                                 "VERSION_GIMBAL1","VERSION_GIMBAL5","VERSION_ESC1","VERSION_ESC2","VERSION_ESC3",
+                                 "VERSION_ESC4","VERSION_VISION","VERSION_CPLD","VERSION_FPGA","VERSION_BATTERY",
+                                 "VERSION_LIDAR_CTRL","VERSION_LIDAR_DEV","VERSION_OP3000"};
+/*-----------------------------------------------*/
+void CTeeChart5_testDlg::create_version_line(unsigned int mode)
+{
+	/* uplock mode */
+	m_check_hold.SetCheck(0);//
+	/*-----------------------*/
+	unsigned int i = 0;
+	/*-----------------------*/
+	for( i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( strstr(param_list_show.param_list[i].name,version_table[version_ctrl]) != NULL )
+		{
+			/* draw the line */
+			draw_single(i);
+			/*------------------------*/
+			break;
+		}
+	}
+	/*-------------------------------*/
+	if( i >= param_list_show.param_list_num )
+	{
+		char buffer[100];
+		/*-------------------------------*/
+		sprintf_s(buffer,"Can not find %s Skip it",version_table[version_ctrl]);
+		/*-------------------------------*/
+		USES_CONVERSION;
+		/*-------------------------------*/
+		CString show = A2T(buffer);
+		/*-------------------------------*/
+		AfxMessageBox(show);
+	}
+	/*-------------------------------*/
+	version_ctrl++;
+	//------------------
+	if( version_ctrl >= 19 )
+	{
+		version_ctrl = 0;
+	}
+	/*------------------------*/
+}
+/*-----------------------------------------------*/
