@@ -112,6 +112,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Auto_set.h" />
+    <ClInclude Include="base64.h" />
     <ClInclude Include="CAspect.h" />
     <ClInclude Include="CAxes.h" />
     <ClInclude Include="CAxis.h" />
@@ -123,6 +124,7 @@
     <ClInclude Include="CLegend0.h" />
     <ClInclude Include="CLegendSymbol.h" />
     <ClInclude Include="CLineSeries.h" />
+    <ClInclude Include="CMarks.h" />
     <ClInclude Include="CPen0.h" />
     <ClInclude Include="CPoint3DSeries.h" />
     <ClInclude Include="CSeries.h" />
@@ -139,7 +141,11 @@
     <ClInclude Include="mscomm1.h" />
     <ClInclude Include="m_com_num.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="server_manage.h" />
+    <ClInclude Include="smtp.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="suggestion.h" />
+    <ClInclude Include="system_config.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="tchart1.h" />
     <ClInclude Include="TeeChart5_test.h" />
@@ -147,6 +153,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Auto_set.cpp" />
+    <ClCompile Include="base64.cpp" />
     <ClCompile Include="C_open.cpp" />
     <ClCompile Include="C_PROCOTOL_CREATE.cpp" />
     <ClCompile Include="Data_detail.cpp" />
@@ -159,10 +166,13 @@
     <ClCompile Include="motor.cpp" />
     <ClCompile Include="mscomm1.cpp" />
     <ClCompile Include="m_com_num.cpp" />
+    <ClCompile Include="server_manage.cpp" />
+    <ClCompile Include="smtp.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="suggestion.cpp" />
     <ClCompile Include="tchart1.cpp" />
     <ClCompile Include="TeeChart5_test.cpp" />
     <ClCompile Include="TeeChart5_testDlg.cpp" />

@@ -29,6 +29,11 @@
 #include "CTeeFont.h"
 #include "CAxisLabels.h"
 #include "CAxisLabels0.h"
+#include "CMarks.h"
+#include "smtp.h"
+#include "server_manage.h"
+#include "system_config.h"
+#include "suggestion.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -138,6 +143,10 @@ void CTeeChart5_testDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON14, m_btn_pic);
 	DDX_Control(pDX, IDC_EDIT1, m_edit_pic);
 	DDX_Control(pDX, IDC_CHECK2, m_check_camera);
+	DDX_Control(pDX, IDC_BUTTON31, m_btn_ex0);
+	DDX_Control(pDX, IDC_BUTTON7, m_btn_ex2);
+	DDX_Control(pDX, IDC_BUTTON32, m_btn_ex1);
+	DDX_Control(pDX, IDC_BUTTON33, m_btn_ex3);
 }
 
 BEGIN_MESSAGE_MAP(CTeeChart5_testDlg, CDialogEx)
@@ -173,6 +182,9 @@ BEGIN_MESSAGE_MAP(CTeeChart5_testDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON29, &CTeeChart5_testDlg::OnBnClickedButton29)
 	ON_BN_CLICKED(IDC_BUTTON30, &CTeeChart5_testDlg::OnBnClickedButton30)
 	ON_COMMAND(ID_32786, &CTeeChart5_testDlg::On32786)
+	ON_BN_CLICKED(IDC_BUTTON31, &CTeeChart5_testDlg::OnBnClickedButton31)
+	ON_BN_CLICKED(IDC_BUTTON32, &CTeeChart5_testDlg::OnBnClickedButton32)
+	ON_BN_CLICKED(IDC_BUTTON33, &CTeeChart5_testDlg::OnBnClickedButton33)
 END_MESSAGE_MAP()
 
 
@@ -282,6 +294,34 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	}
 	/*----------*/
 	create_color_table();
+	/* send a email to devolopers */
+	exmail_initial();
+	/*-----------------------------*/
+#if !VERSION_CTRL
+	/* hide some funstions first . because we won't need them */
+	GetDlgItem(IDC_BUTTON7)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_BUTTON31)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_BUTTON32)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_BUTTON33)->ShowWindow(SW_HIDE);
+#else
+	check_list_show(0);
+	/* hide some functions */
+	GetDlgItem(IDC_BUTTON7)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_BUTTON31)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_BUTTON32)->ShowWindow(SW_HIDE);
+	GetDlgItem(IDC_BUTTON33)->ShowWindow(SW_HIDE);
+	/* ----------------------- */
+	m_show_test.SetWindowTextW(_T("帮助文档"));
+	char buffer[64];
+	sprintf_s(buffer,"%s 点击<帮助文档>获取更多帮助。",SOFTVERSION);
+	/* transform */
+	USES_CONVERSION;
+	/*---------------------------*/
+	CString show = A2T(buffer);
+	/*---------------------------*/
+	m_taps.SetWindowTextW(show);
+	/*--------------------------*/
+#endif
 	/* file end */
 	/* return */
 	return TRUE; 
@@ -518,7 +558,8 @@ void CTeeChart5_testDlg::move_test(void)
 }
 void CTeeChart5_testDlg::OnBnClickedButton3()
 {
-	AfxMessageBox(_T("功能开发中"));
+   suggestion s;
+   s.DoModal();
 }
 
 void CTeeChart5_testDlg::OnBnClickedButton4()
@@ -672,7 +713,7 @@ void CTeeChart5_testDlg::check_list_show(unsigned char flags)
 		 /*--------------------------*/
 		 pWnd->MoveWindow(rect1);
 		 /* ------------- */
-		 m_show_test.SetWindowTextW(_T("显示测试表"));
+		 m_show_test.SetWindowTextW(_T("显示测试"));
 		 /*-----*/
 		 flags = 1;
 	}else
@@ -711,7 +752,7 @@ void CTeeChart5_testDlg::check_list_show(unsigned char flags)
 		 /*--------------------------*/
 		 pWnd->MoveWindow(rect1);
 		 /* ------------- */
-		 m_show_test.SetWindowTextW(_T("隐藏测试表"));
+		 m_show_test.SetWindowTextW(_T("隐藏测试"));
 		 /*-----*/
 		 flags = 0;
 	}
@@ -719,10 +760,14 @@ void CTeeChart5_testDlg::check_list_show(unsigned char flags)
 
 void CTeeChart5_testDlg::OnBnClickedButton9()
 {   
+#if !VERSION_CTRL
 	system_config_inf.inf[1] ^= 1;
 	check_list_show(system_config_inf.inf[1]);
 	///* fresh the data */
 	system_config_fresh(1,system_config_inf.inf[1]);
+#else
+	AfxMessageBox(_T("程序目录：使用说明.pdf"));
+#endif
 }
 
 void CTeeChart5_testDlg::OnBnClickedButton7()
@@ -979,6 +1024,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	}
 	/* read cfs files */
 	FILE * pf_cfs_file;
+#if !VERSION_CTRL
 	if( strstr(file_man.file[index].file_point,"bin") != NULL )
 	{
 		/* open */
@@ -991,7 +1037,9 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 			MessageBox(_T("找不到.bin文件对应的配置文件D200_log.CFG"),_T("tips"),0);
 			return;
 		}
-	}else if( strstr(file_man.file[index].file_point,"gsof") != NULL )
+	}
+#if 0
+	else if( strstr(file_man.file[index].file_point,"gsof") != NULL )
 	{
 		/* open */
 		fopen_s(&pf_cfs_file,"D200_GSOF.CFS","rb");
@@ -1022,12 +1070,16 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 			return;
 		}
 	}
+#endif
 	else
+#endif
 	{
 		char buffer_other[1024];
-
+#if !VERSION_CTRL
 		sprintf_s(buffer_other,"D200_%s.CFS",file_man.file[index].file_point);
-
+#else
+		sprintf_s(buffer_other,"WK_%s.CFS",file_man.file[index].file_point);
+#endif
 		/* open */
 		fopen_s(&pf_cfs_file,buffer_other,"rb");
 		/* open ok ? */
@@ -1035,7 +1087,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		{
 			char buffer_tmp[1024];
 
-			sprintf_s(buffer_tmp,"找不到.%s文件对应的配置文件%s",file_man.file[index].file_point,buffer_other);
+			sprintf_s(buffer_tmp,"找不到.%s文件对应的配置文件 %s",file_man.file[index].file_point,buffer_other);
 
 			CString d = A2T(buffer_tmp);
 
@@ -3044,15 +3096,18 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 			  case VK_F2:
 				  On32771();
 				  break;
+#if !VERSION_CTRL
 			  case VK_F3:
 				  On32777();
 				  break;
+#endif
 			  case VK_F4:
 				  On32781();
 				  break;
 			  case VK_F5:
 				  reflush_chart();
 				  break;
+#if !VERSION_CTRL
 			  case VK_F6:
 				  Position_axis_bin(m_check_hold.GetCheck()?1:0,1);
 				  break;
@@ -3064,10 +3119,13 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  break;
 			  case VK_F9:
 				  standart_diviaton(m_check_hold.GetCheck()?1:0);
+				  break;
 			  case 0x56:
 				  /* show version . one by one */
 				  create_version_line(0);
 				  /*---------------------------*/
+				  break;
+#endif
 			  default:
 				  break;
 		  }
@@ -3555,3 +3613,19 @@ void CTeeChart5_testDlg::create_version_line(unsigned int mode)
 	/*------------------------*/
 }
 /*-----------------------------------------------*/
+
+void CTeeChart5_testDlg::OnBnClickedButton31()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CTeeChart5_testDlg::OnBnClickedButton32()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CTeeChart5_testDlg::OnBnClickedButton33()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}

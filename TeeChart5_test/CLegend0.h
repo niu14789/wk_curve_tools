@@ -1,6 +1,6 @@
 // 从类型库向导中用“添加类”创建的计算机生成的 IDispatch 包装类
 
-#import "C:\\Windows\\SysWow64\\TeeChart5.ocx" no_namespace
+#import "chart.ocx" no_namespace
 // CLegend0 包装类
 
 class CLegend0 : public COleDispatchDriver

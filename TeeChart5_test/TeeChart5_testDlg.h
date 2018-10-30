@@ -348,4 +348,12 @@ public:
 	CButton m_btn_pic;
 	CEdit m_edit_pic;
 	CButton m_check_camera;
+	CButton m_btn_ex0;
+	CButton m_btn_ex2;
+	CButton m_btn_ex1;
+	CButton m_btn_ex3;
+	afx_msg void OnBnClickedButton31();
+	afx_msg void OnStnClickedStatic2();
+	afx_msg void OnBnClickedButton32();
+	afx_msg void OnBnClickedButton33();
 };
