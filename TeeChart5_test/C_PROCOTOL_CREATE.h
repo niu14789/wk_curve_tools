@@ -41,12 +41,12 @@ typedef struct
 {
 	char name[32];
 	unsigned int ok;
-	unsigned int cfg_size;
+	unsigned int time_mark;
 	unsigned int procotol_type;
 	unsigned int procotol_select;
 	unsigned int block_size;
 	unsigned int offset;
-	unsigned int head_msg;
+	unsigned int rev;
 	unsigned int param_num;
 	unsigned int sample_num;
 	unsigned int math_num;
@@ -81,7 +81,9 @@ typedef struct
 	unsigned int math_number;
 	float f_math[10];
 	char asmf_type[12];
-	char buffer[256];
+	char buffer[236];
+	unsigned int mark;
+	unsigned char hot_key[16];
 	/* some other struct */
 	/* some other struct */
     /* some other struct */
@@ -106,6 +108,7 @@ class C_PROCOTOL_CREATE : public CDialogEx
 	DECLARE_DYNAMIC(C_PROCOTOL_CREATE)
 
 public:
+	int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param);
 	void C_PROCOTOL_CREATE::flush_cfs(unsigned int msg);
 	char * C_PROCOTOL_CREATE::Get_math_type(char * src , unsigned int src_len , unsigned int num, unsigned int *param1);
 	int C_PROCOTOL_CREATE::Get_check_if(char * src , unsigned int src_len , unsigned int num,char *string , unsigned int *param1,unsigned int *param2);

@@ -419,6 +419,51 @@ int C_PROCOTOL_CREATE::Get_param_OLAY(char * src , unsigned int src_len , unsign
 	return (-1);
 }
 /*----------------get param--------------------*/
+int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param)
+{
+	char * tmp;//buffer[64];
+
+	unsigned int get = 0;
+	char type;
+
+	for( unsigned int i = 0 ; i < num ; i++ )
+	{
+	    tmp = (char *)strstr(src,cmd);
+		/* get */
+		if( tmp != NULL )
+		{
+			int ret = sscanf(src+strlen(cmd),"[%c%d]",&type,&get);
+			/*---*/
+			if( ret != 2 )
+			{
+				return (-1);
+			}else
+			{
+				*param = get;
+				/*----------------------*/
+				(*param) &=~ 0xff000000; 
+				/*----------------------*/
+				if( type == 'E' )
+				{
+					(*param) |= 0xF1000000;
+				}else if( type == 'A' )
+				{
+					(*param) |= 0xF2000000;
+				}else
+				{
+					return (-1);
+				}
+				/*----------------------*/
+				return 0;
+			}
+		}
+		/*-=*/
+		src += src_len;
+	}
+	/* */
+	return (-1);
+}
+/*----------------get param--------------------*/
 int C_PROCOTOL_CREATE::Get_param_type(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param)
 {
 	char * tmp;//buffer[64];
@@ -573,28 +618,28 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 	/*--------check offset--------*/
 	if( Get_param_OLAY((char *)&math_buffer,64,ret,"OFFSET",&DATA_COMBOX.param_data[index].offset) != 0 )
 	{
-		msg_out("参数错误");
+		msg_out("OFFSET 参数错误");
 		/*---------------------*/
 		return (-1);
 	}
 	/*--------check len--------*/
 	if( Get_param_OLAY((char *)&math_buffer,64,ret,"LEN",&DATA_COMBOX.param_data[index].width) != 0 )
 	{
-		msg_out("参数错误");
+		msg_out("LEN 参数错误");
 		/*---------------------*/
 		return (-1);
 	}
 	/*--------check len--------*/
 	if( Get_param_OLAY((char *)&math_buffer,64,ret,"ALIGN",&DATA_COMBOX.param_data[index].little) != 0 )
 	{
-		msg_out("参数错误");
+		msg_out("ALIGN 参数错误");
 		/*---------------------*/
 		return (-1);
 	}
 	/*----------check type-----------*/
  	if( Get_param_type((char *)&math_buffer,64,ret,"TYPE",&DATA_COMBOX.param_data[index].type) != 0 )
 	{
-		msg_out("参数错误");
+		msg_out("TYPE 参数错误");
 		/*---------------------*/
 		return (-1);
 	}
@@ -602,7 +647,14 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 	if( Get_check_if((char *)&math_buffer,64,ret,DATA_COMBOX.param_data[index].if_param_string,
 		&DATA_COMBOX.param_data[index].if_param_value[0],&DATA_COMBOX.param_data[index].if_param_value[1]) != 0 )
 	{
-		msg_out("参数错误");
+		msg_out("IF 参数错误");
+		/*---------------------*/
+		return (-1);
+	}
+	/*---------check MARK--------*/
+	if( Get_param_MARKS((char *)&math_buffer,64,ret,"MARK",&DATA_COMBOX.param_data[index].mark) != 0 )
+	{
+		msg_out("MARK 参数错误");
 		/*---------------------*/
 		return (-1);
 	}
@@ -1009,7 +1061,7 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 	show = A2T(buffer);
 	m_width.SetWindowTextW(show);
 	/*----head----*/
-	m_head_msg.SetCurSel(CFG_CURRENT.cfs_global_msg.head_msg);
+	//m_head_msg.SetCurSel(CFG_CURRENT.cfs_global_msg.head_msg);
 	/*-----param num-----*/
 	sprintf_s(buffer,"%d",CFG_CURRENT.cfs_global_msg.param_num);
 	show = A2T(buffer);

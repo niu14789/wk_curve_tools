@@ -320,12 +320,12 @@ void limit_setting::click_one_line(unsigned int index)
 	/*-------------------*/
     set_check_type();
 	/* set num */
-	sprintf(buffer,"%d",chese_list.chese[index].num);
+	sprintf_s(buffer,"%d",chese_list.chese[index].num);
 	/* set */
 	show = A2T(buffer);
 	m_limit_num.SetWindowTextW(show);
 	/*----------*/
-	sprintf(buffer,"%s",chese_list.chese[index].result);
+	sprintf_s(buffer,"%s",chese_list.chese[index].result);
 	/* set */
 	show = A2T(buffer);
 	m_result.SetWindowTextW(show);
@@ -354,21 +354,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_int8_mean_now = (char *)&chese_list.chese[index].mean_now;
 					show_int8_rms_now = (char *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%d,%d",show_int8_mean_now[i],show_int8_rms_now[i]);
+					sprintf_s(buffer,"%d,%d",show_int8_mean_now[i],show_int8_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d,%d",show_int8_mean[i],show_int8_mean_error[i]);
+					sprintf_s(buffer,"%d,%d",show_int8_mean[i],show_int8_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int8_rms[i]);
+					sprintf_s(buffer,"%d",show_int8_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -376,21 +376,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int8[i]);
+					sprintf_s(buffer,"%d",show_int8[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int8_l[i]);
+					sprintf_s(buffer,"%d",show_int8_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int8_u[i]);
+					sprintf_s(buffer,"%d",show_int8_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -419,21 +419,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_uint8_mean_now = (unsigned char *)&chese_list.chese[index].mean_now;
 					show_uint8_rms_now = (unsigned char *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%d,%d",show_uint8_mean_now[i],show_uint8_rms_now[i]);
+					sprintf_s(buffer,"%d,%d",show_uint8_mean_now[i],show_uint8_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d,%d",show_uint8_mean[i],show_uint8_mean_error[i]);
+					sprintf_s(buffer,"%d,%d",show_uint8_mean[i],show_uint8_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint8_rms[i]);
+					sprintf_s(buffer,"%d",show_uint8_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -441,21 +441,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint8[i]);
+					sprintf_s(buffer,"%d",show_uint8[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint8_l[i]);
+					sprintf_s(buffer,"%d",show_uint8_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint8_u[i]);
+					sprintf_s(buffer,"%d",show_uint8_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -484,21 +484,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_int16_mean_now = (short *)&chese_list.chese[index].mean_now;
 					show_int16_rms_now = (short *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%d,%d",show_int16_mean_now[i],show_int16_rms_now[i]);
+					sprintf_s(buffer,"%d,%d",show_int16_mean_now[i],show_int16_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d,%d",show_int16_mean[i],show_int16_mean_error[i]);
+					sprintf_s(buffer,"%d,%d",show_int16_mean[i],show_int16_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int16_rms[i]);
+					sprintf_s(buffer,"%d",show_int16_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -506,21 +506,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int16[i]);
+					sprintf_s(buffer,"%d",show_int16[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int16_l[i]);
+					sprintf_s(buffer,"%d",show_int16_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int16_u[i]);
+					sprintf_s(buffer,"%d",show_int16_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -549,21 +549,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_uint16_mean_now = (unsigned short *)&chese_list.chese[index].mean_now;
 					show_uint16_rms_now = (unsigned short *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%d,%d",show_uint16_mean_now[i],show_uint16_rms_now[i]);
+					sprintf_s(buffer,"%d,%d",show_uint16_mean_now[i],show_uint16_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d,%d",show_uint16_mean[i],show_uint16_mean_error[i]);
+					sprintf_s(buffer,"%d,%d",show_uint16_mean[i],show_uint16_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint16_rms[i]);
+					sprintf_s(buffer,"%d",show_uint16_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -571,21 +571,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint16[i]);
+					sprintf_s(buffer,"%d",show_uint16[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint16_l[i]);
+					sprintf_s(buffer,"%d",show_uint16_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint16_u[i]);
+					sprintf_s(buffer,"%d",show_uint16_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -614,21 +614,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_int32_mean_now = ( int *)&chese_list.chese[index].mean_now;
 					show_int32_rms_now = ( int *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%d,%d",show_int32_mean_now[i],show_int32_rms_now[i]);
+					sprintf_s(buffer,"%d,%d",show_int32_mean_now[i],show_int32_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d,%d",show_int32_mean[i],show_int32_mean_error[i]);
+					sprintf_s(buffer,"%d,%d",show_int32_mean[i],show_int32_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int32_rms[i]);
+					sprintf_s(buffer,"%d",show_int32_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -636,21 +636,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int32[i]);
+					sprintf_s(buffer,"%d",show_int32[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int32_l[i]);
+					sprintf_s(buffer,"%d",show_int32_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_int32_u[i]);
+					sprintf_s(buffer,"%d",show_int32_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -679,21 +679,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_uint32_mean_now = (unsigned int *)&chese_list.chese[index].mean_now;
 					show_uint32_rms_now = (unsigned int *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%d,%d",show_uint32_mean_now[i],show_uint32_rms_now[i]);
+					sprintf_s(buffer,"%d,%d",show_uint32_mean_now[i],show_uint32_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d,%d",show_uint32_mean[i],show_uint32_mean_error[i]);
+					sprintf_s(buffer,"%d,%d",show_uint32_mean[i],show_uint32_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint32_rms[i]);
+					sprintf_s(buffer,"%d",show_uint32_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -701,21 +701,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint32[i]);
+					sprintf_s(buffer,"%d",show_uint32[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint32_l[i]);
+					sprintf_s(buffer,"%d",show_uint32_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%d",show_uint32_u[i]);
+					sprintf_s(buffer,"%d",show_uint32_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -744,21 +744,21 @@ void limit_setting::click_one_line(unsigned int index)
 					show_flaot_mean_now = (float *)&chese_list.chese[index].mean_now;
 					show_flaot_rms_now = (float *)&chese_list.chese[index].rms_now;
 					/*-------------------------------*/
-					sprintf(buffer,"%5.2f,%5.2f",show_flaot_mean_now[i],show_flaot_rms_now[i]);
+					sprintf_s(buffer,"%5.2f,%5.2f",show_flaot_mean_now[i],show_flaot_rms_now[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%5.2f,%5.2f",show_flaot_mean[i],show_flaot_mean_error[i]);
+					sprintf_s(buffer,"%5.2f,%5.2f",show_flaot_mean[i],show_flaot_mean_error[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%5.2f",show_flaot_rms[i]);
+					sprintf_s(buffer,"%5.2f",show_flaot_rms[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -766,21 +766,21 @@ void limit_setting::click_one_line(unsigned int index)
 				}else
 				{
 					/*---------------------------------------*/
-					sprintf(buffer,"%5.2f",show_float[i]);
+					sprintf_s(buffer,"%5.2f",show_float[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					now[i]->SetWindowTextW(show);
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%5.2f",show_float_l[i]);
+					sprintf_s(buffer,"%5.2f",show_float_l[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
 					low[i]->SetWindowTextW(show);	
 					/*==================================================*/
 					/*---------------------------------------*/
-					sprintf(buffer,"%5.2f",show_float_u[i]);
+					sprintf_s(buffer,"%5.2f",show_float_u[i]);
 					/* set */
 					show = A2T(buffer);
 					/* show now */
@@ -839,7 +839,7 @@ void limit_setting::OnBnClickedButton2()
 					{
 						if( get_float_edit(low[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"下限参数%d错误",i);
+							sprintf_s(buffer,"下限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -849,7 +849,7 @@ void limit_setting::OnBnClickedButton2()
 						/*====================================*/
 						if( get_float_edit(upd[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"上限参数%d错误",i);
+							sprintf_s(buffer,"上限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -866,7 +866,7 @@ void limit_setting::OnBnClickedButton2()
 					{
 						if( get_float_edit(low[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"下限参数%d错误",i);
+							sprintf_s(buffer,"下限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -876,7 +876,7 @@ void limit_setting::OnBnClickedButton2()
 						/*====================================*/
 						if( get_float_edit(upd[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"上限参数%d错误",i);
+							sprintf_s(buffer,"上限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -893,7 +893,7 @@ void limit_setting::OnBnClickedButton2()
 					{
 						if( get_float_edit(low[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"下限参数%d错误",i);
+							sprintf_s(buffer,"下限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -903,7 +903,7 @@ void limit_setting::OnBnClickedButton2()
 						/*====================================*/
 						if( get_float_edit(upd[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"上限参数%d错误",i);
+							sprintf_s(buffer,"上限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -920,7 +920,7 @@ void limit_setting::OnBnClickedButton2()
 					{
 						if( get_float_edit(low[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"下限参数%d错误",i);
+							sprintf_s(buffer,"下限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -930,7 +930,7 @@ void limit_setting::OnBnClickedButton2()
 						/*====================================*/
 						if( get_float_edit(upd[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"上限参数%d错误",i);
+							sprintf_s(buffer,"上限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -947,7 +947,7 @@ void limit_setting::OnBnClickedButton2()
 					{
 						if( get_float_edit(low[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"下限参数%d错误",i);
+							sprintf_s(buffer,"下限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -957,7 +957,7 @@ void limit_setting::OnBnClickedButton2()
 						/*====================================*/
 						if( get_float_edit(upd[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"上限参数%d错误",i);
+							sprintf_s(buffer,"上限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -974,7 +974,7 @@ void limit_setting::OnBnClickedButton2()
 					{
 						if( get_float_edit(low[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"下限参数%d错误",i);
+							sprintf_s(buffer,"下限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -984,7 +984,7 @@ void limit_setting::OnBnClickedButton2()
 						/*====================================*/
 						if( get_float_edit(upd[i],&tmp) != 0 )
 						{
-							sprintf(buffer,"上限参数%d错误",i);
+							sprintf_s(buffer,"上限参数%d错误",i);
 							show = A2T(buffer);
 							MessageBox(show,_T("tips"),0);
 							return;
@@ -1007,7 +1007,7 @@ void limit_setting::OnBnClickedButton2()
 						{
 							if( get2_float_edit(low[i],&tmp,&tmp2) != 0 )
 							{
-								sprintf(buffer,"均值参数%d错误",i);
+								sprintf_s(buffer,"均值参数%d错误",i);
 								show = A2T(buffer);
 								MessageBox(show,_T("tips"),0);
 								return;
@@ -1018,7 +1018,7 @@ void limit_setting::OnBnClickedButton2()
 							/*====================================*/
 							if( get_float_edit(upd[i],&tmp) != 0 )
 							{
-								sprintf(buffer,"方差参数%d错误",i);
+								sprintf_s(buffer,"方差参数%d错误",i);
 								show = A2T(buffer);
 								MessageBox(show,_T("tips"),0);
 								return;
@@ -1033,7 +1033,7 @@ void limit_setting::OnBnClickedButton2()
 						{
 							if( get_float_edit(low[i],&tmp) != 0 )
 							{
-								sprintf(buffer,"下限参数%d错误",i);
+								sprintf_s(buffer,"下限参数%d错误",i);
 								show = A2T(buffer);
 								MessageBox(show,_T("tips"),0);
 								return;
@@ -1043,7 +1043,7 @@ void limit_setting::OnBnClickedButton2()
 							/*====================================*/
 							if( get_float_edit(upd[i],&tmp) != 0 )
 							{
-								sprintf(buffer,"上限参数%d错误",i);
+								sprintf_s(buffer,"上限参数%d错误",i);
 								show = A2T(buffer);
 								MessageBox(show,_T("tips"),0);
 								return;

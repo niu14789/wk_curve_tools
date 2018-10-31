@@ -69,7 +69,7 @@ void Data_detail::Data_update_source(int seq,int now_select)
 		for( int i = 0 ; i < chese_list.chese[seq].mean_rms_num ; i ++ )
 		{
 			/*-----------------*/
-			sprintf(buffer,"%d",i);
+			sprintf_s(buffer,"%d",i);
 			/*-----------------*/
 			c_index = A2T(buffer);
 			/*-----------------*/
@@ -82,7 +82,7 @@ void Data_detail::Data_update_source(int seq,int now_select)
 					break;
 			}*/
 			/* get data */
-			sprintf(buffer,"%f",show_float[i]);
+			sprintf_s(buffer,"%f",show_float[i]);
 			/*---------------*/
 			c_data = A2T(buffer);
 			/*--------*/

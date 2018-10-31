@@ -108,13 +108,13 @@ void Auto_set::settings_show(unsigned int index)
 {
 	/* set old */
 	char buffer[100];
-	sprintf(buffer,"%lf",auto_scale_g.line_cfg[index].min);
+	sprintf_s(buffer,"%lf",auto_scale_g.line_cfg[index].min);
 	USES_CONVERSION;
 	/*----------------------*/
 	CString show = A2T(buffer);
 	m_min_edit.SetWindowText(show);
 	/*------------------------------------*/
-	sprintf(buffer,"%lf",auto_scale_g.line_cfg[index].max);
+	sprintf_s(buffer,"%lf",auto_scale_g.line_cfg[index].max);
 	show = A2T(buffer);
 	m_max_edit.SetWindowText(show);
 	/*------------------------------------*/

@@ -54,7 +54,9 @@ typedef struct
 	unsigned int line_num;
 	unsigned int color;
 	unsigned int time_ms;
-	unsigned int scale;
+	unsigned int mark;
+	unsigned char hot_key[16];
+	unsigned int hot_key_num;
 	unsigned char * data;
 }PARAM_LIST_SIGLE_DEF;
 

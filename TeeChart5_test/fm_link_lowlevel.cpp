@@ -582,7 +582,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 			if( strstr( check_ese->title , "g_mrs") != NULL )
 			{
 				check_ese->check_type = 4;//check and ok
-				sprintf(check_ese->result,"通过");
+				sprintf_s(check_ese->result,"通过");
 			    check_ese->check_ok = 1;//ok
 			    return 0;
 			}
@@ -592,7 +592,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 			if( strstr( check_ese->title , "g_mrs") != NULL )
 			{
 				check_ese->check_type = 5;
-				sprintf(check_ese->result,"未通过");
+				sprintf_s(check_ese->result,"未通过");
 				check_ese->check_ok = 0;//err
 				return 0;
 			}
@@ -607,7 +607,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 			}
 		}
 		/* defautl is ok */
-		sprintf(check_ese->result,"PASS");
+		sprintf_s(check_ese->result,"PASS");
 		check_ese->check_ok = 1;//ok
 		/*---------------*/
 		if( 1 )//check_ese->check_type == 0 )//pass with none '0'
@@ -626,7 +626,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_int8[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -636,7 +636,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_int8[i] >= show_int8_l[i] ) && ( show_int8[i] <= show_int8_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -644,7 +644,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_int8[i] >= show_int8_l[i] ) && ( show_int8[i] <= show_int8_u[i] ) && show_int8[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }
@@ -654,10 +654,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /* check */
 									 check_ese->check_ok = 0;
@@ -689,7 +689,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_uint8[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -699,7 +699,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_uint8[i] >= show_uint8_l[i] ) && ( show_uint8[i] <= show_uint8_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -707,7 +707,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_uint8[i] >= show_uint8_l[i] ) && ( show_uint8[i] <= show_uint8_u[i] ) && show_uint8[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }
@@ -717,10 +717,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /* check */
 									 check_ese->check_ok = 0;
@@ -752,7 +752,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_int16[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -762,7 +762,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_int16[i] >= show_int16_l[i] ) && ( show_int16[i] <= show_int16_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -770,7 +770,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_int16[i] >= show_int16_l[i] ) && ( show_int16[i] <= show_int16_u[i] ) && show_int16[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }
@@ -780,10 +780,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /* check */
 									 check_ese->check_ok = 0;
@@ -815,7 +815,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_uint16[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -825,7 +825,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_uint16[i] >= show_uint16_l[i] ) && ( show_uint16[i] <= show_uint16_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -833,7 +833,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_uint16[i] >= show_uint16_l[i] ) && ( show_uint16[i] <= show_uint16_u[i] ) && show_uint16[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
                              }
@@ -843,10 +843,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /* check */
 									 check_ese->check_ok = 0;
@@ -878,7 +878,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_int32[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -888,7 +888,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_int32[i] >= show_int32_l[i] ) && ( show_int32[i] <= show_int32_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -896,7 +896,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_int32[i] >= show_int32_l[i] ) && ( show_int32[i] <= show_int32_u[i] ) && show_int32[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
                              }
@@ -906,10 +906,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /* check */
 									 check_ese->check_ok = 0;
@@ -941,7 +941,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_uint32[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -951,7 +951,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_uint32[i] >= show_uint32_l[i] ) && ( show_uint32[i] <= show_uint32_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -959,7 +959,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_uint32[i] >= show_uint32_l[i] ) && ( show_uint32[i] <= show_uint32_u[i] ) && show_uint32[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
                              }
@@ -969,10 +969,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /* check */
 									 check_ese->check_ok = 0;
@@ -1009,7 +1009,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 							if( show_float[i] == 0 )
 							{
 								check_ese->check_ok = 0;
-								sprintf(check_ese->result,"参数%d异常",i);
+								sprintf_s(check_ese->result,"参数%d异常",i);
 								break;
 							}
 						}else
@@ -1019,7 +1019,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_float[i] >= show_float_l[i] ) && ( show_float[i] <= show_float_u[i] )) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
 							 }else if( check_ese->check_type == 2 )
@@ -1027,7 +1027,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 if( !(( show_float[i] >= show_float_l[i] ) && ( show_float[i] <= show_float_u[i] ) && show_float[i] != 0 ) )
 								 {
 									check_ese->check_ok = 0;
-									sprintf(check_ese->result,"参数%d异常",i);
+									sprintf_s(check_ese->result,"参数%d异常",i);
 									break;
 								 }
                              }
@@ -1040,10 +1040,10 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 								 {
 									 if( mode == 1 )
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num+1);
 									 }else
 									 {
-										 sprintf(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
+										 sprintf_s(check_ese->result,"收集中%d/10",check_ese->mean_rms_num);
 									 }
 									 /*--------------*/
 									 check_ese->check_ok = 0;
@@ -1067,14 +1067,14 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 										   ( show_float_m_now[i] <= ( float_limit_m[i] + float_limit_e[i] ) )) )
 									 {
 										check_ese->check_ok = 0;
-										sprintf(check_ese->result,"均值%d异常",i);
+										sprintf_s(check_ese->result,"均值%d异常",i);
 										break;
 									 }
 									 /*-----------*/
 									 if( show_float_r_now[i] > float_limit_r[i] )
 									 {
 										check_ese->check_ok = 0;
-										sprintf(check_ese->result,"方差%d异常",i);
+										sprintf_s(check_ese->result,"方差%d异常",i);
 										break;
 									 }
 								 }
@@ -1095,7 +1095,7 @@ int CTeeChart5_testDlg::update_check_result( SYS_LIST_CHESE_DETAIL_DEF * check_e
 		}
 	}else
 	{
-		sprintf(check_ese->result,"----");
+		sprintf_s(check_ese->result,"----");
 	}
 	return 0;
 }
@@ -1110,7 +1110,7 @@ void CTeeChart5_testDlg::Check_list_one(SYS_LIST_CHESE_DETAIL_DEF * list)
 	/*--------*/
 	c_chese = A2T(list->title_chese);
 	/*--------*/
-	sprintf(buffer,"%d",list->index);
+	sprintf_s(buffer,"%d",list->index);
 	/*--------*/
 	c_index = A2T(buffer);
 	/*--------*/
@@ -1179,7 +1179,7 @@ void CTeeChart5_testDlg::push_data_to_dram_lines( node_def * node ,unsigned int 
 		/*-----------------------------------*/
 		for( unsigned int i = 0 ; i < combox_rt_line.rt_line[combox_rt_line.com_line_num].param_num ;i++ )
 		{
-			sprintf(combox_rt_line.rt_line[combox_rt_line.com_line_num].name[i],"%s_D%d",node->name,i);
+			sprintf_s(combox_rt_line.rt_line[combox_rt_line.com_line_num].name[i],"%s_D%d",node->name,i);
 			/* transfer */
 			show = A2T(combox_rt_line.rt_line[combox_rt_line.com_line_num].name[i]);
 			/* COMBOX add line */

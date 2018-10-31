@@ -177,7 +177,7 @@ void motor::OnBnClickedButton3()
 
 	char buffer[100];
 
-	sprintf(buffer,"%d",pos);
+	sprintf_s(buffer,"%d",pos);
 
 	USES_CONVERSION;
 
@@ -386,7 +386,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 	factorty_ok = 1;
 
 	/*1*/
-	sprintf(buffer,"%d",rmp[0]);
+	sprintf_s(buffer,"%d",rmp[0]);
 
 	show = A2T(buffer);
 
@@ -394,7 +394,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 
 	m_process_1r.SetPos(rmp[0]);
 	/*-------------------------------------------------------------*/
-	sprintf(buffer,"%2.3fA",(float)rmp[1] / 1000 );
+	sprintf_s(buffer,"%2.3fA",(float)rmp[1] / 1000 );
 
 	show = A2T(buffer);
 
@@ -403,7 +403,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 	m_process_1c.SetPos(rmp[1]);
 
 	/*2*/
-	sprintf(buffer,"%d",rmp[2]);
+	sprintf_s(buffer,"%d",rmp[2]);
 
 	show = A2T(buffer);
 
@@ -411,7 +411,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 
 	m_process_2r.SetPos(rmp[2]);
 	/*------------------------------------------------------------*/
-	sprintf(buffer,"%2.3f A",(float)rmp[3] / 1000 );
+	sprintf_s(buffer,"%2.3f A",(float)rmp[3] / 1000 );
 
 	show = A2T(buffer);
 
@@ -419,7 +419,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 
 	m_process_2c.SetPos(rmp[3]);
 	/*3*/
-	sprintf(buffer,"%d",rmp[4]);
+	sprintf_s(buffer,"%d",rmp[4]);
 
 	show = A2T(buffer);
 
@@ -427,7 +427,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 
 	m_process_3r.SetPos(rmp[4]);
 	/*----------------------------------------------------------*/
-	sprintf(buffer,"%2.3f A",(float)rmp[5] / 1000 );
+	sprintf_s(buffer,"%2.3f A",(float)rmp[5] / 1000 );
 
 	show = A2T(buffer);
 
@@ -435,7 +435,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 
 	m_process_3c.SetPos(rmp[5]);
 	/*4*/
-	sprintf(buffer,"%d",rmp[6]);
+	sprintf_s(buffer,"%d",rmp[6]);
 
 	show = A2T(buffer);
 
@@ -443,7 +443,7 @@ void motor::show_motor_msg(unsigned char * data ,unsigned int len)
 
 	m_process_4r.SetPos(rmp[6]);
 	/*--------------------------------------------------------*/
-	sprintf(buffer,"%2.3f A",(float)rmp[7] / 1000 );
+	sprintf_s(buffer,"%2.3f A",(float)rmp[7] / 1000 );
 
 	show = A2T(buffer);
 

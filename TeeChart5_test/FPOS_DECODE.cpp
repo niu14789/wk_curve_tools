@@ -51,7 +51,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 	/*-----------------------*/
 	memset(fpos_name,0,sizeof(fpos_name));
 	/*-----------------------*/
-	sprintf(fpos_name,"%s.tmp",path);
+	sprintf_s(fpos_name,"%s.tmp",path);
 	/*-----------------------------*/
 	FILE * wb = fopen(fpos_name,"wb+");
 	/*------------------------*/

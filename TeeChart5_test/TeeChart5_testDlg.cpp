@@ -1290,6 +1290,9 @@ int CTeeChart5_testDlg::math_and_line(unsigned char *data,unsigned int len,unsig
 		{
 			line_data[param_list_show.now_num] = last_dou[i];
 		}
+		/*---------------------------------*/
+		param_list_show.param_list[ i + start ].mark = READ_CFS.pmd[i].mark;
+		/*---------------------------------*/
 	}
 	param_list_show.now_num++;
 	return 0;
@@ -1982,6 +1985,36 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	/*------------------------------------------------------------------------------------*/
 	memcpy(auto_scale_g.line_cfg[line_num].title,param_list_show.param_list[num].name,len_name);
 	/*---------------------*/
+	CMarks line_mark = line_cfs.get_Marks();
+	/* mark show */
+	if( param_list_show.param_list[num].mark != 0 )
+	{
+		unsigned char type = param_list_show.param_list[num].mark >> 24;
+		unsigned int every = param_list_show.param_list[num].mark & 0xffffff;
+		/* enable */
+		line_mark.put_Visible(1);
+		line_mark.put_Angle(0);
+		line_mark.put_Style(0);
+		line_mark.put_ArrowLength(-20);
+		/* type */
+		if( type == 0xF2 )
+		{
+			/*------------------*/
+			line_mark.put_DrawEvery(param_list_show.param_list[num].point_num / every);
+			/*------------------*/
+		}else if( type == 0xF1 )
+		{
+			line_mark.put_DrawEvery(every);
+		}else
+		{
+			/* fail */
+			line_mark.put_Visible(0);
+		}
+	}else
+	{
+		line_mark.put_Visible(0);
+	}
+	/*-----------*/
 }
 /*---------------------------------------------*/
 void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
@@ -2167,7 +2200,7 @@ int CTeeChart5_testDlg::open_mscomm(unsigned int num)
 		//com_num = num;
 		//if( num != 0 )//has not opened
 		//{
-		//	sprintf(buffer,"COM%d",com_num);
+		//	sprintf_s(buffer,"COM%d",com_num);
   //      
 		//	USES_CONVERSION;
 
@@ -2856,7 +2889,7 @@ void CTeeChart5_testDlg::pic_num_show(void)
 	///*-----------*/
  //   char buffer[100];
 	///*--------------------------*/
-	//sprintf(buffer,"停止(%d）",pic_take_now);
+	//sprintf_s(buffer,"停止(%d）",pic_take_now);
 	///*--------------------------*/
 	//CString show;
 	//USES_CONVERSION;
