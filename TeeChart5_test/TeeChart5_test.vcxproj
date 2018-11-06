@@ -141,6 +141,7 @@
     <ClInclude Include="mscomm1.h" />
     <ClInclude Include="m_com_num.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="rt27.h" />
     <ClInclude Include="server_manage.h" />
     <ClInclude Include="smtp.h" />
     <ClInclude Include="stdafx.h" />
@@ -166,6 +167,7 @@
     <ClCompile Include="motor.cpp" />
     <ClCompile Include="mscomm1.cpp" />
     <ClCompile Include="m_com_num.cpp" />
+    <ClCompile Include="rt27.cpp" />
     <ClCompile Include="server_manage.cpp" />
     <ClCompile Include="smtp.cpp" />
     <ClCompile Include="stdafx.cpp">

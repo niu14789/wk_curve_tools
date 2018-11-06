@@ -57,6 +57,7 @@ typedef struct
 	unsigned int mark;
 	unsigned char hot_key[16];
 	unsigned int hot_key_num;
+	char from_file[128];
 	unsigned char * data;
 }PARAM_LIST_SIGLE_DEF;
 
@@ -181,6 +182,8 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::combox_list_fresh(void);
+	int CTeeChart5_testDlg::fpos_analysis(unsigned int mode);
 	void CTeeChart5_testDlg::create_version_line(unsigned int mode);
 	void CTeeChart5_testDlg::create_color_table(void);
 	unsigned int CTeeChart5_testDlg::get_color(unsigned int mode);

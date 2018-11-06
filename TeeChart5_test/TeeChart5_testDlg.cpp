@@ -34,6 +34,7 @@
 #include "server_manage.h"
 #include "system_config.h"
 #include "suggestion.h"
+#include "rt27.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -1115,8 +1116,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		if( READ_CFS.cfs_global_msg.procotol_select == 2 )
 		{
 			//RT27
-			MessageBox(_T("暂不支持RT27协议"),_T("tips"),0);
-			return;
+			if( rt27_decode(file_man.file[index].file_path,file_man.file[index].file_tmp) != 0 )
+			{
+			   return;
+			}
 		}else if( READ_CFS.cfs_global_msg.procotol_select == 3 )
 		{
 			//FPOS
@@ -1224,7 +1227,11 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 			MessageBox(_T("内存分配失败"),_T("tips"),0);
 			return;
 		}		
-	    /*------------------------------*/
+        /*------------------------------*/
+		param_list_show.param_list[ param_list_show.param_list_num ].mark = READ_CFS.pmd[i].mark;
+		/*---------------------------------*/
+		strcpy_s(param_list_show.param_list[ param_list_show.param_list_num ].from_file,file_man.file[index].file_path);
+		/*---------------------------------*/
 		param_list_show.param_list_num++;	
 		/* over */
 		if( param_list_show.param_list_num >= 512 )
@@ -1290,9 +1297,6 @@ int CTeeChart5_testDlg::math_and_line(unsigned char *data,unsigned int len,unsig
 		{
 			line_data[param_list_show.now_num] = last_dou[i];
 		}
-		/*---------------------------------*/
-		param_list_show.param_list[ i + start ].mark = READ_CFS.pmd[i].mark;
-		/*---------------------------------*/
 	}
 	param_list_show.now_num++;
 	return 0;
@@ -1997,12 +2001,12 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 		line_mark.put_Style(0);
 		line_mark.put_ArrowLength(-20);
 		/* type */
-		if( type == 0xF2 )
+		if( type == 0xF2 && every )
 		{
 			/*------------------*/
-			line_mark.put_DrawEvery(param_list_show.param_list[num].point_num / every);
+			line_mark.put_DrawEvery((param_list_show.param_list[num].point_num-1) / every);
 			/*------------------*/
-		}else if( type == 0xF1 )
+		}else if( type == 0xF1 && every )
 		{
 			line_mark.put_DrawEvery(every);
 		}else
@@ -3159,6 +3163,11 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  /*---------------------------*/
 				  break;
 #endif
+#if !VERSION_CTRL
+			  case 90:
+				  fpos_analysis(0);
+#endif
+				  break;
 			  default:
 				  break;
 		  }
@@ -3511,6 +3520,8 @@ void CTeeChart5_testDlg::reflush_chart(void)
 		if( param_list_show.param_list[i].data != NULL )
 		{
 			free(param_list_show.param_list[i].data);
+			/* release */
+			param_list_show.param_list[i].data = NULL;
 		}
 	}
 	/*-----------------------------*/
@@ -3534,7 +3545,6 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	{
 		if( param_list_show.param_list[i].status != 0 )
 		{
-			
 			/* has not show */
 			if( param_list_show.param_list_num )
 			{
@@ -3558,11 +3568,6 @@ unsigned int CTeeChart5_testDlg::get_color(unsigned int mode)
 {
 	/*------------*/
 	unsigned int color_tmp;
-	//	srand(time(NULL));
-	///*-----------*/
-	//unsigned int colorR = (unsigned char)rand();
-	//unsigned int colorG = (unsigned char)rand();
-	//unsigned int colorB = (unsigned char)rand();
 	/*--------------*/
 	if( color_index< 7 )
 	{
@@ -3646,7 +3651,415 @@ void CTeeChart5_testDlg::create_version_line(unsigned int mode)
 	/*------------------------*/
 }
 /*-----------------------------------------------*/
+int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
+{
+    int event_num_pos = 0xffff;
+	int enent_time_pos = 0xffff;
+	int enent_point_num = 0;
+	/*---------------------*/
+	int fpos_num_pos = 0xffff;
+	int fpos_point_num = 0;
+	int CT1_pos = 0xffff;
+	int CT2_pos = 0xffff;
+	int CT3_pos = 0xffff;
+	int CT4_pos = 0xffff;
+	int CT5_pos = 0xffff;
+	int GPS_LON_FPOS = 0xffff;
+	int GPS_LAT_FPOS = 0xffff;
+	int HEIGHT_FPOS = 0xffff;
+	/* create a file */
+	FILE * txt_wb;
+	char path_data[512];
+	memset(path_data,0,sizeof(path_data));
+	/*---------------------*/
+	unsigned int TIME_PERIOD = 10*1000;//5ms
+	/*---------------------*/
+	/* find the lat and lon in param list */
+	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( event_num_pos == 0xffff && strstr(param_list_show.param_list[i].name,"EVENTNUMBER") != NULL )
+		{
+			event_num_pos = i;
+			enent_point_num = param_list_show.param_list[i].point_num;
+		}
 
+		if( enent_time_pos == 0xffff && strstr(param_list_show.param_list[i].name,"EVENTTIME") != NULL )
+		{
+			enent_time_pos = i;
+		}
+		/*--------fpos----------*/
+		if( fpos_num_pos == 0xffff && strstr(param_list_show.param_list[i].name,"FPOS_INDEX") != NULL )
+		{
+			fpos_num_pos = i;
+			fpos_point_num = param_list_show.param_list[i].point_num;
+			strcpy(path_data,param_list_show.param_list[i].from_file);
+		}
+		/* fpos CT1 */
+		if( CT1_pos == 0xffff && strstr(param_list_show.param_list[i].name,"CT1") != NULL )
+		{
+			CT1_pos = i;
+		}
+		/* fpos CT2 */
+		if( CT2_pos == 0xffff && strstr(param_list_show.param_list[i].name,"CT2") != NULL )
+		{
+			CT2_pos = i;
+		}
+		/* fpos CT3 */
+		if( CT3_pos == 0xffff && strstr(param_list_show.param_list[i].name,"CT3") != NULL )
+		{
+			CT3_pos = i;
+		}
+		/* fpos CT4 */
+		if( CT4_pos == 0xffff && strstr(param_list_show.param_list[i].name,"CT4") != NULL )
+		{
+			CT4_pos = i;
+		}
+		/* fpos CT5 */
+		if( CT5_pos == 0xffff && strstr(param_list_show.param_list[i].name,"CT5") != NULL )
+		{
+			CT5_pos = i;
+		}
+		/* postion */
+		if( GPS_LON_FPOS == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON_FPOS") != NULL )
+		{
+			GPS_LON_FPOS = i;
+		}
+		/* postion */
+		if( GPS_LAT_FPOS == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT_FPOS") != NULL )
+		{
+			GPS_LAT_FPOS = i;
+		}
+		/* postion */
+		if( HEIGHT_FPOS == 0xffff && strstr(param_list_show.param_list[i].name,"HEIGHT_FPOS") != NULL )
+		{
+			HEIGHT_FPOS = i;
+		}
+		/*--*/
+		if( event_num_pos != 0xffff && enent_time_pos != 0xffff && fpos_num_pos != 0xffff &&
+			CT1_pos != 0xffff && CT2_pos != 0xffff && CT3_pos != 0xffff && CT4_pos != 0xffff && CT5_pos != 0xffff && 
+			GPS_LON_FPOS != 0xffff && GPS_LAT_FPOS != 0xffff && HEIGHT_FPOS != 0xffff)
+		{
+			break;
+		}
+	}
+	/*-------------------------------*/
+	if( event_num_pos == 0xffff || enent_time_pos == 0xffff || fpos_num_pos == 0xffff ||
+			CT1_pos == 0xffff || CT2_pos == 0xffff || CT3_pos == 0xffff || CT4_pos == 0xffff || CT5_pos == 0xffff || 
+			GPS_LON_FPOS == 0xffff || GPS_LAT_FPOS == 0xffff || HEIGHT_FPOS == 0xffff)
+	{
+		AfxMessageBox(_T("一些文件没有打开"));
+		return (-1);
+	}
+	/*------------------------------*/
+	char create_buffer[512];
+	memset(create_buffer,0,sizeof(create_buffer));
+	//-------------
+	sprintf(create_buffer,"%s.txt",path_data);
+	// open file 
+	fopen_s(&txt_wb,create_buffer,"wb+");
+	/*-------------------------------*/
+	if( txt_wb == NULL )
+	{
+		AfxMessageBox(_T("输出文件创建失败，不能分析"));
+		return (-1);
+	}
+	/*------------------------------*/
+	char output[1024];
+	unsigned int error_flag = 0;
+	/* clear buffer */
+	memset(output,0,sizeof(output));
+	/* check rt27 event */
+	double * tmp = (double *)param_list_show.param_list[event_num_pos].data;
+	/*------------------*/
+	int firt_num_event = 0;
+	/*------------------*/
+	if( (int)tmp[0] < 50 )
+	{
+		firt_num_event = (int)tmp[0];
+	}
+	/* check num */
+	if( enent_point_num != ( (int)tmp[enent_point_num - 1 ] - (int)tmp[0] + 1 ) )
+	{
+		int last = (int)tmp[0];
+		/* check what */
+		for( int i = 0 ; i < enent_point_num ; i ++ )
+		{
+			if( last != (int)tmp[i] )
+			{
+				/* position */
+				memset(output,0,sizeof(output));
+				sprintf(output,"1.RT27中打标点在%d处发生丢失,异常\r\n",i);
+				fwrite(output,strlen(output),1,txt_wb);
+				/*-------------------------*/
+				last = tmp[i]; 
+				error_flag ++;
+			}
+			/*--------------------*/
+            last ++;
+		}
+	}else
+	{
+		memset(output,0,sizeof(output));
+		sprintf(output,"1.RT27中打标点数量与解析出来的数量相同，正确\r\n");
+		fwrite(output,strlen(output),1,txt_wb);
+	}
+	/*----check fpos num-------*/
+	tmp = (double *)param_list_show.param_list[fpos_num_pos].data;
+	/* check num */
+	if( fpos_point_num != ( (int)tmp[fpos_point_num - 1 ] - (int)tmp[0] + 1 ) )
+	{
+		int last = (int)tmp[0];
+		/* check what */
+		for( int i = 0 ; i < fpos_point_num ; i ++ )
+		{
+			if( last != (int)tmp[i] )
+			{
+				/* position */
+				memset(output,0,sizeof(output));
+				sprintf(output,"2.FPOS中记录条数在%d处发生丢失,异常\r\n",i);
+				fwrite(output,strlen(output),1,txt_wb);
+				/*-------------------------*/
+				last = tmp[i]; 
+				error_flag++;
+			}
+			/*--------------------*/
+            last ++;
+		}
+	}else
+	{
+		memset(output,0,sizeof(output));
+		sprintf(output,"2.FPOS中记录条数与解析出来的数量相同，正确\r\n");
+		fwrite(output,strlen(output),1,txt_wb);
+	}
+	/* check event and event */
+	if( error_flag == 0 )
+	{
+		if( fpos_point_num <= enent_point_num )
+		{
+			/* calibrate and create line */
+			double *e_time;
+			/*----------------------------*/
+			const double *ct1_const = (double *)param_list_show.param_list[CT1_pos].data;
+			const double *ct2_const = (double *)param_list_show.param_list[CT2_pos].data;
+			const double *ct3_const = (double *)param_list_show.param_list[CT3_pos].data;
+			const double *ct4_const = (double *)param_list_show.param_list[CT4_pos].data;
+			const double *ct5_const = (double *)param_list_show.param_list[CT5_pos].data;
+			/*----------------------------*/
+			e_time = (double *)param_list_show.param_list[enent_time_pos].data;
+			/*----------------------------*/
+			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT1(us)");
+			/* malloc memorizes */
+			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			/* dest */
+			double *ct1_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
+			/*------------------*/
+			param_list_show.param_list_num++;
+			/*-------------------------------------------------------------------------------*/
+			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT2(us)");
+			/* malloc memorizes */
+			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			/* dest */
+			double *ct2_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
+			/*------------------*/
+			param_list_show.param_list_num++;
+			/*-------------------------------------------------------------------------------*/
+			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT3(us)");
+			/* malloc memorizes */
+			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			/* dest */
+			double *ct3_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
+			/*------------------*/
+			param_list_show.param_list_num++;
+			/*-------------------------------------------------------------------------------*/
+			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT4(us)");
+			/* malloc memorizes */
+			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			/* dest */
+			double *ct4_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
+			/*------------------*/
+			param_list_show.param_list_num++;
+			/*-------------------------------------------------------------------------------*/
+			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT5(us)");
+			/* malloc memorizes */
+			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			/* dest */
+			double *ct5_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
+			/*------------------*/
+			param_list_show.param_list_num++;
+			/*-------------------------------------------------------------------------------*/
+			int diff_basic = enent_point_num - fpos_point_num;
+			// open source
+			for( int i = 0 ; i < fpos_point_num ; i ++ )
+			{   
+				double diff = e_time[diff_basic+i] - ct1_const[i];
+				/* judge */
+				if( abs(diff) > TIME_PERIOD )//50 ms
+				{
+					memset(output,0,sizeof(output));
+					sprintf(output,"3.时间间隔EVENT-CT1异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct1_const[i],diff);
+					fwrite(output,strlen(output),1,txt_wb);
+					error_flag++;
+				}
+				// save data 
+                ct1_data[i] = diff;
+				/*---------------------------------------------------------------------*/
+				diff = e_time[diff_basic+i] - ct2_const[i];
+				/* judge */
+				if( abs(diff) > TIME_PERIOD )//50 ms
+				{
+					memset(output,0,sizeof(output));
+					sprintf(output,"3.时间间隔EVENT-CT2异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct2_const[i],diff);
+					fwrite(output,strlen(output),1,txt_wb);
+					error_flag++;
+				}
+				// save data 
+                ct2_data[i] = diff;
+				/*---------------------------------------------------------------------*/
+				diff = e_time[diff_basic+i] - ct3_const[i];
+				/* judge */
+				if( abs(diff) > TIME_PERIOD )//50 ms
+				{
+					memset(output,0,sizeof(output));
+					sprintf(output,"3.时间间隔EVENT-CT3异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct3_const[i],diff);
+					fwrite(output,strlen(output),1,txt_wb);
+					error_flag++;
+				}
+				// save data 
+                ct3_data[i] = diff;
+				/*---------------------------------------------------------------------*/
+				diff = e_time[diff_basic+i] - ct4_const[i];
+				/* judge */
+				if( abs(diff) > TIME_PERIOD )//50 ms
+				{
+					memset(output,0,sizeof(output));
+					sprintf(output,"3.时间间隔EVENT-CT4异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct4_const[i],diff);
+					fwrite(output,strlen(output),1,txt_wb);
+					error_flag++;
+				}
+				// save data 
+                ct4_data[i] = diff;
+				/*---------------------------------------------------------------------*/
+				diff = e_time[diff_basic+i] - ct5_const[i];
+				/* judge */
+				if( abs(diff) > TIME_PERIOD )//50 ms
+				{
+					memset(output,0,sizeof(output));
+					sprintf(output,"3.时间间隔EVENT-CT5异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct5_const[i],diff);
+					fwrite(output,strlen(output),1,txt_wb);
+					error_flag++;
+				}
+				// save data 
+                ct5_data[i] = diff;
+				/*---------------------------------------------------------------------*/
+			}
+			/*-------------------------------------------------------------------------------*/
+			if( error_flag == 0 )
+			{
+				memset(output,0,sizeof(output));
+				sprintf(output,"3.时间间隔-----------------正确\r\n");
+				fwrite(output,strlen(output),1,txt_wb);
+			}
+			/*-------------------------------------------------------------------------------*/
+		}else
+		{
+			memset(output,0,sizeof(output));
+			sprintf(output,"3.FPOS中记录数量与RT27记录打标点数量不匹配，相差%d，异常\r\n",fpos_point_num - enent_point_num);
+			fwrite(output,strlen(output),1,txt_wb);
+			error_flag++;
+		}
+	}
+	/* check pos */
+	const double *lon_const = (double *)param_list_show.param_list[GPS_LON_FPOS].data;
+	const double *lat_const = (double *)param_list_show.param_list[GPS_LAT_FPOS].data;
+	/* i */
+	double lon_last = lon_const[0];
+	double lat_last = lat_const[0];
+	/*------------------------------------------------------------------------------*/
+	int error_fpos_lon_lat = 0;
+	/*------------------------------------------------------------------------------*/
+	for( int i = 1 ; i < param_list_show.param_list[GPS_LON_FPOS].point_num ; i ++ )
+	{
+		if( lon_const[i] == lon_last && lat_const[i] == lat_last )
+		{
+			memset(output,0,sizeof(output));
+			sprintf(output,"4.FPOS中记录数量存在相同的位置点，异常，fpos行:%d\r\n",i);
+			fwrite(output,strlen(output),1,txt_wb);
+			error_flag++;
+			error_fpos_lon_lat++;
+		}
+		/*-----------------------------------*/
+		lon_last = lon_const[i];
+		lat_last = lat_const[i];
+		/*-----------------------------------*/
+	}
+	/*---------------------------------------*/
+	if( error_fpos_lon_lat == 0 )
+	{
+		memset(output,0,sizeof(output));
+		sprintf(output,"4.FPOS中记录数量位置点，正确\r\n");
+		fwrite(output,strlen(output),1,txt_wb);
+	}
+	/*--------------*/
+	/* show */
+	if( error_flag == 0 )
+	{
+		memset(output,0,sizeof(output));
+		sprintf(output,"\r\n\r\n总结：未发现问题\r\n");
+		fwrite(output,strlen(output),1,txt_wb);
+		/*--------------------------------------*/
+		//AfxMessageBox(_T("分析完成，未发现问题"));
+		if( MessageBox(_T("分析完成，未发现问题，点<确定>查看分析报告"),_T("分析报告"),1) == 1 )
+		{
+			error_flag = 0;//open txt
+		}else
+		{
+			error_flag = 0;
+		}
+	}else
+	{
+		memset(output,0,sizeof(output));
+		sprintf(output,"\r\n\r\n总结：发现问题!!!!!!!!!!!!!!!\r\n");
+		fwrite(output,strlen(output),1,txt_wb);
+		/*--------------------------------------*/
+	    if( MessageBox(_T("分析完成，发现问题，点<确定>查看分析报告"),_T("分析报告"),1) == 1 )
+		{
+			error_flag = 0; // open txt
+		}else
+		{
+			error_flag = 0;
+		}
+	}
+	//fresh the combox
+	combox_list_fresh();
+	/*-------------------------------------------*/
+	fclose(txt_wb);
+}
+/*-----------------------------------------------*/
+void CTeeChart5_testDlg::combox_list_fresh(void)
+{
+    /* transform */
+	USES_CONVERSION;
+	/* fresh the combox */
+	CString show;
+	/*------------------*/
+	m_combox_param_show.ResetContent();
+    /*-------------------------------------------*/
+	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		show = A2T(param_list_show.param_list[i].name);
+	    m_combox_param_show.AddString(show);
+	}
+	/*-------------------------------------------*/
+	m_combox_param_show.SetCurSel(param_list_show.param_list_num - 1);
+}
+	
+
+/*-----------------------------------------------*/
 void CTeeChart5_testDlg::OnBnClickedButton31()
 {
 	// TODO: 在此添加控件通知处理程序代码

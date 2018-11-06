@@ -176,4 +176,5 @@ public:
 	afx_msg void OnBnClickedButton23();
 	CComboBox m_combox_little;
 	afx_msg void OnBnClickedButton3();
+	CEdit m_timemark;
 };

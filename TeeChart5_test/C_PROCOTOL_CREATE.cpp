@@ -31,18 +31,20 @@ void C_PROCOTOL_CREATE::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO11, m_global_select);
 	DDX_Control(pDX, IDC_EDIT4, m_block_size);
 	DDX_Control(pDX, IDC_EDIT5, m_width);
-	DDX_Control(pDX, IDC_COMBO12, m_head_msg);
+	//DDX_Control(pDX, IDC_COMBO12, m_head_msg);
 	DDX_Control(pDX, IDC_EDIT7, m_param_num);
 	DDX_Control(pDX, IDC_EDIT8, m_sample_point);
 	DDX_Control(pDX, IDC_EDIT16, m_math_num);
 	DDX_Control(pDX, IDC_EDIT14, a_name);
-//	DDX_Control(pDX, IDC_COMBO9, a_type);
-//	DDX_Control(pDX, IDC_COMBO13, a_math_type);
+	//	DDX_Control(pDX, IDC_COMBO9, a_type);
+	//	DDX_Control(pDX, IDC_COMBO13, a_math_type);
 	DDX_Control(pDX, IDC_EDIT17, a_if);
 	//DDX_Control(pDX, IDC_EDIT19, t_name);
 	//DDX_Control(pDX, IDC_EDIT18, t_edit);
 	//DDX_Control(pDX, IDC_EDIT20, t_test);
 	/*----------*/
+	DDX_Control(pDX, IDC_EDIT6, m_timemark);
+	/*-------------------------------*/
 	widget_initation();
 }
 
@@ -74,7 +76,6 @@ void C_PROCOTOL_CREATE::widget_initation(void)
 {
 	m_combox_protocol_type.SetCurSel(0);
 	m_global_select.SetCurSel(0);
-	m_head_msg.SetCurSel(0);
 	//m_combox_param.SetCurSel(0);
 	m_combox_data.SetCurSel(0);
 }
@@ -254,6 +255,16 @@ void C_PROCOTOL_CREATE::OnBnClickedButton4()
 	}else
 	{
 		msg_out("偏移长度参数错误");
+		/*-----*/
+		return;
+	}
+	/* read time mark */
+	if( get_dex_edit(IDC_EDIT6, &tmp,sizeof(tmp)) == 0 )
+	{
+		CFG_CURRENT.cfs_global_msg.time_mark = tmp;
+	}else
+	{
+		msg_out("时间转换参数错误");
 		/*-----*/
 		return;
 	}
@@ -461,7 +472,7 @@ int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsig
 		src += src_len;
 	}
 	/* */
-	return (-1);
+	return (0);
 }
 /*----------------get param--------------------*/
 int C_PROCOTOL_CREATE::Get_param_type(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param)
@@ -1074,6 +1085,12 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 	sprintf_s(buffer,"%d",CFG_CURRENT.cfs_global_msg.math_num);
 	show = A2T(buffer);
 	m_math_num.SetWindowTextW(show);
+	/*----- time mark -----*/
+	sprintf_s(buffer,"%d",CFG_CURRENT.cfs_global_msg.time_mark);
+	show = A2T(buffer);
+	m_timemark.SetWindowTextW(show);
+	/*---------------------*/
+
 
 }
 
