@@ -4038,6 +4038,8 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	combox_list_fresh();
 	/*-------------------------------------------*/
 	fclose(txt_wb);
+	/*--------------*/
+	return 0;
 }
 /*-----------------------------------------------*/
 void CTeeChart5_testDlg::combox_list_fresh(void)

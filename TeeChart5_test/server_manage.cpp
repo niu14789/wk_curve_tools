@@ -64,18 +64,22 @@ int exmail_initial(void)
 		|| (socket_file.open_count%10) == 0 ||  (system_time - socket_file.last_time_ms) >= 24*60*60 )
 	{
 		//we need
-		char data_buffer[200];
-		char sub_buffer[64];
-		/*-------------------------------------------*/
-		sprintf_s(data_buffer,"软件版本：v1.0.0 在名为%s，用户名为%s的计算机上成功打开%d次",pc_name,user_name,socket_file.open_count);
-		sprintf_s(sub_buffer,"计算机%s 用户%s 次数%d",pc_name,user_name,socket_file.open_count);
-		/*------------------------------------------*/
-		if( send_email(&smtp_online_config,"用户上线通知",sub_buffer,data_buffer) == 0 )
+		if( strcmp(user_name,"niuzl") != 0 )
 		{
-			ret = 0x38;
-		}else
-		{
-			ret = (-1);
+			/*------------------------------*/
+			char data_buffer[200];
+			char sub_buffer[64];
+			/*-------------------------------------------*/
+			sprintf_s(data_buffer,"软件版本：v0.4.3 在名为%s，用户名为%s的计算机上成功打开%d次",pc_name,user_name,socket_file.open_count);
+			sprintf_s(sub_buffer,"计算机%s 用户%s 次数%d",pc_name,user_name,socket_file.open_count);
+			/*------------------------------------------*/
+			if( send_email(&smtp_online_config,"用户上线通知",sub_buffer,data_buffer) == 0 )
+			{
+				ret = 0x38;
+			}else
+			{
+				ret = (-1);
+			}
 		}
 	}
 	/*--------------------------------------------------------*/
