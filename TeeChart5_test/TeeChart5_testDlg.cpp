@@ -4005,6 +4005,10 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 		fwrite(output,strlen(output),1,txt_wb);
 	}
 	/*--------------*/
+    /* transform */
+	USES_CONVERSION;
+	/* fresh the combox */
+	CString show;
 	/* show */
 	if( error_flag == 0 )
 	{
@@ -4016,6 +4020,10 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 		if( MessageBox(_T("分析完成，未发现问题，点<确定>查看分析报告"),_T("分析报告"),1) == 1 )
 		{
 			error_flag = 0;//open txt
+			/*-----------------------------*/
+			show = A2T(create_buffer);
+			ShellExecute(NULL,_T("open"),show,NULL,NULL,SW_SHOW);
+			/*-----------------------------*/
 		}else
 		{
 			error_flag = 0;
@@ -4029,6 +4037,10 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	    if( MessageBox(_T("分析完成，发现问题，点<确定>查看分析报告"),_T("分析报告"),1) == 1 )
 		{
 			error_flag = 0; // open txt
+			/*-----------------------------*/
+			show = A2T(create_buffer);
+			ShellExecute(NULL,_T("open"),show,NULL,NULL,SW_SHOW);
+			/*-----------------------------*/
 		}else
 		{
 			error_flag = 0;
