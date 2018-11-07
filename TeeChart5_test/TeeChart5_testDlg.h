@@ -177,11 +177,20 @@ typedef struct
 	SYSTEM_LINE_CFS line_cfg[20];
 }SYSTEM_AUTO_SCALE_DEF;
 
+typedef struct
+{
+	unsigned int line_num;
+	unsigned int from;
+	unsigned int to;
+	unsigned int enable;
+}SYSTEM_DELETE_POINT_DEF;
+
 // CTeeChart5_testDlg 对话框
 class CTeeChart5_testDlg : public CDialogEx
 {
 // 构造
 public:
+	void CTeeChart5_testDlg::delete_point(void);
 	void CTeeChart5_testDlg::combox_list_fresh(void);
 	int CTeeChart5_testDlg::fpos_analysis(unsigned int mode);
 	void CTeeChart5_testDlg::create_version_line(unsigned int mode);

@@ -35,6 +35,8 @@
 #include "system_config.h"
 #include "suggestion.h"
 #include "rt27.h"
+#include "del_point.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -84,6 +86,8 @@ motor motor_dlg;
 static unsigned int color_index = 0;
 /*------------------------------------*/
 static unsigned int version_ctrl = 0;
+/*------------------------------------*/
+extern SYSTEM_DELETE_POINT_DEF system_delete_point;
 /*------------------------------------*/
 // ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
 
@@ -220,6 +224,7 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	GetClientRect(&m_orignal);
 	/*------------------------*/
 	m_combox_param_show.SetCurSel(0);
+#if !VERSION_CTRL
 	 /* list contrl */
 	 DWORD dwStyle = m_list_ctrl.GetExtendedStyle();     
      dwStyle |= LVS_EX_FULLROWSELECT;
@@ -232,9 +237,11 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
      m_list_ctrl.InsertColumn(1, _T("检查项"), LVCFMT_LEFT, 80);
      m_list_ctrl.InsertColumn(2, _T("结果"), LVCFMT_CENTER, 90);
 	 m_list_ctrl.InsertColumn(3, _T("数据"), LVCFMT_LEFT, 1000);
+#endif
 	 /* line init */
 	 chart_line_init();
 	 /*-------------------*/
+#if !VERSION_CTRL
 	 Read_limit_file();
 	 memset(&line_mulit,0xff,sizeof(line_mulit));
 //	 create_thread();
@@ -265,6 +272,7 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	{ 
 	    check_list_show(system_config_inf.inf[1]);
 	}
+
 	/* */
 
 	/* open */
@@ -279,9 +287,11 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 		m_taps.SetWindowTextW(_T("提示信息：手动模式......"));
 		Get_COM_STATUS(0);
 	}
+
 	/*----------------------*/
 	m_pic_cnt.SetCurSel(0);
 	/*----------------------*/
+#endif
 	CEnvironment evn = m_chart.get_Environment();
 	evn.put_MouseWheelScroll(0);
 	/*----------------------*/
@@ -3162,6 +3172,11 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  create_version_line(0);
 				  /*---------------------------*/
 				  break;
+#else
+			  case VK_F6:
+				  //-------------------------------
+				  delete_point();
+				  break;
 #endif
 #if !VERSION_CTRL
 			  case 90:
@@ -4071,8 +4086,26 @@ void CTeeChart5_testDlg::combox_list_fresh(void)
 	/*-------------------------------------------*/
 	m_combox_param_show.SetCurSel(param_list_show.param_list_num - 1);
 }
-	
-
+/*-----------------------------------------------*/
+void CTeeChart5_testDlg::delete_point(void)
+{
+	del_point del;
+	del.DoModal();
+	/*-------------------------*/
+	if( system_delete_point.enable )
+	{
+		system_delete_point.enable = 0;
+		/*---------------------*/
+		CSeries line = (CSeries)m_chart.Series(system_delete_point.line_num);
+		/*---------------------*/
+		for( int i = system_delete_point.from ; i < system_delete_point.to + 1 ; i ++ )
+		{
+			line.Delete(i);
+		}
+		/*---------------------*/
+	}
+	/*-------------------------*/
+}
 /*-----------------------------------------------*/
 void CTeeChart5_testDlg::OnBnClickedButton31()
 {

@@ -148,7 +148,7 @@ void suggestion::OnBnClickedButton2()
 void suggestion::OnBnClickedButton1()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	AfxMessageBox(_T("164100086@qq.com"));
+	//AfxMessageBox(_T("164100086@qq.com"));
 }
 /*---------------------------------------*/
 int suggestion::get_string_edit( int id,void * data , unsigned int len )
