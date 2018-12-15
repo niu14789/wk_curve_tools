@@ -7,6 +7,6 @@
 #define V_FM            0
 #define V_PUBLIC        1
 
-#define VERSION_CTRL  (1)
+#define VERSION_CTRL  (0)
 
 #endif

@@ -53,7 +53,7 @@ typedef struct
 	unsigned int status;//draw status
 	unsigned int line_num;
 	unsigned int color;
-	unsigned int time_ms;
+	unsigned int time_us;
 	unsigned int mark;
 	unsigned char hot_key[16];
 	unsigned int hot_key_num;

@@ -1242,6 +1242,8 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		/*---------------------------------*/
 		strcpy_s(param_list_show.param_list[ param_list_show.param_list_num ].from_file,file_man.file[index].file_path);
 		/*---------------------------------*/
+		param_list_show.param_list[ param_list_show.param_list_num ].time_us = READ_CFS.cfs_global_msg.time_mark;
+		/*---------------------------------*/
 		param_list_show.param_list_num++;	
 		/* over */
 		if( param_list_show.param_list_num >= 512 )
@@ -1943,12 +1945,12 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	/* draw all */
 	for( long i = param_list_show.param_list[num].offset ; i < param_list_show.param_list[num].point_num ; i++ )
 	{
-		if( param_list_show.param_list[num].time_ms == 0 )
+		if( param_list_show.param_list[num].time_us == 0 )
 		{
            dval = i;
 		}else
 		{
-		   dval = i * param_list_show.param_list[num].time_ms;
+		   dval = (double)i * (double)param_list_show.param_list[num].time_us / (double)1000000;
 		}
 		/* init */
         XValue.PutElement(&i, &dval);
@@ -1959,12 +1961,6 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	}
 	/* show the line */
 	line_cfs.AddArray(param_list_show.param_list[num].point_num,YValue,XValue);
-	/*------------*/
-	//srand(time(NULL));
-	///*-----------*/
-	//unsigned int colorR = (unsigned char)rand();
-	//unsigned int colorG = (unsigned char)rand();
-	//unsigned int colorB = (unsigned char)rand();
 	/*-----------*/
 	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*---------------*/
