@@ -1229,14 +1229,22 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		param_list_show.param_list[param_list_show.param_list_num].point_num = file_size / READ_CFS.cfs_global_msg.block_size;
 		/* allocate memory */
 		/*----malloc the data*/
-		param_list_show.param_list[param_list_show.param_list_num].data = 
+		param_list_show.param_list[param_list_show.param_list_num].data_y = 
 		(unsigned char *)malloc(param_list_show.param_list[param_list_show.param_list_num].point_num*8);//double
 		/*---------------------*/
-		if( param_list_show.param_list[param_list_show.param_list_num].data == NULL )
+		if( param_list_show.param_list[param_list_show.param_list_num].data_y == NULL )
 		{
 			MessageBox(_T("内存分配失败"),_T("tips"),0);
 			return;
-		}		
+		}	
+		param_list_show.param_list[param_list_show.param_list_num].data_x = 
+		(unsigned char *)malloc(param_list_show.param_list[param_list_show.param_list_num].point_num*8);//double
+		/*---------------------*/
+		if( param_list_show.param_list[param_list_show.param_list_num].data_x == NULL )
+		{
+			MessageBox(_T("内存分配失败"),_T("tips"),0);
+			return;
+		}
         /*------------------------------*/
 		param_list_show.param_list[ param_list_show.param_list_num ].mark = READ_CFS.pmd[i].mark;
 		/*---------------------------------*/
@@ -1294,7 +1302,7 @@ int CTeeChart5_testDlg::math_and_line(unsigned char *data,unsigned int len,unsig
 	/*--------------------*/
 	for( unsigned int i = 0 ; i < READ_CFS.cfs_global_msg.sample_num ; i ++ )
 	{
-		line_data = (double *)param_list_show.param_list[ i + start ].data;
+		line_data = (double *)param_list_show.param_list[ i + start ].data_y;
 		/* cle */
 		memcpy(buffer,&data[ READ_CFS.pmd[i].offset ] , READ_CFS.pmd[i].width );
 		/* math */
@@ -1308,6 +1316,17 @@ int CTeeChart5_testDlg::math_and_line(unsigned char *data,unsigned int len,unsig
 		}else
 		{
 			line_data[param_list_show.now_num] = last_dou[i];
+		}
+		/* set x axis */
+		line_data = (double *)param_list_show.param_list[ i + start ].data_x;
+		/* set data */
+		if( READ_CFS.cfs_global_msg.time_mark != 0 )
+		{
+			line_data[param_list_show.now_num] = 
+				(double)param_list_show.now_num * (double)READ_CFS.cfs_global_msg.time_mark / (double)1000000;
+		}else
+		{
+			line_data[param_list_show.now_num] = param_list_show.now_num;
 		}
 	}
 	param_list_show.now_num++;
@@ -1936,7 +1955,8 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	}
 	/* get axis */
 	/*--------------------------*/
-	double *line_data = (double *)param_list_show.param_list[num].data;
+	double *line_data_y = (double *)param_list_show.param_list[num].data_y;
+	double *line_data_x = (double *)param_list_show.param_list[num].data_x;
 	/*------init------*/
 	rgsabound.cElements = param_list_show.param_list[num].point_num - param_list_show.param_list[num].offset;
     rgsabound.lLbound=0;
@@ -1945,17 +1965,11 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	/* draw all */
 	for( long i = param_list_show.param_list[num].offset ; i < param_list_show.param_list[num].point_num ; i++ )
 	{
-		if( param_list_show.param_list[num].time_us == 0 )
-		{
-           dval = i;
-		}else
-		{
-		   dval = (double)i * (double)param_list_show.param_list[num].time_us / (double)1000000;
-		}
+		dval = line_data_x[i];
 		/* init */
         XValue.PutElement(&i, &dval);
 
-        dval = line_data[i];
+        dval = line_data_y[i];
 
         YValue.PutElement(&i, &dval);
 	}
@@ -3272,8 +3286,8 @@ void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l
 		}
 	}
     /* show */
-	double * lat_line = (double *)param_list_show.param_list[lat_pos].data;
-	double * lon_line = (double *)param_list_show.param_list[lon_pos].data;
+	double * lat_line = (double *)param_list_show.param_list[lat_pos].data_y;
+	double * lon_line = (double *)param_list_show.param_list[lon_pos].data_y;
 	/* check 0 */
 	unsigned int j = 0;
 	/*---------------------------------------*/
@@ -3384,9 +3398,9 @@ void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is si
 		return;
 	}
     /* show */
-	double * lat_line = (double *)param_list_show.param_list[lat_pos].data;
-	double * lon_line = (double *)param_list_show.param_list[lon_pos].data;
-	double * lane_pic_fc = (double *)param_list_show.param_list[lane_pic_pos].data;
+	double * lat_line = (double *)param_list_show.param_list[lat_pos].data_y;
+	double * lon_line = (double *)param_list_show.param_list[lon_pos].data_y;
+	double * lane_pic_fc = (double *)param_list_show.param_list[lane_pic_pos].data_y;
 	/*---------------------------------------*/
 	if( mode == 0 )
 	{
@@ -3468,7 +3482,7 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 		return;
 	}
     /* show */
-	double * sd_line = (double *)param_list_show.param_list[sd_pos].data;
+	double * sd_line = (double *)param_list_show.param_list[sd_pos].data_y;
 	/*---------------------------------------*/
 	if( mode == 0 )
 	{
@@ -3528,11 +3542,18 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	/* release the memeries */
 	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
-		if( param_list_show.param_list[i].data != NULL )
+		if( param_list_show.param_list[i].data_y != NULL )
 		{
-			free(param_list_show.param_list[i].data);
+			free(param_list_show.param_list[i].data_y);
 			/* release */
-			param_list_show.param_list[i].data = NULL;
+			param_list_show.param_list[i].data_y = NULL;
+		}
+		/*-----------------*/
+		if( param_list_show.param_list[i].data_x != NULL )
+		{
+			free(param_list_show.param_list[i].data_x);
+			/* release */
+			param_list_show.param_list[i].data_x = NULL;
 		}
 	}
 	/*-----------------------------*/
@@ -3780,7 +3801,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	/* clear buffer */
 	memset(output,0,sizeof(output));
 	/* check rt27 event */
-	double * tmp = (double *)param_list_show.param_list[event_num_pos].data;
+	double * tmp = (double *)param_list_show.param_list[event_num_pos].data_y;
 	/*------------------*/
 	int firt_num_event = 0;
 	/*------------------*/
@@ -3815,7 +3836,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 		fwrite(output,strlen(output),1,txt_wb);
 	}
 	/*----check fpos num-------*/
-	tmp = (double *)param_list_show.param_list[fpos_num_pos].data;
+	tmp = (double *)param_list_show.param_list[fpos_num_pos].data_y;
 	/* check num */
 	if( fpos_point_num != ( (int)tmp[fpos_point_num - 1 ] - (int)tmp[0] + 1 ) )
 	{
@@ -3850,55 +3871,55 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			/* calibrate and create line */
 			double *e_time;
 			/*----------------------------*/
-			const double *ct1_const = (double *)param_list_show.param_list[CT1_pos].data;
-			const double *ct2_const = (double *)param_list_show.param_list[CT2_pos].data;
-			const double *ct3_const = (double *)param_list_show.param_list[CT3_pos].data;
-			const double *ct4_const = (double *)param_list_show.param_list[CT4_pos].data;
-			const double *ct5_const = (double *)param_list_show.param_list[CT5_pos].data;
+			const double *ct1_const = (double *)param_list_show.param_list[CT1_pos].data_y;
+			const double *ct2_const = (double *)param_list_show.param_list[CT2_pos].data_y;
+			const double *ct3_const = (double *)param_list_show.param_list[CT3_pos].data_y;
+			const double *ct4_const = (double *)param_list_show.param_list[CT4_pos].data_y;
+			const double *ct5_const = (double *)param_list_show.param_list[CT5_pos].data_y;
 			/*----------------------------*/
-			e_time = (double *)param_list_show.param_list[enent_time_pos].data;
+			e_time = (double *)param_list_show.param_list[enent_time_pos].data_y;
 			/*----------------------------*/
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT1(us)");
 			/* malloc memorizes */
-			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			/* dest */
-			double *ct1_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			double *ct1_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT2(us)");
 			/* malloc memorizes */
-			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			/* dest */
-			double *ct2_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			double *ct2_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT3(us)");
 			/* malloc memorizes */
-			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			/* dest */
-			double *ct3_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			double *ct3_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT4(us)");
 			/* malloc memorizes */
-			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			/* dest */
-			double *ct4_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			double *ct4_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT5(us)");
 			/* malloc memorizes */
-			param_list_show.param_list[param_list_show.param_list_num].data = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			/* dest */
-			double *ct5_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data;
+			double *ct5_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
 			/*------------------*/
 			param_list_show.param_list_num++;
@@ -3985,8 +4006,8 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 		}
 	}
 	/* check pos */
-	const double *lon_const = (double *)param_list_show.param_list[GPS_LON_FPOS].data;
-	const double *lat_const = (double *)param_list_show.param_list[GPS_LAT_FPOS].data;
+	const double *lon_const = (double *)param_list_show.param_list[GPS_LON_FPOS].data_y;
+	const double *lat_const = (double *)param_list_show.param_list[GPS_LAT_FPOS].data_y;
 	/* i */
 	double lon_last = lon_const[0];
 	double lat_last = lat_const[0];

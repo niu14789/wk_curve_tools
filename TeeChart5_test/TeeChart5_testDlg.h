@@ -58,7 +58,9 @@ typedef struct
 	unsigned char hot_key[16];
 	unsigned int hot_key_num;
 	char from_file[128];
-	unsigned char * data;
+	unsigned char * data_y;
+	unsigned char * data_x;
+	unsigned char * data_z;
 }PARAM_LIST_SIGLE_DEF;
 
 typedef struct
