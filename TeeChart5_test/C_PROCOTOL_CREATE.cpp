@@ -61,6 +61,7 @@ BEGIN_MESSAGE_MAP(C_PROCOTOL_CREATE, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON24, &C_PROCOTOL_CREATE::OnBnClickedButton24)
 	ON_BN_CLICKED(IDC_BUTTON23, &C_PROCOTOL_CREATE::OnBnClickedButton23)
 	ON_BN_CLICKED(IDC_BUTTON3, &C_PROCOTOL_CREATE::OnBnClickedButton3)
+	ON_CBN_SELCHANGE(IDC_COMBO2, &C_PROCOTOL_CREATE::OnCbnSelchangeCombo2)
 END_MESSAGE_MAP()
 
 
@@ -78,6 +79,7 @@ void C_PROCOTOL_CREATE::widget_initation(void)
 	m_global_select.SetCurSel(0);
 	//m_combox_param.SetCurSel(0);
 	m_combox_data.SetCurSel(0);
+	m_global_select.EnableWindow(0);
 }
 /* open file */
 void C_PROCOTOL_CREATE::OnBnClickedButton1()
@@ -553,8 +555,35 @@ int C_PROCOTOL_CREATE::Get_param_type(char * src , unsigned int src_len , unsign
 	/* */
 	return (-1);
 }
+int C_PROCOTOL_CREATE::Get_function(char * src , unsigned int src_len , unsigned int num,
+	char * func,char * param1,char * param2,char * param3,char * param4,char * param5)
+{
+	char * tmp;//buffer[64];
+
+	for( unsigned int i = 0 ; i < num ; i++ )
+	{
+	    tmp = (char *)strstr(src,"FUNC");
+		/* get */
+		if( tmp != NULL )
+		{
+			int ret = sscanf(src,"FUNC[%s][%s][%s][%s][%s][%s]",func,param1,param2,param3,param4,param5);
+			/*---*/
+			if( ret != 0 )
+			{
+				return ret;
+			}else
+			{
+				return (-1);
+			}
+		}
+		/*-=*/
+		src += src_len;
+	}
+	/* */
+	return (-1);
+}
 /*----------------get param--------------------*/
-int C_PROCOTOL_CREATE::Get_check_if(char * src , unsigned int src_len , unsigned int num,char *string , unsigned int *param1,unsigned int *param2)
+int C_PROCOTOL_CREATE::Get_check_if(char * src , unsigned int src_len , unsigned int num, unsigned int *param1,unsigned int *param2)
 {
 	char * tmp;//buffer[64];
 
@@ -626,91 +655,193 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 		/*---------------------*/
 		return (-1);
 	}
-	/*--------check offset--------*/
-	if( Get_param_OLAY((char *)&math_buffer,64,ret,"OFFSET",&DATA_COMBOX.param_data[index].offset) != 0 )
+	/* create or normal */
+	if( Get_param_OLAY((char *)&math_buffer,64,ret,"CREATE",&DATA_COMBOX.param_data[index].offset) == 0 )
 	{
-		msg_out("OFFSET 参数错误");
-		/*---------------------*/
-		return (-1);
-	}
-	/*--------check len--------*/
-	if( Get_param_OLAY((char *)&math_buffer,64,ret,"LEN",&DATA_COMBOX.param_data[index].width) != 0 )
-	{
-		msg_out("LEN 参数错误");
-		/*---------------------*/
-		return (-1);
-	}
-	/*--------check len--------*/
-	if( Get_param_OLAY((char *)&math_buffer,64,ret,"ALIGN",&DATA_COMBOX.param_data[index].little) != 0 )
-	{
-		msg_out("ALIGN 参数错误");
-		/*---------------------*/
-		return (-1);
-	}
-	/*----------check type-----------*/
- 	if( Get_param_type((char *)&math_buffer,64,ret,"TYPE",&DATA_COMBOX.param_data[index].type) != 0 )
-	{
-		msg_out("TYPE 参数错误");
-		/*---------------------*/
-		return (-1);
-	}
-	/* check if */
-	if( Get_check_if((char *)&math_buffer,64,ret,DATA_COMBOX.param_data[index].if_param_string,
-		&DATA_COMBOX.param_data[index].if_param_value[0],&DATA_COMBOX.param_data[index].if_param_value[1]) != 0 )
-	{
-		msg_out("IF 参数错误");
-		/*---------------------*/
-		return (-1);
-	}
-	/*---------check MARK--------*/
-	if( Get_param_MARKS((char *)&math_buffer,64,ret,"MARK",&DATA_COMBOX.param_data[index].mark) != 0 )
-	{
-		msg_out("MARK 参数错误");
-		/*---------------------*/
-		return (-1);
-	}
-	/* get MATH type */
-	char * tmp = Get_math_type((char *)&math_buffer,64,ret,&DATA_COMBOX.param_data[index].math_type);
-	/* check */
-	if( tmp == NULL )
-	{
-		DATA_COMBOX.param_data[index].math_type = 0;
-		DATA_COMBOX.param_data[index].math_number = 0;
-		/* return ok */
-		return 0;
-	}
-    if( DATA_COMBOX.param_data[index].math_type == 1 )
-	{
-		DATA_COMBOX.param_data[index].math_type = 1;//short to float;
-		/*--------------*/
-		int ret = sscanf(tmp,"S2F[%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
-			&DATA_COMBOX.param_data[index].f_math[0],&DATA_COMBOX.param_data[index].asmf_type[0],
-			&DATA_COMBOX.param_data[index].f_math[1],&DATA_COMBOX.param_data[index].asmf_type[1],
-			&DATA_COMBOX.param_data[index].f_math[2],&DATA_COMBOX.param_data[index].asmf_type[2],
-			&DATA_COMBOX.param_data[index].f_math[3],&DATA_COMBOX.param_data[index].asmf_type[3],
-			&DATA_COMBOX.param_data[index].f_math[4],&DATA_COMBOX.param_data[index].asmf_type[4],
-			&DATA_COMBOX.param_data[index].f_math[5],&DATA_COMBOX.param_data[index].asmf_type[5],
-            &DATA_COMBOX.param_data[index].f_math[6],&DATA_COMBOX.param_data[index].asmf_type[6],
-			&DATA_COMBOX.param_data[index].f_math[7],&DATA_COMBOX.param_data[index].asmf_type[7],
-			&DATA_COMBOX.param_data[index].f_math[8],&DATA_COMBOX.param_data[index].asmf_type[8],
-			&DATA_COMBOX.param_data[index].f_math[9]);
-		/* if ok ? */
-		if( ret != 0 )
+		DATA_COMBOX.param_data[index].math_type = 0xff;
+		/* get function and param */
+		char func[16];
+		char parm[5][16];
+		/* get */
+		int n = Get_function((char *)&math_buffer,64,ret,func,parm[0],parm[1],parm[2],parm[3],parm[4]);
+		/* decode the function and  */
+		if( n == (-1) )
 		{
-			if( ret == 1 )
+			msg_out("FUNC 参数错误");
+			return (-1);
+		}
+		/* get the nim . decode the func */
+		DATA_COMBOX.param_data[index].if_num = n;
+		/* function list */
+		const char func_list[][8] = 
+		{
+			"COPY0",
+			"COPY1",
+			"COPY2",
+			"ADD",//+
+			"SUB",//-
+			"DIV",// /
+			"MUL",// *
+			"KX",
+			"KY",
+			"PCG1",
+			"PCG2",//if the point had changed then get data
+			"PCG3",
+		};
+		/*-------------*/
+		int i;
+		/*-------------------------------------------------------*/
+        for( i = 0 ; i < sizeof(func_list) / sizeof(func_list[0]) ; i ++ )
+		{
+			if( strcmp(func_list[i],func) == 0 )
 			{
-				DATA_COMBOX.param_data[index].math_number = 1;
+				DATA_COMBOX.param_data[index].type = i;
+				break;
+			}
+		}
+		/*-------------------*/
+		if( i == sizeof(func_list) / sizeof(func_list[0]) )
+		{
+			msg_out("FUNC 参数错误");
+			return (-1);
+		}
+		/*---------------------------------*/
+		char * p = &DATA_COMBOX.param_data[index].buffer[190];
+		/*---------------------------------*/
+		for( int i = 0 ; i < n - 1 ; i ++ )
+		{
+			strcpy(p,parm[i]);//copy data
+		}
+	}
+	else
+	{
+		/*--------check offset--------*/
+		if( Get_param_OLAY((char *)&math_buffer,64,ret,"OFFSET",&DATA_COMBOX.param_data[index].offset) != 0 )
+		{
+			msg_out("OFFSET 参数错误");
+			/*---------------------*/
+			return (-1);
+		}
+		/*--------check len--------*/
+		if( Get_param_OLAY((char *)&math_buffer,64,ret,"LEN",&DATA_COMBOX.param_data[index].width) != 0 )
+		{
+			msg_out("LEN 参数错误");
+			/*---------------------*/
+			return (-1);
+		}
+		/*--------check len--------*/
+		if( Get_param_OLAY((char *)&math_buffer,64,ret,"ALIGN",&DATA_COMBOX.param_data[index].little) != 0 )
+		{
+			msg_out("ALIGN 参数错误");
+			/*---------------------*/
+			return (-1);
+		}
+		/*----------check type-----------*/
+ 		if( Get_param_type((char *)&math_buffer,64,ret,"TYPE",&DATA_COMBOX.param_data[index].type) != 0 )
+		{
+			msg_out("TYPE 参数错误");
+			/*---------------------*/
+			return (-1);
+		}
+		/* check if */
+		if( Get_check_if((char *)&math_buffer,64,ret,
+			&DATA_COMBOX.param_data[index].if_param_value[0],&DATA_COMBOX.param_data[index].if_param_value[1]) != 0 )
+		{
+			msg_out("IF 参数错误");
+			/*---------------------*/
+			return (-1);
+		}
+		/* get MATH type */
+		char * tmp = Get_math_type((char *)&math_buffer,64,ret,&DATA_COMBOX.param_data[index].math_type);
+		/* check */
+		if( tmp == NULL )
+		{
+			DATA_COMBOX.param_data[index].math_type = 0;
+			DATA_COMBOX.param_data[index].math_number = 0;
+			/* return ok */
+			return 0;
+		}
+		if( DATA_COMBOX.param_data[index].math_type == 1 )
+		{
+			DATA_COMBOX.param_data[index].math_type = 1;//short to float;
+			/*--------------*/
+			int ret = sscanf(tmp,"S2F[%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
+				&DATA_COMBOX.param_data[index].f_math[0],&DATA_COMBOX.param_data[index].asmf_type[0],
+				&DATA_COMBOX.param_data[index].f_math[1],&DATA_COMBOX.param_data[index].asmf_type[1],
+				&DATA_COMBOX.param_data[index].f_math[2],&DATA_COMBOX.param_data[index].asmf_type[2],
+				&DATA_COMBOX.param_data[index].f_math[3],&DATA_COMBOX.param_data[index].asmf_type[3],
+				&DATA_COMBOX.param_data[index].f_math[4],&DATA_COMBOX.param_data[index].asmf_type[4],
+				&DATA_COMBOX.param_data[index].f_math[5],&DATA_COMBOX.param_data[index].asmf_type[5],
+				&DATA_COMBOX.param_data[index].f_math[6],&DATA_COMBOX.param_data[index].asmf_type[6],
+				&DATA_COMBOX.param_data[index].f_math[7],&DATA_COMBOX.param_data[index].asmf_type[7],
+				&DATA_COMBOX.param_data[index].f_math[8],&DATA_COMBOX.param_data[index].asmf_type[8],
+				&DATA_COMBOX.param_data[index].f_math[9]);
+			/* if ok ? */
+			if( ret != 0 )
+			{
+				if( ret == 1 )
+				{
+					DATA_COMBOX.param_data[index].math_number = 1;
+				}else
+				{
+					if( ret >= 3 && ( ret & 0x1 ) )
+					{
+						for( int i = 1 ; i < ret ; i += 2 )
+						{
+							if( !(DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '+' || 
+								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '-' || 
+								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '*' || 
+								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '/' || 
+								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '&'))
+							{
+								msg_out("条件式参数错误");
+								/*---------------------*/
+								return (-1);
+							}
+						}
+					}else
+					{
+						msg_out("条件式参数错误");
+						/*---------------------*/
+						return (-1);
+					}
+					/*==========*/
+					DATA_COMBOX.param_data[index].math_number = ret;
+				}
 			}else
 			{
-				if( ret >= 3 && ( ret & 0x1 ) )
+				msg_out("条件式参数错误");
+				/*---------------------*/
+				return (-1);
+			}
+		}else if( DATA_COMBOX.param_data[index].math_type == 2 )
+		{
+			DATA_COMBOX.param_data[index].math_type = 2;//short to float with mupity data
+			/*-----------------------------------*/
+			int ret = sscanf(tmp,"THIS[%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
+				/* seek */
+				&DATA_COMBOX.param_data[index].asmf_type[0],&DATA_COMBOX.param_data[index].f_math[0],
+				&DATA_COMBOX.param_data[index].asmf_type[1],&DATA_COMBOX.param_data[index].f_math[1],
+				&DATA_COMBOX.param_data[index].asmf_type[2],&DATA_COMBOX.param_data[index].f_math[2],
+				&DATA_COMBOX.param_data[index].asmf_type[3],&DATA_COMBOX.param_data[index].f_math[3],
+				&DATA_COMBOX.param_data[index].asmf_type[4],&DATA_COMBOX.param_data[index].f_math[4],
+				&DATA_COMBOX.param_data[index].asmf_type[5],&DATA_COMBOX.param_data[index].f_math[5],
+				&DATA_COMBOX.param_data[index].asmf_type[6],&DATA_COMBOX.param_data[index].f_math[6],
+				&DATA_COMBOX.param_data[index].asmf_type[7],&DATA_COMBOX.param_data[index].f_math[7],
+				&DATA_COMBOX.param_data[index].asmf_type[8],&DATA_COMBOX.param_data[index].f_math[8],
+				&DATA_COMBOX.param_data[index].asmf_type[9],&DATA_COMBOX.param_data[index].f_math[9]);
+			/* if ok ? */
+			if( ret != 0 )
+			{
+				if( ret >= 2 && ( ! ( ret & 0x1 ) ) )
 				{
-					for( int i = 1 ; i < ret ; i += 2 )
+					for( int i = 0 ; i < ret ; i += 2 )
 					{
-						if( !(DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '+' || 
-							DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '-' || 
-							DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '*' || 
-							DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '/' || 
-							DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '&'))
+						if( !(DATA_COMBOX.param_data[index].asmf_type[i/2] == '+' || 
+							DATA_COMBOX.param_data[index].asmf_type[i/2] == '-' || 
+							DATA_COMBOX.param_data[index].asmf_type[i/2] == '*' || 
+							DATA_COMBOX.param_data[index].asmf_type[i/2] == '/' || 
+							DATA_COMBOX.param_data[index].asmf_type[i/2] == '&'))
 						{
 							msg_out("条件式参数错误");
 							/*---------------------*/
@@ -725,61 +856,21 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 				}
 				/*==========*/
 				DATA_COMBOX.param_data[index].math_number = ret;
-			}
-		}else
-		{
-			msg_out("条件式参数错误");
-			/*---------------------*/
-			return (-1);
-		}
-	}else if( DATA_COMBOX.param_data[index].math_type == 2 )
-	{
-		DATA_COMBOX.param_data[index].math_type = 2;//short to float with mupity data
-		/*-----------------------------------*/
-		int ret = sscanf(tmp,"THIS[%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
-			/* seek */
-			&DATA_COMBOX.param_data[index].asmf_type[0],&DATA_COMBOX.param_data[index].f_math[0],
-			&DATA_COMBOX.param_data[index].asmf_type[1],&DATA_COMBOX.param_data[index].f_math[1],
-			&DATA_COMBOX.param_data[index].asmf_type[2],&DATA_COMBOX.param_data[index].f_math[2],
-			&DATA_COMBOX.param_data[index].asmf_type[3],&DATA_COMBOX.param_data[index].f_math[3],
-			&DATA_COMBOX.param_data[index].asmf_type[4],&DATA_COMBOX.param_data[index].f_math[4],
-			&DATA_COMBOX.param_data[index].asmf_type[5],&DATA_COMBOX.param_data[index].f_math[5],
-            &DATA_COMBOX.param_data[index].asmf_type[6],&DATA_COMBOX.param_data[index].f_math[6],
-			&DATA_COMBOX.param_data[index].asmf_type[7],&DATA_COMBOX.param_data[index].f_math[7],
-			&DATA_COMBOX.param_data[index].asmf_type[8],&DATA_COMBOX.param_data[index].f_math[8],
-			&DATA_COMBOX.param_data[index].asmf_type[9],&DATA_COMBOX.param_data[index].f_math[9]);
-		/* if ok ? */
-		if( ret != 0 )
-		{
-			if( ret >= 2 && ( ! ( ret & 0x1 ) ) )
-			{
-				for( int i = 0 ; i < ret ; i += 2 )
-				{
-					if( !(DATA_COMBOX.param_data[index].asmf_type[i/2] == '+' || 
-						DATA_COMBOX.param_data[index].asmf_type[i/2] == '-' || 
-						DATA_COMBOX.param_data[index].asmf_type[i/2] == '*' || 
-						DATA_COMBOX.param_data[index].asmf_type[i/2] == '/' || 
-						DATA_COMBOX.param_data[index].asmf_type[i/2] == '&'))
-					{
-						msg_out("条件式参数错误");
-						/*---------------------*/
-						return (-1);
-					}
-				}
 			}else
 			{
 				msg_out("条件式参数错误");
 				/*---------------------*/
 				return (-1);
 			}
-			/*==========*/
-			DATA_COMBOX.param_data[index].math_number = ret;
-		}else
-		{
-			msg_out("条件式参数错误");
-			/*---------------------*/
-			return (-1);
 		}
+	}
+	/* common sessions */
+	/*---------check MARK--------*/
+	if( Get_param_MARKS((char *)&math_buffer,64,ret,"MARK",&DATA_COMBOX.param_data[index].mark) != 0 )
+	{
+		msg_out("MARK 参数错误");
+		/*---------------------*/
+		return (-1);
 	}
 	/* return ok */
 	return 0;
@@ -1062,6 +1153,18 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 	/*------type-----*/
 	m_combox_protocol_type.SetCurSel(CFG_CURRENT.cfs_global_msg.procotol_type);
 	/* select */
+	if( CFG_CURRENT.cfs_global_msg.procotol_type == 1 )
+	{
+		m_global_select.EnableWindow(0);
+	}
+	else if( CFG_CURRENT.cfs_global_msg.procotol_type == 2 )
+	{
+		m_global_select.EnableWindow(1);
+	}
+	else
+	{
+		m_global_select.EnableWindow(0);
+	}
 	m_global_select.SetCurSel(CFG_CURRENT.cfs_global_msg.procotol_select);
 	/*----length----*/
 	sprintf_s(buffer,"%d",CFG_CURRENT.cfs_global_msg.block_size);
@@ -1097,4 +1200,27 @@ void C_PROCOTOL_CREATE::read_file_to_current(char *path)
 void C_PROCOTOL_CREATE::OnBnClickedButton3()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void C_PROCOTOL_CREATE::OnCbnSelchangeCombo2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	int seq = m_combox_protocol_type.GetCurSel();
+
+	if( seq == 1 )
+	{
+		m_global_select.SetCurSel(0);
+
+		m_global_select.EnableWindow(0);
+	}
+	else if( seq == 2 )
+	{
+		m_global_select.EnableWindow(1);
+	}
+	else
+	{
+		m_global_select.SetCurSel(0);
+		m_global_select.EnableWindow(0);
+	}
 }

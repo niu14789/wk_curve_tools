@@ -440,12 +440,7 @@ void CTeeChart5_testDlg::OnBnClickedButton2()
 	/*-----------------------*/
 	if( param_list_show.param_list[num].status != 0 )
 	{
-		//srand(time(NULL));
-		///*------*/
-		//unsigned int colorR = rand()%0xff;
-		//unsigned int colorG = rand()%0xff;
-		//unsigned int colorB = rand()%0xff;
-		///*-----------*/
+		/*---------------*/
 		unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 		/*---------------*/
 		param_list_show.param_list[num].color = cols;
@@ -516,57 +511,6 @@ void CTeeChart5_testDlg::axis_color(unsigned int num,unsigned int color,unsigned
 	font.put_Color(color);
 	/*---------------------------------*/
 }
-
-void CTeeChart5_testDlg::page_show(unsigned int now,unsigned int total)
-{
-	
-}
-void CTeeChart5_testDlg::move_test(void)
-{
-	 CSeries lineSeries = (CSeries)m_chart.Series(2);
-	CSeries lineSeries1 = (CSeries)m_chart.Series(1);
-   //lineSeries0.Clear();
-
-	static int i =  0 , t = 0;
-
-	static double bfd[200000];
-	static int get = 1;
-
-	double doub = 0;
-
-	if( get == 1 )
-	{
-		for(int i = 0 ; i < 200000 ; i ++ )
-		{
-			bfd[i] = sin(doub);
-			doub += 0.2;
-		}
-	}
-
-	static double bcd[200000];
-
-    doub = 0;
-
-	if( get == 1 )
-	{
-		get = 0;
-		for(int i = 0 ; i < 200000 ; i ++ )
-		{
-			bcd[i] = cos(doub);
-			doub += 0.2;
-		}
-	}
-
-	lineSeries.Clear();
-	lineSeries1.Clear();
-
-    for ( i = t ; i < 200 + t; i++)
-    {
-        lineSeries.AddXY((double)i, bfd[i],NULL,NULL);
-		lineSeries1.AddXY((double)i, bcd[i],NULL,NULL);
-    }
-	t+=1;
-}
 void CTeeChart5_testDlg::OnBnClickedButton3()
 {
    suggestion s;
@@ -629,8 +573,6 @@ void CTeeChart5_testDlg::OnBnClickedButton4()
 	}
 	/*-------------------------------------------------*/
 }
-
-
 void CTeeChart5_testDlg::OnBnClickedButton6()
 {
 	/*------------------------------*/
@@ -1216,6 +1158,9 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		/*------------------------------------*/
 		return;
 	}
+	/* flag */
+	int allocate_flag = 0;
+	unsigned char * memory_t = 0;
 	/*---------------param_list------------*/
 	for( unsigned int i = 0 ; i < READ_CFS.cfs_global_msg.sample_num ; i ++ )
 	{
@@ -1236,14 +1181,25 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		{
 			MessageBox(_T("内存分配失败"),_T("tips"),0);
 			return;
-		}	
-		param_list_show.param_list[param_list_show.param_list_num].data_x = 
-		(unsigned char *)malloc(param_list_show.param_list[param_list_show.param_list_num].point_num*8);//double
-		/*---------------------*/
-		if( param_list_show.param_list[param_list_show.param_list_num].data_x == NULL )
+		}
+		/* allocate first */
+		if( allocate_flag == 0 )
 		{
-			MessageBox(_T("内存分配失败"),_T("tips"),0);
-			return;
+			allocate_flag = 1;
+			param_list_show.param_list[param_list_show.param_list_num].data_x = 
+			(unsigned char *)malloc(param_list_show.param_list[param_list_show.param_list_num].point_num*8);//double
+			/*---------------------*/
+			if( param_list_show.param_list[param_list_show.param_list_num].data_x == NULL )
+			{
+				MessageBox(_T("内存分配失败"),_T("tips"),0);
+				return;
+			}
+			/* save memory addr */
+			memory_t = param_list_show.param_list[param_list_show.param_list_num].data_x;
+		}
+		else
+		{
+			param_list_show.param_list[param_list_show.param_list_num].data_x = memory_t;
 		}
         /*------------------------------*/
 		param_list_show.param_list[ param_list_show.param_list_num ].mark = READ_CFS.pmd[i].mark;
@@ -1303,30 +1259,42 @@ int CTeeChart5_testDlg::math_and_line(unsigned char *data,unsigned int len,unsig
 	for( unsigned int i = 0 ; i < READ_CFS.cfs_global_msg.sample_num ; i ++ )
 	{
 		line_data = (double *)param_list_show.param_list[ i + start ].data_y;
-		/* cle */
-		memcpy(buffer,&data[ READ_CFS.pmd[i].offset ] , READ_CFS.pmd[i].width );
-		/* math */
-		//------dsf----
-		double tmp;
-		/* loop value */
-		if( math_transfer(data,buffer,i,&tmp) == 0 )
+		/* create or normal */
+	   if( READ_CFS.pmd[i].math_type != 0xFF )
+	   {
+			/* cle */
+			memcpy(buffer,&data[ READ_CFS.pmd[i].offset ] , READ_CFS.pmd[i].width );
+			/* math */
+			//------dsf----
+			double tmp;
+			/* loop value */
+			if( math_transfer(data,buffer,i,&tmp) == 0 )
+			{
+			   line_data[param_list_show.now_num] = tmp;
+			   last_dou[i] = tmp;
+			}else
+			{
+				line_data[param_list_show.now_num] = last_dou[i];
+			}
+	    }
+	    else
 		{
-		   line_data[param_list_show.now_num] = tmp;
-		   last_dou[i] = tmp;
-		}else
+			line_data[param_list_show.now_num] = 0xff;
+	    }
+		/*------------*/
+		if( i == 0 )
 		{
-			line_data[param_list_show.now_num] = last_dou[i];
-		}
-		/* set x axis */
-		line_data = (double *)param_list_show.param_list[ i + start ].data_x;
-		/* set data */
-		if( READ_CFS.cfs_global_msg.time_mark != 0 )
-		{
-			line_data[param_list_show.now_num] = 
-				(double)param_list_show.now_num * (double)READ_CFS.cfs_global_msg.time_mark / (double)1000000;
-		}else
-		{
-			line_data[param_list_show.now_num] = param_list_show.now_num;
+			/* set x axis */
+			line_data = (double *)param_list_show.param_list[ i + start ].data_x;
+			/* set data */
+			if( READ_CFS.cfs_global_msg.time_mark != 0 )
+			{
+				line_data[param_list_show.now_num] = 
+					(double)param_list_show.now_num * (double)READ_CFS.cfs_global_msg.time_mark / (double)1000000;
+			}else
+			{
+				line_data[param_list_show.now_num] = param_list_show.now_num;
+			}
 		}
 	}
 	param_list_show.now_num++;
@@ -1611,7 +1579,8 @@ int CTeeChart5_testDlg::math_transfer(unsigned char * base,unsigned char * buffe
 		/* set value */
 		*value = ret;
 		return 0;
-	}else // NONE
+	}
+    else // NONE
 	{
 	    /* change big ending */
 		if( READ_CFS.pmd[index].little == 0 )
@@ -2056,10 +2025,11 @@ void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
 		Get_line_group_index(seq);
 	}
 }
-
-
+/* close files */
 void CTeeChart5_testDlg::OnBnClickedButton5()
 {
+	/* release the memory */
+	release_memory();
 	memset(&param_list_show,0,sizeof(param_list_show));
 	memset(&file_man,0,sizeof(file_man));
 	m_combox_param_show.ResetContent();
@@ -2072,7 +2042,6 @@ void CTeeChart5_testDlg::OnBnClickedButton5()
 	/*-----------------------------*/
 	OnBnClickedButton8();
 }
-
 
 void CTeeChart5_testDlg::On32777()
 {
@@ -3530,17 +3499,9 @@ void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is sing
 	//draw_axis(num,&line,&show,cols,0);
 }
 /*----------------------------------------------*/
-void CTeeChart5_testDlg::reflush_chart(void)
+void CTeeChart5_testDlg::release_memory(void)
 {
-	/* clear without clear line msg */
-	clear_all_line(1);
-	/*-----------------------------*/
-	last_postion = 0;
-	lane_last_postion = 0;
-	last_sd = 0;
-	lat_pos_point = 0;
-	/* release the memeries */
-	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+    for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
 		if( param_list_show.param_list[i].data_y != NULL )
 		{
@@ -3556,6 +3517,19 @@ void CTeeChart5_testDlg::reflush_chart(void)
 			param_list_show.param_list[i].data_x = NULL;
 		}
 	}
+}
+/*----------------------------------------------*/
+void CTeeChart5_testDlg::reflush_chart(void)
+{
+	/* clear without clear line msg */
+	clear_all_line(1);
+	/*-----------------------------*/
+	last_postion = 0;
+	lane_last_postion = 0;
+	last_sd = 0;
+	lat_pos_point = 0;
+	/* release the memeries */
+	release_memory();
 	/*-----------------------------*/
 	param_list_show.param_list_num = 0;
 	/*-----------------------------*/

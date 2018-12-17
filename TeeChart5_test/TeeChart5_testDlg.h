@@ -192,6 +192,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::release_memory(void);
 	void CTeeChart5_testDlg::delete_point(void);
 	void CTeeChart5_testDlg::combox_list_fresh(void);
 	int CTeeChart5_testDlg::fpos_analysis(unsigned int mode);

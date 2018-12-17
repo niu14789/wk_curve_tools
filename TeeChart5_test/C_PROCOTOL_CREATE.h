@@ -75,13 +75,13 @@ typedef struct
 	unsigned int little;//0 is little , 1 is big
 	unsigned int if_num;
 	//char if_table[12][32];
-	char if_param_string[32];
+	unsigned short func_param[16];
 	unsigned int if_param_value[4];
-	unsigned int math_type;//0 is none , 1 S2F , 2 is THIS
+	unsigned int math_type;//0 is none , 1 S2F , 2 is THIS , 0xff is creater
 	unsigned int math_number;
 	float f_math[10];
 	char asmf_type[12];
-	char buffer[236];
+	char buffer[236];//236 - 40 = 196
 	unsigned int mark;
 	unsigned char hot_key[16];
 	/* some other struct */
@@ -108,10 +108,11 @@ class C_PROCOTOL_CREATE : public CDialogEx
 	DECLARE_DYNAMIC(C_PROCOTOL_CREATE)
 
 public:
+	int C_PROCOTOL_CREATE::Get_function(char * src , unsigned int src_len , unsigned int num ,	char * func,char * param1,char * param2,char * param3,char * param4,char * param5);
 	int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param);
 	void C_PROCOTOL_CREATE::flush_cfs(unsigned int msg);
 	char * C_PROCOTOL_CREATE::Get_math_type(char * src , unsigned int src_len , unsigned int num, unsigned int *param1);
-	int C_PROCOTOL_CREATE::Get_check_if(char * src , unsigned int src_len , unsigned int num,char *string , unsigned int *param1,unsigned int *param2);
+	int C_PROCOTOL_CREATE::Get_check_if(char * src , unsigned int src_len , unsigned int num, unsigned int *param1,unsigned int *param2);
 	int C_PROCOTOL_CREATE::Get_param_type(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param);
 	int C_PROCOTOL_CREATE::Get_param_OLAY(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param);
 	int C_PROCOTOL_CREATE::Get_param_OLAY(const char * src , unsigned int src_len , const char * cmd,unsigned int * param);
@@ -177,4 +178,5 @@ public:
 	CComboBox m_combox_little;
 	afx_msg void OnBnClickedButton3();
 	CEdit m_timemark;
+	afx_msg void OnCbnSelchangeCombo2();
 };
