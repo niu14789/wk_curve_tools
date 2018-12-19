@@ -3235,7 +3235,12 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 /*----------------------------------------------*/
 void CTeeChart5_testDlg::release_memory(void)
 {
+	void *p_used[200];
+	unsigned int num_p = 0;
 	void * backup0 = 0,*backup1 = 0;
+
+	memset(p_used,0,sizeof(p_used));
+
     for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
 
@@ -3257,9 +3262,25 @@ void CTeeChart5_testDlg::release_memory(void)
 			{
 				backup1 = param_list_show.param_list[i].data_x;
 				/*--------------------------*/
+				int j = 0;
+				/* set num */
+				for( j = 0 ; j < num_p ; j ++ )
+				{
+					if( p_used[j] == backup1 )
+					{
+						break;
+					}
+				}
+				if( j != num_p )
+				{
+					continue;
+				}
+				/* free */
 				free(param_list_show.param_list[i].data_x);
 				/* release */
 				param_list_show.param_list[i].data_x = NULL;
+				/*------------------------------*/
+				p_used[num_p++] = backup1;
 			}
 		}
 	}
@@ -3912,6 +3933,7 @@ int CTeeChart5_testDlg::function_thread(unsigned int start)
 			case 12:
 				break;
 			case 13:
+				ret = func_kyx(start,i);
 				break;
 			case 14:
 				break;
@@ -4158,6 +4180,89 @@ int CTeeChart5_testDlg::func_ky(unsigned int start , int index)
 		line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i] - line_src_y0[i-1];
 		/* set param ok */
 		param_list_show.param_list[index].point_num++;
+	}
+	/*---------------------------------------------------*/
+	return 0;
+}
+/* function exe */
+int CTeeChart5_testDlg::func_kyx(unsigned int start , int index)
+{
+	char buffer[1][128];
+	/* copy2_0 need two params */
+	if( param_list_show.param_list[index].func_param_count != 2 )
+	{
+		return (-1);//param error
+	}
+	/* template */
+	char * p0 = param_list_show.param_list[index].func_param[0];
+	/* create buffer */
+	memset(buffer,0,sizeof(buffer));
+	/* get name and set param */
+	sprintf(buffer[0],"-->%s",p0);
+	/* find flag */
+	int pos_0 = 0xffff;
+	/* search */
+	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	{
+		char * c;
+		/* param one */
+		c = strstr(param_list_show.param_list[i].name,buffer[0]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[0])) == 0 )
+		{
+			pos_0 = i;
+		}
+		/* over */
+		if( pos_0 != 0xffff )
+		{
+			break;// get first package
+		}
+	}
+	/* ok ? */
+	if( pos_0 == 0xffff )
+	{
+		return (-2);
+	}
+	/*--------------------------------*/
+	int point_num = param_list_show.param_list[pos_0].point_num;
+	/* macro memory */
+	param_list_show.param_list[index].data_x = 
+		(unsigned char *)malloc(point_num*8);
+	/*--------------------------------*/
+	if( param_list_show.param_list[index].data_x == NULL )
+	{
+		return (-3);//macro fail
+	}
+	/* get data and decode */
+	double  *line_src_y0 = (double *)param_list_show.param_list[pos_0].data_y;
+	double  *line_dst_y  = (double *)param_list_show.param_list[index].data_y;
+	double  *line_dst_x  = (double *)param_list_show.param_list[index].data_x;
+	/* clear point num */
+	param_list_show.param_list[index].point_num = 0;
+	int filter = 0;
+	double last = 123456;
+	int last_i = 0;
+	/*---------------------*/
+	for( int i = 0 ; i < point_num ; i ++ )
+	{
+		if( last != line_src_y0[i] )
+		{
+			last = line_src_y0[i];
+			/* create */
+			int t = i - last_i;
+			double td;
+			/* -------------- */
+			if( param_list_show.param_list[index].time_us != 0 )
+			{
+				td = (double)t * (double)READ_CFS.cfs_global_msg.time_mark / (double)1000000;
+			}
+			/*----------------*/
+			line_dst_y[param_list_show.param_list[index].point_num] = td;
+			line_dst_x[param_list_show.param_list[index].point_num] = param_list_show.param_list[index].point_num;
+			/* incremeter */
+		    param_list_show.param_list[index].point_num++;
+			last_i = i;
+		}
 	}
 	/*---------------------------------------------------*/
 	return 0;

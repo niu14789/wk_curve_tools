@@ -806,6 +806,7 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 			"PCG1",//10
 			"PCG2",//if the point had changed then get data 11
 			"PCG3",//12
+			"KYX",//13
 		};
 		/*-------------*/
 		int i;
