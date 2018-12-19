@@ -127,6 +127,7 @@
     <ClInclude Include="CMarks.h" />
     <ClInclude Include="CPen0.h" />
     <ClInclude Include="CPoint3DSeries.h" />
+    <ClInclude Include="CPoint3DSeries0.h" />
     <ClInclude Include="CSeries.h" />
     <ClInclude Include="CSeries0.h" />
     <ClInclude Include="CTChart.h" />

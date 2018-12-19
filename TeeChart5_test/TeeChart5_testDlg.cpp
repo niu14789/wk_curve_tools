@@ -1208,6 +1208,18 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		/*---------------------------------*/
 		param_list_show.param_list[ param_list_show.param_list_num ].time_us = READ_CFS.cfs_global_msg.time_mark;
 		/*---------------------------------*/
+		param_list_show.param_list[ param_list_show.param_list_num ].line_type = READ_CFS.pmd[i].line_type;
+		/* hot key */
+		memcpy(param_list_show.param_list[ param_list_show.param_list_num ].hot_key,READ_CFS.pmd[i].hot_key,16);
+		/* function about */
+		if( READ_CFS.pmd[i].math_type == 0xff )
+		{
+			param_list_show.param_list[ param_list_show.param_list_num ].function_enable = 1;
+			param_list_show.param_list[ param_list_show.param_list_num ].func = READ_CFS.pmd[i].width;
+			param_list_show.param_list[ param_list_show.param_list_num ].func_param_count = READ_CFS.pmd[i].if_num;
+			memcpy(param_list_show.param_list[ param_list_show.param_list_num ].func_param,&READ_CFS.pmd[i].buffer[150],5*16);
+		}
+		/*----------------*/
 		param_list_show.param_list_num++;	
 		/* over */
 		if( param_list_show.param_list_num >= 512 )
@@ -1236,6 +1248,8 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		//&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&*(&(*&(&(*&(*^*(&^(*%^&$%*^&%(&%(*^(&*&*^(
 		math_and_line(read_buffer_block,len,start_addr);
 	}
+	/* deal with create and functions */
+	function_thread(start_addr);
 	/* close file */
 	if( pf_read_log != NULL )
 	{
@@ -1895,7 +1909,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
     /* number */
     unsigned int line_num;
 	/* safearray */
-    COleSafeArray XValue,YValue;
+    COleSafeArray XValue,YValue,ZValue;
     SAFEARRAYBOUND rgsabound;
 	/* temple */
 	double dval;
@@ -1908,15 +1922,48 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 		release_current_line(num);
 	}
 	/* get line */
-	CSeries * line_p = (CSeries *)Get_line_source(&line_num);
+	CSeries * line_p;
+		/* line type */
+	if( param_list_show.param_list[num].line_type == 0 )
+	{
+	    line_p = (CSeries *)Get_line_source(&line_num);
+	}
+	else
+	{
+	    /* set */
+		if( param_list_show.param_list[num].line_type == 1 )
+		{
+			line_p = (CSeries *)Get_point_source(&line_num);
+		}
+		else if( param_list_show.param_list[num].line_type == 7 )
+		{
+			line_p = (CSeries *)Get_star_source(&line_num);
+		}
+		else
+		{
+			MessageBox(_T("目前不支持的形状"),_T("tips"),0);
+			return;			
+		}
+	}
     /* max line number */
 	if( line_p == NULL )
 	{
 		MessageBox(_T("最多支持20条曲线"),_T("tips"),0);
 		return;
 	}
-	/*----------*/
-	CSeries line_cfs = (CSeries)m_chart.Series(line_num);
+	/* det */
+	CSeries line_cfs;
+	CPoint3DSeries line_3d;
+	/* 2D or 3D */
+	if( param_list_show.param_list[num].line_type == 0 )
+	{
+		line_cfs = (CSeries)m_chart.Series(line_num);
+	}
+	else
+	{
+		line_cfs = m_chart.Series(line_num);
+		line_3d = (CPoint3DSeries)line_cfs.get_asPoint3D();
+	}
 	/* has drawed . then clear */
 	if( param_list_show.param_list[num].status != 0 )
 	{
@@ -1931,6 +1978,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
     rgsabound.lLbound=0;
     XValue.Create(VT_R8,1,&rgsabound);
     YValue.Create(VT_R8,1,&rgsabound);
+	ZValue.Create(VT_R8,1,&rgsabound);
 	/* draw all */
 	for( long i = param_list_show.param_list[num].offset ; i < param_list_show.param_list[num].point_num ; i++ )
 	{
@@ -1941,9 +1989,21 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
         dval = line_data_y[i];
 
         YValue.PutElement(&i, &dval);
+		/* Z */
+        dval = 0;
+
+        ZValue.PutElement(&i, &dval);
 	}
-	/* show the line */
-	line_cfs.AddArray(param_list_show.param_list[num].point_num,YValue,XValue);
+	/* 2D or 3D */
+	if( param_list_show.param_list[num].line_type == 0 )
+	{
+		/* show the line */
+		line_cfs.AddArray(param_list_show.param_list[num].point_num,YValue,XValue);
+	}
+	else
+	{
+		line_3d.AddArrayXYZ(XValue,YValue,ZValue);
+	}
 	/*-----------*/
 	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*---------------*/
@@ -3135,16 +3195,16 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  break;
 #if !VERSION_CTRL
 			  case VK_F6:
-				  Position_axis_bin(m_check_hold.GetCheck()?1:0,1);
+				  
 				  break;
 			  case VK_F7:
-				  Position_axis_bin(m_check_hold.GetCheck()?1:0,0);
+				  
 				  break;
 			  case VK_F8:
-				  Position_point_lane(m_check_hold.GetCheck()?1:0);
+				 
 				  break;
 			  case VK_F9:
-				  standart_diviaton(m_check_hold.GetCheck()?1:0);
+				  
 				  break;
 			  case 0x56:
 				  /* show version . one by one */
@@ -3163,6 +3223,7 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 #endif
 				  break;
 			  default:
+				  HOTKEY_THREAD(pMsg->wParam);
 				  break;
 		  }
 		  /*------------------*/
@@ -3171,350 +3232,35 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
    }
  return CDialog::PreTranslateMessage(pMsg);
 }
-/* show lat lon */
-void CTeeChart5_testDlg::Position_axis_bin(unsigned int mode,unsigned int p_or_l)//mode == 0 is single . mode mode != 0 is hold mode ; point(1) or line(0) 
-{
-	int lat_pos = 0xffff;
-	int lon_pos = 0xffff;
-	/* find the lat and lon in param list */
-	if( p_or_l == 0 )
-	{
-		for( unsigned int i = last_postion ; i < param_list_show.param_list_num ; i ++ )
-		{
-			if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT") != NULL )
-			{
-				lat_pos = i;
-			}
-
-			if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON") != NULL )
-			{
-				lon_pos = i;
-			}
-			/*--*/
-			if( lat_pos != 0xffff && lon_pos != 0xffff )
-			{
-				last_postion = i+1;
-				break;
-			}
-		}
-		/*-------------------------------*/
-		if( lat_pos == 0xffff || lon_pos == 0xffff )
-		{
-			AfxMessageBox(_T("数据表中不存在GPS_LAT或GPS_LON或已经绘制"));
-			return;
-		}
-	}else if( p_or_l == 1 )
-	{
-		for( unsigned int i = lat_pos_point ; i < param_list_show.param_list_num ; i ++ )
-		{
-			if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT") != NULL )
-			{
-				lat_pos = i;
-			}
-
-			if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON") != NULL )
-			{
-				lon_pos = i;
-			}
-			/*--*/
-			if( lat_pos != 0xffff && lon_pos != 0xffff )
-			{
-				lat_pos_point = i+1;
-				break;
-			}
-		}
-		/*-------------------------------*/
-		if( lat_pos == 0xffff || lon_pos == 0xffff )
-		{
-			AfxMessageBox(_T("数据表中不存在GPS_LAT或GPS_LON或已经绘制"));
-			return;
-		}
-	}else
-	{
-		AfxMessageBox(_T("不支持的操作"));
-		return;
-	}
-	// TODO: 在此添加控件通知处理程序代码
-	unsigned int num;
-	/* point or line */
-	if( p_or_l == 0 )//line
-	{
-		/* none data avild */
-		if( Get_2axis_source(&num) == NULL )
-		{
-			AfxMessageBox(_T("曲线数量超过10条！"));
-			return;
-		}
-	}else if( p_or_l == 1 )
-	{
-		/* none data avild */
-		if( Get_point_source(&num) == NULL )
-		{
-			AfxMessageBox(_T("曲线数量超过10条！"));
-			return;
-		}
-	}
-    /* show */
-	double * lat_line = (double *)param_list_show.param_list[lat_pos].data_y;
-	double * lon_line = (double *)param_list_show.param_list[lon_pos].data_y;
-	/* check 0 */
-	unsigned int j = 0;
-	/*---------------------------------------*/
-	for( j = 0 ; j < param_list_show.param_list[lat_pos].point_num ; j ++ )
-	{
-		if( lat_line[j] != 0 && lon_line[j] != 0 )
-		{
-			break;
-		}
-	}
-	/*---------------------------------*/
-	if( j == param_list_show.param_list[lat_pos].point_num )
-	{
-		AfxMessageBox(_T("无可用数据！"));
-		return;
-	}
-	/*---------------------------------------*/
-	if( mode == 0 )
-	{
-       clear_all_line(0);
-	}
-	/*---------------------------------------*/
-	CSeries line = (CSeries)m_chart.Series(num);
-	/*---------------------------------*/
-	for( unsigned int i = j ; i < param_list_show.param_list[lat_pos].point_num ; i ++ )
-	{
-		line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
-	}
-	/*-------------------------*/
-    /* show legend */
-	Legend_handle(1);
-	/* transfer */
-	USES_CONVERSION;
-	/*----------------------*/
-	char buffer[200];
-	memset(buffer,0,sizeof(buffer));
-	/*----------------------------*/
-	if( p_or_l == 0 )//line
-	{
-		sprintf_s(buffer,"%s_axis",param_list_show.param_list[lat_pos].name);
-	}else if(  p_or_l == 1 )//line
-	{
-		sprintf_s(buffer,"%s_point",param_list_show.param_list[lat_pos].name);
-	}
-	/*----------------------------*/
-	CString show = A2T(buffer);
-	/*-----------------------------*/
-	line.put_Title(show);
-	/* show legend */
-	line.put_ShowInLegend(1);
-	/* put color */
-	//srand(time(NULL));
-	///*-----------*/
-	//unsigned int colorR = (unsigned char)rand();
-	//unsigned int colorG = (unsigned char)rand();
-	//unsigned int colorB = (unsigned char)rand();
-	/*-----------*/
-	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
-	/*-----------*/
-	line.put_Color(cols);
-	/*------------*/
-	///* get axis */
-	//draw_axis(num,&line,&show,cols,0);
-}
-# if 1
-/* gsof */
-void CTeeChart5_testDlg::Position_point_lane(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
-{
-	int lat_pos = 0xffff;
-	int lon_pos = 0xffff;
-	int lane_pic_pos = 0xffff;
-	/* find the lat and lon in param list */
-	for( unsigned int i = lane_last_postion ; i < param_list_show.param_list_num ; i ++ )
-	{
-		if( lat_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LAT_LANE") != NULL )
-		{
-			lat_pos = i;
-		}
-
-		if( lon_pos == 0xffff && strstr(param_list_show.param_list[i].name,"GPS_LON_LANE") != NULL )
-		{
-			lon_pos = i;
-		}
-		/*----------------------------*/
-		if( lane_pic_pos == 0xffff && strstr(param_list_show.param_list[i].name,"LANE_PIC_FC") != NULL )
-		{
-			lane_pic_pos = i;
-		}
-		/*--*/
-		if( lat_pos != 0xffff && lon_pos != 0xffff && lane_pic_pos != 0xffff )
-		{
-		    lane_last_postion = i+1;
-			break;
-		}
-	}
-	/*-------------------------------*/
-	if( lat_pos == 0xffff || lon_pos == 0xffff || lane_pic_pos == 0xffff )
-	{
-		AfxMessageBox(_T("数据表中不存在GPS_LAT_LANE或GPS_LON_LANE或已经绘制"));
-		return;
-	}
-	// TODO: 在此添加控件通知处理程序代码
-	unsigned int num;
-	/* none data avild */
-	if( Get_point_source(&num) == NULL )
-	{
-		AfxMessageBox(_T("曲线数量超过10条！"));
-		return;
-	}
-    /* show */
-	double * lat_line = (double *)param_list_show.param_list[lat_pos].data_y;
-	double * lon_line = (double *)param_list_show.param_list[lon_pos].data_y;
-	double * lane_pic_fc = (double *)param_list_show.param_list[lane_pic_pos].data_y;
-	/*---------------------------------------*/
-	if( mode == 0 )
-	{
-       clear_all_line(0);
-	}
-	/*---------------------------------------*/
-	CSeries line = (CSeries)m_chart.Series(num);
-	/*---------------------------------*/
-	double last_lane = 0;
-	/*---------------------------------------------------------------------------*/
-	for( unsigned int i = 0 ; i < param_list_show.param_list[lane_pic_pos].point_num ; i ++ )
-	{
-		if( last_lane != lane_pic_fc[i] )
-		{
-			last_lane = lane_pic_fc[i];
-
-			line.AddXY(lon_line[i],lat_line[i],NULL,NULL);
-		}
-	}
-	/*-------------------------*/
-    /* show legend */
-	Legend_handle(1);
-	/* transfer */
-	USES_CONVERSION;
-	/*----------------------*/
-	char buffer[200];
-	memset(buffer,0,sizeof(buffer));
-	/*----------------------------*/
-	sprintf_s(buffer,"%s_pic_axis",param_list_show.param_list[lat_pos].name);
-	/*----------------------------*/
-	CString show = A2T(buffer);
-	/*-----------------------------*/
-	line.put_Title(show);
-	/* show legend */
-	line.put_ShowInLegend(1);
-	/* put color */
-	//srand(time(NULL));
-	///*-----------*/
-	//unsigned int colorR = (unsigned char)rand();
-	//unsigned int colorG = (unsigned char)rand();
-	//unsigned int colorB = (unsigned char)rand();
-	/*-----------*/
-	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
-	/*-----------*/
-	line.put_Color(cols);
-	///* get axis */
-	//draw_axis(num,&line,&show,cols,0);
-}
-#endif
-void CTeeChart5_testDlg::standart_diviaton(unsigned int mode)//mode == 0 is single . mode mode != 0 is hold mode 
-{
-	int sd_pos = 0xffff;
-	/* find the lat and lon in param list */
-	for( unsigned int i = last_sd ; i < param_list_show.param_list_num ; i ++ )
-	{
-		if( sd_pos == 0xffff && strstr(param_list_show.param_list[i].name,"DV_SD") != NULL )
-		{
-			sd_pos = i;
-		}
-		/*--*/
-		if( sd_pos != 0xffff )
-		{
-		    last_sd = i+1;
-			break;
-		}
-	}
-	/*-------------------------------*/
-	if( sd_pos == 0xffff )
-	{
-		AfxMessageBox(_T("数据表中不存在DV_SD或DV_SD或已经绘制"));
-		return;
-	}
-	// TODO: 在此添加控件通知处理程序代码
-	unsigned int num;
-	/* none data avild */
-	if( Get_star_source(&num) == NULL )
-	{
-		AfxMessageBox(_T("曲线数量超过10条！"));
-		return;
-	}
-    /* show */
-	double * sd_line = (double *)param_list_show.param_list[sd_pos].data_y;
-	/*---------------------------------------*/
-	if( mode == 0 )
-	{
-       clear_all_line(0);
-	}
-	/*---------------------------------------*/
-	CSeries line = (CSeries)m_chart.Series(num);
-	/*---------------------------------*/
-	double sd_last = 0;
-	/*---------------------------------------------------------------------------*/
-	for( unsigned int i = 0 ; i < param_list_show.param_list[sd_pos].point_num - 1; i ++ )
-	{
-		sd_last = sd_line[i+1] - sd_line[i];
-
-		line.AddXY(i,sd_last,NULL,NULL);
-	}
-	/*-------------------------*/
-    /* show legend */
-	Legend_handle(1);
-	/* transfer */
-	USES_CONVERSION;
-	/*----------------------*/
-	char buffer[200];
-	memset(buffer,0,sizeof(buffer));
-	/*----------------------------*/
-	sprintf_s(buffer,"%s_dv",param_list_show.param_list[sd_pos].name);
-	/*----------------------------*/
-	CString show = A2T(buffer);
-	/*-----------------------------*/
-	line.put_Title(show);
-	/* show legend */
-	line.put_ShowInLegend(1);
-	/* put color */
-	/*-----------*/
-	//srand(time(NULL));
-	///*--------------------------------------*/
-	//unsigned int colorR = (unsigned char)rand();
-	//unsigned int colorG = (unsigned char)rand();
-	//unsigned int colorB = (unsigned char)rand();
-	/*-----------*/
-	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
-	/*-----------*/
-	line.put_Color(cols);
-	///* get axis */
-	//draw_axis(num,&line,&show,cols,0);
-}
 /*----------------------------------------------*/
 void CTeeChart5_testDlg::release_memory(void)
 {
+	void * backup0 = 0,*backup1 = 0;
     for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
+
 		if( param_list_show.param_list[i].data_y != NULL )
 		{
-			free(param_list_show.param_list[i].data_y);
-			/* release */
-			param_list_show.param_list[i].data_y = NULL;
+			if( backup0 != param_list_show.param_list[i].data_y )
+			{
+				backup0 = param_list_show.param_list[i].data_y;
+				/*------------------------------------*/
+				free(param_list_show.param_list[i].data_y);
+				/* release */
+				param_list_show.param_list[i].data_y = NULL;
+			}
 		}
 		/*-----------------*/
 		if( param_list_show.param_list[i].data_x != NULL )
 		{
-			free(param_list_show.param_list[i].data_x);
-			/* release */
-			param_list_show.param_list[i].data_x = NULL;
+			if( backup1 != param_list_show.param_list[i].data_x )
+			{
+				backup1 = param_list_show.param_list[i].data_x;
+				/*--------------------------*/
+				free(param_list_show.param_list[i].data_x);
+				/* release */
+				param_list_show.param_list[i].data_x = NULL;
+			}
 		}
 	}
 }
@@ -3851,11 +3597,15 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			const double *ct4_const = (double *)param_list_show.param_list[CT4_pos].data_y;
 			const double *ct5_const = (double *)param_list_show.param_list[CT5_pos].data_y;
 			/*----------------------------*/
+			/* set x axis */
+			unsigned char *x_axis = (unsigned char *)malloc(fpos_point_num*8);
+			/*----------------------------*/
 			e_time = (double *)param_list_show.param_list[enent_time_pos].data_y;
 			/*----------------------------*/
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT1(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
 			/* dest */
 			double *ct1_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
@@ -3865,6 +3615,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT2(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
 			/* dest */
 			double *ct2_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
@@ -3874,6 +3625,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT3(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
 			/* dest */
 			double *ct3_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
@@ -3883,6 +3635,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT4(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
 			/* dest */
 			double *ct4_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
@@ -3892,6 +3645,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT5(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
+			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
 			/* dest */
 			double *ct5_data = (double *)param_list_show.param_list[param_list_show.param_list_num].data_y;
 			param_list_show.param_list[param_list_show.param_list_num].point_num = fpos_point_num;
@@ -3899,6 +3653,8 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
 			int diff_basic = enent_point_num - fpos_point_num;
+			/* temp */
+			double * x_axis_d = (double *)x_axis;
 			// open source
 			for( int i = 0 ; i < fpos_point_num ; i ++ )
 			{   
@@ -3961,6 +3717,8 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				}
 				// save data 
                 ct5_data[i] = diff;
+				/*---------------------------------------------------------------------*/
+				x_axis_d[i] = i;
 				/*---------------------------------------------------------------------*/
 			}
 			/*-------------------------------------------------------------------------------*/
@@ -4112,4 +3870,317 @@ void CTeeChart5_testDlg::OnBnClickedButton32()
 void CTeeChart5_testDlg::OnBnClickedButton33()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+/* */
+int CTeeChart5_testDlg::function_thread(unsigned int start)
+{
+	int ret = 0;
+	/* find func */
+	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( param_list_show.param_list[i].function_enable == 1 )
+		{
+			switch(param_list_show.param_list[i].func)
+			{
+			case 0:
+				break;
+			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				ret = func_copy2_0(start,i);
+				break;
+			case 4:
+				break;
+			case 5:
+				break;
+			case 6:
+				break;
+			case 7:
+				break;
+			case 8:
+				break;
+			case 9:
+				ret = func_ky(start,i);
+				break;
+			case 10:
+				break;
+			case 11:
+				ret = func_PCG2(start,i);
+				break;
+			case 12:
+				break;
+			case 13:
+				break;
+			case 14:
+				break;
+			case 15:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+	return ret;
+}
+/* function exe */
+int CTeeChart5_testDlg::func_copy2_0(unsigned int start , int index)
+{
+	char buffer[2][128];
+	/* copy2_0 need two params */
+	if( param_list_show.param_list[index].func_param_count != 3 )
+	{
+		return (-1);//param error
+	}
+	/* template */
+	char * p0 = param_list_show.param_list[index].func_param[0];
+	char * p1 = param_list_show.param_list[index].func_param[1];
+	/* create buffer */
+	memset(buffer,0,sizeof(buffer));
+	/* get name and set param */
+	sprintf(buffer[0],"-->%s",p0);
+	sprintf(buffer[1],"-->%s",p1);
+	/* find flag */
+	int pos_0 = 0xffff;
+	int pos_1 = 0xffff;
+	/* search */
+	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	{
+		char * c;
+		/* param one */
+		c = strstr(param_list_show.param_list[i].name,buffer[0]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[0])) == 0 )
+		{
+			pos_0 = i;
+		}
+		/* param two */
+		c = strstr(param_list_show.param_list[i].name,buffer[1]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[1])) == 0 )
+		{
+			pos_1 = i;
+		}
+		/* over */
+		if( pos_0 != 0xffff && pos_1 != 0xffff )
+		{
+			break;// get first package
+		}
+	}
+	/* ok ? */
+	if( pos_0 == 0xffff || pos_1 == 0xffff )
+	{
+		return (-2);
+	}
+	/*--------------------------------*/
+	int point_num = param_list_show.param_list[pos_0].point_num > param_list_show.param_list[pos_1].point_num ?
+	                param_list_show.param_list[pos_1].point_num :param_list_show.param_list[pos_0].point_num; //max num
+	/* macro memory */
+	param_list_show.param_list[index].data_x = 
+		(unsigned char *)malloc(point_num*8);
+	/*--------------------------------*/
+	if( param_list_show.param_list[index].data_x == NULL )
+	{
+		return (-3);//macro fail
+	}
+	/* get data and decode */
+	double  *line_src_y0 = (double *)param_list_show.param_list[pos_0].data_y;
+	double  *line_src_y1 = (double *)param_list_show.param_list[pos_1].data_y;
+	double  *line_dst_y = (double *)param_list_show.param_list[index].data_y;
+	double  *line_dst_x = (double *)param_list_show.param_list[index].data_x;
+	/* clear point num */
+	param_list_show.param_list[index].point_num = 0;
+	int filter = 0;
+	/*---------------------*/
+	for( int i = 0 ; i < point_num ; i ++ )
+	{
+		if( filter == 0 )
+		{
+			if( line_src_y0[i] != 0 && line_src_y1[i] != 0 )
+			{
+				filter = 1;
+			}
+		}else
+		{
+			line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i];
+			line_dst_x[param_list_show.param_list[index].point_num] = line_src_y1[i];
+			/* set param ok */
+			param_list_show.param_list[index].point_num++;
+		}
+	}
+	/*---------------------------------------------------*/
+	return 0;
+}
+/* function exe */
+int CTeeChart5_testDlg::func_PCG2(unsigned int start , int index)
+{
+	char buffer[3][128];
+	/* copy2_0 need two params */
+	if( param_list_show.param_list[index].func_param_count != 4 )
+	{
+		return (-1);//param error
+	}
+	/* template */
+	char * p0 = param_list_show.param_list[index].func_param[0];
+	char * p1 = param_list_show.param_list[index].func_param[1];
+	char * p2 = param_list_show.param_list[index].func_param[2];
+	/* create buffer */
+	memset(buffer,0,sizeof(buffer));
+	/* get name and set param */
+	sprintf(buffer[0],"-->%s",p0);
+	sprintf(buffer[1],"-->%s",p1);
+	sprintf(buffer[2],"-->%s",p2);
+	/* find flag */
+	int pos_0 = 0xffff;
+	int pos_1 = 0xffff;
+	int pos_2 = 0xffff;
+	/* search */
+	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	{
+		char * c;
+		/* param one */
+		c = strstr(param_list_show.param_list[i].name,buffer[0]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[0])) == 0 )
+		{
+			pos_0 = i;
+		}
+		/* param two */
+		c = strstr(param_list_show.param_list[i].name,buffer[1]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[1])) == 0 )
+		{
+			pos_1 = i;
+		}
+		/* param three */
+		c = strstr(param_list_show.param_list[i].name,buffer[2]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[2])) == 0 )
+		{
+			pos_2 = i;
+		}
+		/* over */
+		if( pos_0 != 0xffff && pos_1 != 0xffff && pos_2 != 0xffff)
+		{
+			break;// get first package
+		}
+	}
+	/* ok ? */
+	if( pos_0 == 0xffff || pos_1 == 0xffff || pos_2 == 0xffff )
+	{
+		return (-2);
+	}
+	/*--------------------------------*/
+	int point_num = param_list_show.param_list[pos_0].point_num;
+	/* macro memory */
+	param_list_show.param_list[index].data_x = 
+		(unsigned char *)malloc(point_num*8);
+	/*--------------------------------*/
+	if( param_list_show.param_list[index].data_x == NULL )
+	{
+		return (-3);//macro fail
+	}
+	/* get data and decode */
+	double  *line_src_p = (double *)param_list_show.param_list[pos_0].data_y;
+	double  *line_src_y0 = (double *)param_list_show.param_list[pos_1].data_y;
+	double  *line_src_y1 = (double *)param_list_show.param_list[pos_2].data_y;
+	double  *line_dst_y = (double *)param_list_show.param_list[index].data_y;
+	double  *line_dst_x = (double *)param_list_show.param_list[index].data_x;
+	/* clear point num */
+	param_list_show.param_list[index].point_num = 0;
+	double last = 0;
+	/*---------------------*/
+	for( int i = 0 ; i < point_num ; i ++ )
+	{
+		if( last != line_src_p[i] )
+		{
+			last = line_src_p[i];
+			line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i];
+			line_dst_x[param_list_show.param_list[index].point_num] = line_src_y1[i];
+			/* set param ok */
+			param_list_show.param_list[index].point_num++;
+		}
+	}
+	/*---------------------------------------------------*/
+	return 0;
+}
+/* function exe */
+int CTeeChart5_testDlg::func_ky(unsigned int start , int index)
+{
+	char buffer[1][128];
+	/* copy2_0 need two params */
+	if( param_list_show.param_list[index].func_param_count != 2 )
+	{
+		return (-1);//param error
+	}
+	/* template */
+	char * p0 = param_list_show.param_list[index].func_param[0];
+	/* create buffer */
+	memset(buffer,0,sizeof(buffer));
+	/* get name and set param */
+	sprintf(buffer[0],"-->%s",p0);
+	/* find flag */
+	int pos_0 = 0xffff;
+	/* search */
+	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	{
+		char * c;
+		/* param one */
+		c = strstr(param_list_show.param_list[i].name,buffer[0]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[0])) == 0 )
+		{
+			pos_0 = i;
+		}
+		/* over */
+		if( pos_0 != 0xffff )
+		{
+			break;// get first package
+		}
+	}
+	/* ok ? */
+	if( pos_0 == 0xffff )
+	{
+		return (-2);
+	}
+	/*--------------------------------*/
+	int point_num = param_list_show.param_list[pos_0].point_num;
+	/* get data and decode */
+	double  *line_src_y0 = (double *)param_list_show.param_list[pos_0].data_y;
+	double  *line_dst_y  = (double *)param_list_show.param_list[index].data_y;
+	/* clear point num */
+	param_list_show.param_list[index].point_num = 0;
+	int filter = 0;
+	/*---------------------*/
+	for( int i = 1 ; i < point_num ; i ++ )
+	{
+		line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i] - line_src_y0[i-1];
+		/* set param ok */
+		param_list_show.param_list[index].point_num++;
+	}
+	/*---------------------------------------------------*/
+	return 0;
+}
+/* hot key ideal */
+void CTeeChart5_testDlg::HOTKEY_THREAD(char key)
+{
+	int num = param_list_show.param_list_num;
+	/*-----------------------------------*/
+	for( int i = 0 ; i < num ; i ++ )
+	{
+		for( int j = 0 ; j < 16 ; j ++ )
+		{
+			if( param_list_show.param_list[i].hot_key[j] == key )
+			{
+				draw_single(i);
+				break;
+			}
+			/* break */
+			if( param_list_show.param_list[i].hot_key[j] == 0 )
+			{
+				break;
+			}
+		}
+	}
 }

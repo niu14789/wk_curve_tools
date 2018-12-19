@@ -52,11 +52,17 @@ typedef struct
 	unsigned int offset;
 	unsigned int status;//draw status
 	unsigned int line_num;
+	unsigned int axis_num;
 	unsigned int color;
 	unsigned int time_us;
 	unsigned int mark;
 	unsigned char hot_key[16];
 	unsigned int hot_key_num;
+	unsigned int line_type;//default 0
+	unsigned int func;
+	char func_param[5][16];
+	unsigned int func_param_count;
+	unsigned int function_enable;
 	char from_file[128];
 	unsigned char * data_y;
 	unsigned char * data_x;
@@ -192,6 +198,11 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::HOTKEY_THREAD(char key);
+	int CTeeChart5_testDlg::func_ky(unsigned int start , int index);
+	int CTeeChart5_testDlg::func_PCG2(unsigned int start , int index);
+	int CTeeChart5_testDlg::func_copy2_0(unsigned int ,int);
+	int CTeeChart5_testDlg::function_thread(unsigned int start);
 	void CTeeChart5_testDlg::release_memory(void);
 	void CTeeChart5_testDlg::delete_point(void);
 	void CTeeChart5_testDlg::combox_list_fresh(void);

@@ -432,12 +432,39 @@ int C_PROCOTOL_CREATE::Get_param_OLAY(char * src , unsigned int src_len , unsign
 	return (-1);
 }
 /*----------------get param--------------------*/
+int C_PROCOTOL_CREATE::Get_hotkey(char * src , unsigned int src_len , unsigned int num,const char * cmd,char * param)
+{
+	char * tmp;//buffer[64];
+
+	unsigned int get = 0;
+
+	for( unsigned int i = 0 ; i < num ; i++ )
+	{
+	    tmp = (char *)strstr(src,cmd);
+		/* get */
+		if( tmp != NULL )
+		{
+			int ret = sscanf(src+strlen(cmd),"[%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+				&param[0],&param[1],&param[2],&param[3],&param[4],&param[5],&param[6],&param[7],&param[8],&param[9],
+				&param[10],&param[11],&param[12],&param[13],&param[14],&param[15]);
+			/*------------------------*/
+			return ret;
+		}
+		/*-=*/
+		src += src_len;
+	}
+	/* */
+	return (-1);
+}
+/*----------------get param--------------------*/
 int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param)
 {
 	char * tmp;//buffer[64];
 
 	unsigned int get = 0;
 	char type;
+
+	(*param) = 0;
 
 	for( unsigned int i = 0 ; i < num ; i++ )
 	{
@@ -475,6 +502,87 @@ int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsig
 	}
 	/* */
 	return (0);
+}
+/*----------------get param--------------------*/
+int C_PROCOTOL_CREATE::Get_line_type(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param)
+{
+	char * tmp;//buffer[64];
+
+	char get[16];
+
+	for( unsigned int i = 0 ; i < num ; i++ )
+	{
+	    tmp = (char *)strstr(src,cmd);
+		/* get */
+		if( tmp != NULL )
+		{
+			int ret = sscanf(src+strlen(cmd),"[%s]",get);
+			/*---*/
+			if( ret != 1 )
+			{
+				return (-1);
+			}else
+			{
+				if( strstr(get,"LIN") != NULL )
+				{
+					*param = 0;
+					return 0;
+				}
+				if( strstr(get,"SQU") != NULL )
+				{
+					*param = 1;
+					return 0;
+				}
+				if( strstr(get,"CIR") != NULL )
+				{
+					*param = 2;
+					return 0;
+				}
+				if( strstr(get,"TRI") != NULL )
+				{
+					*param = 3;
+					return 0;
+				}
+				if( strstr(get,"DTR") != NULL )
+				{
+					*param = 4;
+					return 0;
+				}
+				if( strstr(get,"CRO") != NULL )
+				{
+					*param = 5;
+					return 0;
+				}
+				if( strstr(get,"DIA") != NULL )
+				{
+					*param = 6;
+					return 0;
+				}
+				if( strstr(get,"STA") != NULL )
+				{
+					*param = 7;
+					return 0;
+				}
+				if( strstr(get,"DIM") != NULL )
+				{
+					*param = 8;
+					return 0;
+				}
+				if( strstr(get,"SMD") != NULL )
+				{
+					*param = 9;
+					return 0;
+				}
+				*param = 0;
+				return (-1);
+			}
+		}
+		/*-=*/
+		src += src_len;
+	}
+	/* */
+	*param = 0;
+	return 0;
 }
 /*----------------get param--------------------*/
 int C_PROCOTOL_CREATE::Get_param_type(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param)
@@ -559,6 +667,8 @@ int C_PROCOTOL_CREATE::Get_function(char * src , unsigned int src_len , unsigned
 	char * func,char * param1,char * param2,char * param3,char * param4,char * param5)
 {
 	char * tmp;//buffer[64];
+	char * p[6] = {func,param1,param2,param3,param4,param5};
+    int n = 0;
 
 	for( unsigned int i = 0 ; i < num ; i++ )
 	{
@@ -566,15 +676,23 @@ int C_PROCOTOL_CREATE::Get_function(char * src , unsigned int src_len , unsigned
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src,"FUNC[%s][%s][%s][%s][%s][%s]",func,param1,param2,param3,param4,param5);
-			/*---*/
-			if( ret != 0 )
+			for( int j = 0 ; j < strlen(tmp) ; j ++ )
 			{
-				return ret;
-			}else
-			{
-				return (-1);
+				if( tmp[j] == '[' )
+				{
+					if( sscanf(&tmp[j],"[%[^]]",p[n]) != 1 )
+					{
+						return (-1);
+					}
+					n++;
+					if( n >= 6 )
+					{
+						return n;
+					}
+				}
 			}
+			/*----------------*/
+			return n;
 		}
 		/*-=*/
 		src += src_len;
@@ -678,15 +796,16 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 			"COPY0",
 			"COPY1",
 			"COPY2",
-			"ADD",//+
-			"SUB",//-
-			"DIV",// /
-			"MUL",// *
-			"KX",
-			"KY",
-			"PCG1",
-			"PCG2",//if the point had changed then get data
-			"PCG3",
+			"COPY2_0",
+			"ADD",//+ 4
+			"SUB",//-5
+			"DIV",// /6
+			"MUL",// *7
+			"KX",//8
+			"KY",//9
+			"PCG1",//10
+			"PCG2",//if the point had changed then get data 11
+			"PCG3",//12
 		};
 		/*-------------*/
 		int i;
@@ -695,7 +814,7 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 		{
 			if( strcmp(func_list[i],func) == 0 )
 			{
-				DATA_COMBOX.param_data[index].type = i;
+				DATA_COMBOX.param_data[index].width = i;
 				break;
 			}
 		}
@@ -706,11 +825,12 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 			return (-1);
 		}
 		/*---------------------------------*/
-		char * p = &DATA_COMBOX.param_data[index].buffer[190];
+		char * p = &DATA_COMBOX.param_data[index].buffer[150];
 		/*---------------------------------*/
 		for( int i = 0 ; i < n - 1 ; i ++ )
 		{
-			strcpy(p,parm[i]);//copy data
+			memcpy(p,parm[i],16);//copy data
+			p += 16;
 		}
 	}
 	else
@@ -865,6 +985,23 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 		}
 	}
 	/* common sessions */
+	/* get line type */
+	/*----------check type-----------*/
+ 	if( Get_line_type((char *)&math_buffer,64,ret,"SHAPE",&DATA_COMBOX.param_data[index].line_type) != 0 )
+	{
+		msg_out("SHAPE 参数错误");
+		/*---------------------*/
+		return (-1);
+	}
+	// get hot key
+	memset(DATA_COMBOX.param_data[index].hot_key,0,sizeof(DATA_COMBOX.param_data[index].hot_key));
+	/* set num */
+	if( Get_hotkey((char *)&math_buffer,64,ret,"HOTKEY",DATA_COMBOX.param_data[index].hot_key) == 0 )
+	{
+		msg_out("HOTKEY 参数错误");
+		/*---------------------*/
+		return (-1);
+	}
 	/*---------check MARK--------*/
 	if( Get_param_MARKS((char *)&math_buffer,64,ret,"MARK",&DATA_COMBOX.param_data[index].mark) != 0 )
 	{

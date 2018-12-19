@@ -75,7 +75,8 @@ typedef struct
 	unsigned int little;//0 is little , 1 is big
 	unsigned int if_num;
 	//char if_table[12][32];
-	unsigned short func_param[16];
+	unsigned short func_param[14];
+	unsigned int line_type;
 	unsigned int if_param_value[4];
 	unsigned int math_type;//0 is none , 1 S2F , 2 is THIS , 0xff is creater
 	unsigned int math_number;
@@ -83,7 +84,7 @@ typedef struct
 	char asmf_type[12];
 	char buffer[236];//236 - 40 = 196
 	unsigned int mark;
-	unsigned char hot_key[16];
+	char hot_key[16];
 	/* some other struct */
 	/* some other struct */
     /* some other struct */
@@ -108,6 +109,8 @@ class C_PROCOTOL_CREATE : public CDialogEx
 	DECLARE_DYNAMIC(C_PROCOTOL_CREATE)
 
 public:
+	int C_PROCOTOL_CREATE::Get_hotkey(char * src , unsigned int src_len , unsigned int num,const char * cmd,char * param);
+	int C_PROCOTOL_CREATE::Get_line_type(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param);
 	int C_PROCOTOL_CREATE::Get_function(char * src , unsigned int src_len , unsigned int num ,	char * func,char * param1,char * param2,char * param3,char * param4,char * param5);
 	int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsigned int num,const char * cmd,unsigned int * param);
 	void C_PROCOTOL_CREATE::flush_cfs(unsigned int msg);
