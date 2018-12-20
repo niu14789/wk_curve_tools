@@ -198,6 +198,8 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::open_data_review(void);
+	void CTeeChart5_testDlg::Open_cfg(void);
 	int CTeeChart5_testDlg::func_kyx(unsigned int start , int index);
 	void CTeeChart5_testDlg::HOTKEY_THREAD(char key);
 	int CTeeChart5_testDlg::func_ky(unsigned int start , int index);

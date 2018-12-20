@@ -9,6 +9,7 @@ typedef struct
 	unsigned int file_enable;//0 is enaable
 	char file_path[512];
 	char file_tmp[512];
+	char procotol_file[512];
 	unsigned int default_procotol_type;
 	char file_name[32];
 	char file_point[32];
@@ -25,9 +26,12 @@ class C_open : public CDialogEx
 	DECLARE_DYNAMIC(C_open)
 
 public:
+	void C_open::Set_procotol(char * path);
+	void C_open::focus_on(int index);
+	void C_open::widget_init(void);
 	C_open(CWnd* pParent = NULL);   // 标准构造函数
 	virtual ~C_open();
-	void C_open::open_file(unsigned int index);
+	int C_open::open_file(unsigned int index);
 // 对话框数据
 	enum { IDD = IDD_DIALOG1 };
 
@@ -58,4 +62,5 @@ public:
 	CComboBox m_co9;
 	CComboBox m_co10;
 	afx_msg void OnDropFiles(HDROP hDropInfo);
+	afx_msg void OnCbnSelchangeCombo1();
 };

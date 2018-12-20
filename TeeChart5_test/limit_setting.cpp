@@ -270,6 +270,10 @@ int limit_setting::search_chese_name(char * name)
 {
 	for( int i = 0 ; i < 20 ; i ++ )
 	{
+		if( name == NULL || string_chese_table[i][0] == NULL )
+		{
+			return (-1);
+		}
 		if( strstr(name,string_chese_table[i][0]) != NULL )
 		{
 			return i;

@@ -36,6 +36,7 @@
 #include "suggestion.h"
 #include "rt27.h"
 #include "del_point.h"
+#include "data_review.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -977,7 +978,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	}
 	/* read cfs files */
 	FILE * pf_cfs_file;
-#if !VERSION_CTRL
+#if VERSION_CTRL
 	if( strstr(file_man.file[index].file_point,"bin") != NULL )
 	{
 		/* open */
@@ -1027,28 +1028,53 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	else
 #endif
 	{
-		char buffer_other[1024];
-#if !VERSION_CTRL
-		sprintf_s(buffer_other,"D200_%s.CFS",file_man.file[index].file_point);
-#else
-		sprintf_s(buffer_other,"WK_%s.CFS",file_man.file[index].file_point);
-#endif
+		char buffer_other[256];
+		/* procotol */
+		if( file_man.file[index].default_procotol_type == 0 )
+		{
+			sprintf_s(buffer_other,"%s.CFS",file_man.file[index].file_point);
+		}
+		else
+		{
+			strcpy(buffer_other,file_man.file[index].procotol_file);
+		}
 		/* open */
 		fopen_s(&pf_cfs_file,buffer_other,"rb");
 		/* open ok ? */
 		if( pf_cfs_file == NULL )
 		{
-			char buffer_tmp[1024];
+			m_taps.SetWindowTextW(_T("未找到配置文件，重新选择"));
+			Open_cfg();//select one file
+			if( file_man.file[index].default_procotol_type == 0 )
+			{
+				sprintf_s(buffer_other,"%s.CFS",file_man.file[index].file_point);
+			}
+			else
+			{
+				strcpy(buffer_other,file_man.file[index].procotol_file);
+			}
+	        /* open */
+		    fopen_s(&pf_cfs_file,buffer_other,"rb");
+		    /* open ok ? */
+		    if( pf_cfs_file == NULL )
+		    {
+				char buffer_tmp[1024];
 
-			sprintf_s(buffer_tmp,"找不到.%s文件对应的配置文件 %s",file_man.file[index].file_point,buffer_other);
+				sprintf_s(buffer_tmp,"找不到.%s文件对应的配置文件 %s",file_man.file[index].file_point,buffer_other);
 
-			CString d = A2T(buffer_tmp);
+				CString d = A2T(buffer_tmp);
 
-			MessageBox(d,_T("tips"),0);
-
-			return;
+				MessageBox(d,_T("tips"),0);
+				/* clear some msg */
+				file_man.file[index].file_enable = 0;
+				file_man.num --;
+				/*-------------------------------------*/
+				return;
+			}
 		}
 	}
+	/* found */
+	m_taps.SetWindowTextW(_T("找到配置文件,解析中..."));
 	/*--------read data to CFS FILE-----------*/
 	int len = fread(&READ_CFS,1,sizeof(READ_CFS),pf_cfs_file);
 	/*  lose some data */
@@ -1062,6 +1088,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		if( READ_CFS.cfs_global_msg.procotol_select == 0 )
 		{
 			MessageBox(_T("未选择自定义协议，需要重新生成配置文件"),_T("tips"),0);
+			/* clear some msg */
+			file_man.file[index].file_enable = 0;
+			file_man.num --;
+			/*-------------------------------------*/
 			return;
 		}
 		/*---------------system supply-----------------*/
@@ -1095,6 +1125,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		}else
 		{
 			MessageBox(_T("未知协议"),_T("tips"),0);
+			/* clear some msg */
+			file_man.file[index].file_enable = 0;
+			file_man.num --;
+			/*-------------------------------------*/
 			return;
 		}
 	}
@@ -1144,6 +1178,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	if( pf_read_log == NULL )
 	{
 		MessageBox(_T("日志文件打开失败"),_T("tips"),0);
+		/* clear some msg */
+		file_man.file[index].file_enable = 0;
+		file_man.num --;
+		/*-------------------------------------*/
 		return;
 	}
 	/*----------------------*/
@@ -1156,6 +1194,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	{
 		MessageBox(_T("文件为空"),_T("tips"),0);
 		/*------------------------------------*/
+		/* clear some msg */
+		file_man.file[index].file_enable = 0;
+		file_man.num --;
+		/*-------------------------------------*/
 		return;
 	}
 	/* flag */
@@ -1180,6 +1222,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		if( param_list_show.param_list[param_list_show.param_list_num].data_y == NULL )
 		{
 			MessageBox(_T("内存分配失败"),_T("tips"),0);
+			/* clear some msg */
+			file_man.file[index].file_enable = 0;
+			file_man.num --;
+			/*-------------------------------------*/
 			return;
 		}
 		/* allocate first */
@@ -1192,6 +1238,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 			if( param_list_show.param_list[param_list_show.param_list_num].data_x == NULL )
 			{
 				MessageBox(_T("内存分配失败"),_T("tips"),0);
+				/* clear some msg */
+				file_man.file[index].file_enable = 0;
+				file_man.num --;
+				/*-------------------------------------*/
 				return;
 			}
 			/* save memory addr */
@@ -1225,6 +1275,10 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		if( param_list_show.param_list_num >= 512 )
 		{
 			MessageBox(_T("文件中包含的曲线数量大于512"),_T("tips"),0);
+			/* clear some msg */
+			file_man.file[index].file_enable = 0;
+			file_man.num --;
+			/*-------------------------------------*/
 			return;			
 		}
 	}
@@ -1250,6 +1304,8 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	}
 	/* deal with create and functions */
 	function_thread(start_addr);
+	/* taps */
+	m_taps.SetWindowTextW(_T("解析完成"));
 	/* close file */
 	if( pf_read_log != NULL )
 	{
@@ -3195,10 +3251,10 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  break;
 #if !VERSION_CTRL
 			  case VK_F6:
-				  
+                  Open_cfg();
 				  break;
 			  case VK_F7:
-				  
+				  open_data_review();
 				  break;
 			  case VK_F8:
 				 
@@ -4288,4 +4344,15 @@ void CTeeChart5_testDlg::HOTKEY_THREAD(char key)
 			}
 		}
 	}
+}
+/*-----------------------------*/
+void CTeeChart5_testDlg::Open_cfg(void)
+{
+	C_open openDlg;
+	openDlg.DoModal();
+}
+void CTeeChart5_testDlg::open_data_review(void)
+{
+	data_review re;
+	re.DoModal();
 }

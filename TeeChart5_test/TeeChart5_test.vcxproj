@@ -135,6 +135,7 @@
     <ClInclude Include="C_open.h" />
     <ClInclude Include="C_PROCOTOL_CREATE.h" />
     <ClInclude Include="Data_detail.h" />
+    <ClInclude Include="data_review.h" />
     <ClInclude Include="del_point.h" />
     <ClInclude Include="explorer1.h" />
     <ClInclude Include="limit_setting.h" />
@@ -160,6 +161,7 @@
     <ClCompile Include="C_open.cpp" />
     <ClCompile Include="C_PROCOTOL_CREATE.cpp" />
     <ClCompile Include="Data_detail.cpp" />
+    <ClCompile Include="data_review.cpp" />
     <ClCompile Include="del_point.cpp" />
     <ClCompile Include="explorer1.cpp" />
     <ClCompile Include="fm_link.cpp" />
