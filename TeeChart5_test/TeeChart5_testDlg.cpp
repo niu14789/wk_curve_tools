@@ -80,8 +80,6 @@ unsigned int pic_take_now = 0;
 unsigned int pic_feedback_err = 0;
 unsigned int pic_feedback_ok = 0;
 /*------------------------------------*/
-SYSTEM_AUTO_SCALE_DEF auto_scale_g;
-/*------------------------------------*/
 motor motor_dlg;
 /*------------------------------------*/
 static unsigned int color_index = 0;
@@ -295,15 +293,6 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 #endif
 	CEnvironment evn = m_chart.get_Environment();
 	evn.put_MouseWheelScroll(0);
-	/*----------------------*/
-	// should be read from files
-	auto_scale_g.mutiple_axis = 0;
-	auto_scale_g.global_auto = 0;
-	/*-------------------------*/
-	for(int i = 0 ; i < 20; i ++ )
-	{
-	  auto_scale_g.line_cfg[i].auto_scale = 1;
-	}
 	/*----------*/
 	create_color_table();
 	/* send a email to devolopers */
@@ -405,24 +394,6 @@ void CTeeChart5_testDlg::OnBnClickedButton1()
 			{
 				axis = (CAxis)chartaxis.get_Custom(i-1);
 			}
-			/*------set scale------*/
-			if( auto_scale_g.global_auto )
-			{
-				axis.put_Automatic(1);
-			}else
-			{
-				/*--- others ---------------------------------*/
-				if( auto_scale_g.line_cfg[i].auto_scale )
-				{
-					axis.put_Automatic(1);
-				}else
-				{
-					axis.put_Automatic(0);
-					axis.put_Minimum(auto_scale_g.line_cfg[i].min);
-					axis.put_Maximum(auto_scale_g.line_cfg[i].max);
-				}
-				/*---------------------------------------------*/
-			}
 		 }
 	 }
 	/*----------------------------*/
@@ -482,7 +453,7 @@ void CTeeChart5_testDlg::axis_reset(void)
 /*----------------------------------------------------------*/
 void CTeeChart5_testDlg::axis_color(unsigned int num,unsigned int color,unsigned int mode)
 {
-	if( auto_scale_g.mutiple_axis == 0 && mode == 0 )
+	if( mode == 0 )
 	{
 		return;
 	}
@@ -524,54 +495,52 @@ void CTeeChart5_testDlg::OnBnClickedButton4()
 	
 	CAxis axis = (CAxis)chartaxis.get_Left();
 	/*----------------------------------*/
-	int axis_changed = auto_scale_g.mutiple_axis;
-	/*----------------------------------*/
 	Auto_set dl;
 	dl.DoModal();
 	/*------set scale------*/
-	if( auto_scale_g.global_auto )
-	{
-		axis.put_Automatic(1);
-		/*----------------------*/
-		for( int i = 0 ; i < 20 ; i ++ )
-		{
-			axis = (CAxis)chartaxis.get_Custom(i);
-			/* put automatic */
-			axis.put_Automatic(1);
-		}
-	}else
-	{
-		if( auto_scale_g.line_cfg[0].auto_scale )
-		{
-			axis.put_Automatic(1);
-		}else
-		{
-			axis.put_Automatic(0);
-			axis.put_Minimum(auto_scale_g.line_cfg[0].min);
-			axis.put_Maximum(auto_scale_g.line_cfg[0].max);
-		}
-		/*--- others ---------------------------------*/
-		for( int i = 0 ; i < 19 ; i ++ )
-		{
-			axis = (CAxis)chartaxis.get_Custom(i);
-			/*---------------------------------*/
-			if( auto_scale_g.line_cfg[i+1].auto_scale )
-			{
-				axis.put_Automatic(1);
-			}else
-			{
-				axis.put_Automatic(0);
-				axis.put_Minimum(auto_scale_g.line_cfg[i+1].min);
-				axis.put_Maximum(auto_scale_g.line_cfg[i+1].max);
-			}
-		}
-		/*---------------------------------------------*/
-	}
+	//if( auto_scale_g.global_auto )
+	//{
+	//	axis.put_Automatic(1);
+	//	/*----------------------*/
+	//	for( int i = 0 ; i < 20 ; i ++ )
+	//	{
+	//		axis = (CAxis)chartaxis.get_Custom(i);
+	//		/* put automatic */
+	//		axis.put_Automatic(1);
+	//	}
+	//}else
+	//{
+	//	if( auto_scale_g.line_cfg[0].auto_scale )
+	//	{
+	//		axis.put_Automatic(1);
+	//	}else
+	//	{
+	//		axis.put_Automatic(0);
+	//		axis.put_Minimum(auto_scale_g.line_cfg[0].min);
+	//		axis.put_Maximum(auto_scale_g.line_cfg[0].max);
+	//	}
+	//	/*--- others ---------------------------------*/
+	//	for( int i = 0 ; i < 19 ; i ++ )
+	//	{
+	//		axis = (CAxis)chartaxis.get_Custom(i);
+	//		/*---------------------------------*/
+	//		if( auto_scale_g.line_cfg[i+1].auto_scale )
+	//		{
+	//			axis.put_Automatic(1);
+	//		}else
+	//		{
+	//			axis.put_Automatic(0);
+	//			axis.put_Minimum(auto_scale_g.line_cfg[i+1].min);
+	//			axis.put_Maximum(auto_scale_g.line_cfg[i+1].max);
+	//		}
+	//	}
+	//	/*---------------------------------------------*/
+	//}
 	/*-------------------------------------------------*/
-	if( axis_changed != auto_scale_g.mutiple_axis )
-	{
-		reflush_chart();
-	}
+	//if( axis_changed != auto_scale_g.mutiple_axis )
+	//{
+	//	reflush_chart();
+	//}
 	/*-------------------------------------------------*/
 }
 void CTeeChart5_testDlg::OnBnClickedButton6()
@@ -1036,7 +1005,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		}
 		else
 		{
-			strcpy(buffer_other,file_man.file[index].procotol_file);
+			strcpy_s(buffer_other,file_man.file[index].procotol_file);
 		}
 		/* open */
 		fopen_s(&pf_cfs_file,buffer_other,"rb");
@@ -1051,7 +1020,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 			}
 			else
 			{
-				strcpy(buffer_other,file_man.file[index].procotol_file);
+				strcpy_s(buffer_other,file_man.file[index].procotol_file);
 			}
 	        /* open */
 		    fopen_s(&pf_cfs_file,buffer_other,"rb");
@@ -1098,7 +1067,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		if( READ_CFS.cfs_global_msg.procotol_select == 2 )
 		{
 			//RT27
-			if( rt27_decode(file_man.file[index].file_path,file_man.file[index].file_tmp) != 0 )
+			if( rt27_decode(file_man.file[index].file_path,file_man.file[index].file_tmp,sizeof(file_man.file[index].file_tmp)) != 0 )
 			{
 			   return;
 			}
@@ -1801,26 +1770,26 @@ void CTeeChart5_testDlg::release_current_line(unsigned int num)
 		avs[param_list_show.param_list[num].line_num] = 0;
 		param_list_show.param_list[num].status = 0;
 		/*-----------------------*/
-		if( auto_scale_g.mutiple_axis )
-		{
-			/*---------------------------*/
-			CAxes chartaxis =(CAxes)m_chart.get_Axis();
-			CAxis axis;
-			/*---------------------------*/
-			if( param_list_show.param_list[num].line_num >= 1 )
-			{
-				 /*---------------------------------------------------*/
-				 axis = (CAxis)chartaxis.get_Custom( param_list_show.param_list[num].line_num - 1 );
-				 /*---------------------------------------------------*/
-				 axis.put_Visible(0);
-			}else
-			{
-				axis_reset();
-			}
-		}
-		/*--------------------------*/
-		auto_scale_g.line_cfg[param_list_show.param_list[num].line_num].opened = 0;
-		/*--------------------------*/
+		//if( auto_scale_g.mutiple_axis )
+		//{
+		//	/*---------------------------*/
+		//	CAxes chartaxis =(CAxes)m_chart.get_Axis();
+		//	CAxis axis;
+		//	/*---------------------------*/
+		//	if( param_list_show.param_list[num].line_num >= 1 )
+		//	{
+		//		 /*---------------------------------------------------*/
+		//		 axis = (CAxis)chartaxis.get_Custom( param_list_show.param_list[num].line_num - 1 );
+		//		 /*---------------------------------------------------*/
+		//		 axis.put_Visible(0);
+		//	}else
+		//	{
+		//		axis_reset();
+		//	}
+		//}
+		///*--------------------------*/
+		//auto_scale_g.line_cfg[param_list_show.param_list[num].line_num].opened = 0;
+		///*--------------------------*/
 	}
 }
 /*----------------------------*/
@@ -1850,10 +1819,6 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 		line_cfs.Clear();
 		line_cfs.put_ShowInLegend(0);
 		avs[i] = 0;
-		if( i < 20 )
-		{
-			auto_scale_g.line_cfg[i].opened = 0;
-		}
 	}
 	/*----------------*/
 	if( mode == 0 )
@@ -1874,22 +1839,6 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 	}
 	/*--------------*/
     Legend_handle(0);//hide
-	/* axis hide */
-    if( auto_scale_g.mutiple_axis )
-	{
-		CAxes chartaxis =(CAxes)m_chart.get_Axis();
-		/* for loop */
-		for( unsigned int i = 0 ; i < 20 ; i ++ )
-		{
-			/*---------------------------------------------------*/
-			CAxis axis = (CAxis)chartaxis.get_Custom( i );
-			/*---------------------------------------------------*/
-			axis.put_Visible(0);
-		}
-		/*---------------------------------------------------*/
-		axis_reset();
-		/*---------------------------------------------------*/
-	}
 	/*-----------*/
 	if( mode == 1 )
 	{
@@ -1904,59 +1853,59 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 /*--------------------------*/
 void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int mode)
 {
-	/* mutiple axis supple flags */
-	if( auto_scale_g.mutiple_axis == 0 && mode == 0 )
-	{
-		CSeries * line_now = (CSeries *)line;
-		line_now->put_VerticalAxis(0);
-		return;
-	}
-	/*-----------------------------*/
-	CAxes chartaxis =(CAxes)m_chart.get_Axis();
-	CAxis Custom_axis;
-	CAxisTitle Custom_title;
-	CTeeFont font;
-	CPen0 pen;
-	CAxisLabels label;
-	/* define lines */
-	CSeries * line_now = (CSeries *)line;
-	/* show axis */
-	if( num >= 1 )
-	{
-		/* get axis */
-		Custom_axis = (CAxis)chartaxis.get_Custom(num-1);
-	}else
-	{
-		Custom_axis = (CAxis)chartaxis.get_Left();
-	}
-	/* set position */
-	Custom_axis.put_PositionPercent(num*4);
-	/* get title */
-	Custom_title = Custom_axis.get_Title();
-	/* put vision */
-	Custom_axis.put_Visible(1);
-	/*-------------------*/
-	Custom_title.put_Caption(*title);
-	Custom_title.put_Angle(90);
-	Custom_title.put_Visible(1);
-	/* font set */
-	font = Custom_title.get_Font();
-	font.put_Color(color);
-	font.put_Size(13);
-	font.put_Bold(TRUE);
-	/*--------------------------------*/
-	pen = Custom_axis.get_AxisPen(); 
-	/*--------------------------------*/
-	pen.put_Color(color);
-	pen.put_Width(2);
-	/*-------------------------------*/
-	label = Custom_axis.get_Labels();
-	font = label.get_Font();
-	font.put_Color(color);
-	font.put_Bold(TRUE);
-	/*-------------------------------*/
-	line_now->put_VerticalAxisCustom(num-1);
-	/*-------------------------------*/
+	///* mutiple axis supple flags */
+	//if( mode == 0 )
+	//{
+	//	CSeries * line_now = (CSeries *)line;
+	//	line_now->put_VerticalAxis(0);
+	//	return;
+	//}
+	///*-----------------------------*/
+	//CAxes chartaxis =(CAxes)m_chart.get_Axis();
+	//CAxis Custom_axis;
+	//CAxisTitle Custom_title;
+	//CTeeFont font;
+	//CPen0 pen;
+	//CAxisLabels label;
+	///* define lines */
+	//CSeries * line_now = (CSeries *)line;
+	///* show axis */
+	//if( num >= 1 )
+	//{
+	//	/* get axis */
+	//	Custom_axis = (CAxis)chartaxis.get_Custom(num-1);
+	//}else
+	//{
+	//	Custom_axis = (CAxis)chartaxis.get_Left();
+	//}
+	///* set position */
+	//Custom_axis.put_PositionPercent(num*4);
+	///* get title */
+	//Custom_title = Custom_axis.get_Title();
+	///* put vision */
+	//Custom_axis.put_Visible(1);
+	///*-------------------*/
+	//Custom_title.put_Caption(*title);
+	//Custom_title.put_Angle(90);
+	//Custom_title.put_Visible(1);
+	///* font set */
+	//font = Custom_title.get_Font();
+	//font.put_Color(color);
+	//font.put_Size(13);
+	//font.put_Bold(TRUE);
+	///*--------------------------------*/
+	//pen = Custom_axis.get_AxisPen(); 
+	///*--------------------------------*/
+	//pen.put_Color(color);
+	//pen.put_Width(2);
+	///*-------------------------------*/
+	//label = Custom_axis.get_Labels();
+	//font = label.get_Font();
+	//font.put_Color(color);
+	//font.put_Bold(TRUE);
+	///*-------------------------------*/
+	//line_now->put_VerticalAxisCustom(num-1);
+	///*-------------------------------*/
 }
 /*--------------------------*/
 void CTeeChart5_testDlg::draw_single(unsigned int num)
@@ -2036,7 +1985,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
     YValue.Create(VT_R8,1,&rgsabound);
 	ZValue.Create(VT_R8,1,&rgsabound);
 	/* draw all */
-	for( long i = param_list_show.param_list[num].offset ; i < param_list_show.param_list[num].point_num ; i++ )
+	for( long i = param_list_show.param_list[num].offset ; i < (long)param_list_show.param_list[num].point_num ; i++ )
 	{
 		dval = line_data_x[i];
 		/* init */
@@ -2081,19 +2030,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	line_cfs.put_Color(cols);
 	/*---------------------*/
 	draw_axis(line_num,&line_cfs,&show,cols,0);
-	/*---------------------*/
-	auto_scale_g.line_cfg[line_num].opened = 1;
-	int len_name;
-	if( strlen(param_list_show.param_list[num].name) > 64 )
-	{
-		len_name = 64;
-	}else
-	{
-		len_name = strlen(param_list_show.param_list[num].name);
-	}
 	/*------------------------------------------------------------------------------------*/
-	memcpy(auto_scale_g.line_cfg[line_num].title,param_list_show.param_list[num].name,len_name);
-	/*---------------------*/
 	CMarks line_mark = line_cfs.get_Marks();
 	/* mark show */
 	if( param_list_show.param_list[num].mark != 0 )
@@ -2576,7 +2513,7 @@ void CTeeChart5_testDlg::transfer_com_msg(TCHAR * comname , TCHAR * portname)
 		}
 	}
 	/* get portnum */
-	if( sscanf(com_name_s,"COM%d",&COM.com_detail[COM.Available_com_num].com_det) != 1 )
+	if( sscanf_s(com_name_s,"COM%d",&COM.com_detail[COM.Available_com_num].com_det) != 1 )
 	{
 		MessageBox(_T("串口信息错误"),_T("tips"),0);
 		return;
@@ -3318,7 +3255,7 @@ void CTeeChart5_testDlg::release_memory(void)
 			{
 				backup1 = param_list_show.param_list[i].data_x;
 				/*--------------------------*/
-				int j = 0;
+				unsigned int j = 0;
 				/* set num */
 				for( j = 0 ; j < num_p ; j ++ )
 				{
@@ -3521,7 +3458,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 		{
 			fpos_num_pos = i;
 			fpos_point_num = param_list_show.param_list[i].point_num;
-			strcpy(path_data,param_list_show.param_list[i].from_file);
+			strcpy_s(path_data,param_list_show.param_list[i].from_file);
 		}
 		/* fpos CT1 */
 		if( CT1_pos == 0xffff && strstr(param_list_show.param_list[i].name,"CT1") != NULL )
@@ -3583,7 +3520,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	char create_buffer[512];
 	memset(create_buffer,0,sizeof(create_buffer));
 	//-------------
-	sprintf(create_buffer,"%s.txt",path_data);
+	sprintf_s(create_buffer,"%s.txt",path_data);
 	// open file 
 	fopen_s(&txt_wb,create_buffer,"wb+");
 	/*-------------------------------*/
@@ -3617,10 +3554,10 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			{
 				/* position */
 				memset(output,0,sizeof(output));
-				sprintf(output,"1.RT27中打标点在%d处发生丢失,异常\r\n",i);
+				sprintf_s(output,"1.RT27中打标点在%d处发生丢失,异常\r\n",i);
 				fwrite(output,strlen(output),1,txt_wb);
 				/*-------------------------*/
-				last = tmp[i]; 
+				last = (int)tmp[i]; 
 				error_flag ++;
 			}
 			/*--------------------*/
@@ -3629,7 +3566,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	}else
 	{
 		memset(output,0,sizeof(output));
-		sprintf(output,"1.RT27中打标点数量与解析出来的数量相同，正确\r\n");
+		sprintf_s(output,"1.RT27中打标点数量与解析出来的数量相同，正确\r\n");
 		fwrite(output,strlen(output),1,txt_wb);
 	}
 	/*----check fpos num-------*/
@@ -3645,10 +3582,10 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			{
 				/* position */
 				memset(output,0,sizeof(output));
-				sprintf(output,"2.FPOS中记录条数在%d处发生丢失,异常\r\n",i);
+				sprintf_s(output,"2.FPOS中记录条数在%d处发生丢失,异常\r\n",i);
 				fwrite(output,strlen(output),1,txt_wb);
 				/*-------------------------*/
-				last = tmp[i]; 
+				last = (int)tmp[i]; 
 				error_flag++;
 			}
 			/*--------------------*/
@@ -3657,7 +3594,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	}else
 	{
 		memset(output,0,sizeof(output));
-		sprintf(output,"2.FPOS中记录条数与解析出来的数量相同，正确\r\n");
+		sprintf_s(output,"2.FPOS中记录条数与解析出来的数量相同，正确\r\n");
 		fwrite(output,strlen(output),1,txt_wb);
 	}
 	/* check event and event */
@@ -3679,7 +3616,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			/*----------------------------*/
 			e_time = (double *)param_list_show.param_list[enent_time_pos].data_y;
 			/*----------------------------*/
-			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT1(us)");
+			strcpy_s(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT1(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
@@ -3689,7 +3626,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
-			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT2(us)");
+			strcpy_s(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT2(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
@@ -3699,7 +3636,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
-			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT3(us)");
+			strcpy_s(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT3(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
@@ -3709,7 +3646,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
-			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT4(us)");
+			strcpy_s(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT4(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
@@ -3719,7 +3656,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			/*------------------*/
 			param_list_show.param_list_num++;
 			/*-------------------------------------------------------------------------------*/
-			strcpy(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT5(us)");
+			strcpy_s(param_list_show.param_list[param_list_show.param_list_num].name,"EVENT-CT5(us)");
 			/* malloc memorizes */
 			param_list_show.param_list[param_list_show.param_list_num].data_y = (unsigned char *)malloc(fpos_point_num*8);
 			param_list_show.param_list[param_list_show.param_list_num].data_x = x_axis;
@@ -3740,7 +3677,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				if( abs(diff) > TIME_PERIOD )//50 ms
 				{
 					memset(output,0,sizeof(output));
-					sprintf(output,"3.时间间隔EVENT-CT1异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct1_const[i],diff);
+					sprintf_s(output,"3.时间间隔EVENT-CT1异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct1_const[i],diff);
 					fwrite(output,strlen(output),1,txt_wb);
 					error_flag++;
 				}
@@ -3752,7 +3689,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				if( abs(diff) > TIME_PERIOD )//50 ms
 				{
 					memset(output,0,sizeof(output));
-					sprintf(output,"3.时间间隔EVENT-CT2异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct2_const[i],diff);
+					sprintf_s(output,"3.时间间隔EVENT-CT2异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct2_const[i],diff);
 					fwrite(output,strlen(output),1,txt_wb);
 					error_flag++;
 				}
@@ -3764,7 +3701,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				if( abs(diff) > TIME_PERIOD )//50 ms
 				{
 					memset(output,0,sizeof(output));
-					sprintf(output,"3.时间间隔EVENT-CT3异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct3_const[i],diff);
+					sprintf_s(output,"3.时间间隔EVENT-CT3异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct3_const[i],diff);
 					fwrite(output,strlen(output),1,txt_wb);
 					error_flag++;
 				}
@@ -3776,7 +3713,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				if( abs(diff) > TIME_PERIOD )//50 ms
 				{
 					memset(output,0,sizeof(output));
-					sprintf(output,"3.时间间隔EVENT-CT4异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct4_const[i],diff);
+					sprintf_s(output,"3.时间间隔EVENT-CT4异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct4_const[i],diff);
 					fwrite(output,strlen(output),1,txt_wb);
 					error_flag++;
 				}
@@ -3788,7 +3725,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				if( abs(diff) > TIME_PERIOD )//50 ms
 				{
 					memset(output,0,sizeof(output));
-					sprintf(output,"3.时间间隔EVENT-CT5异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct5_const[i],diff);
+					sprintf_s(output,"3.时间间隔EVENT-CT5异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct5_const[i],diff);
 					fwrite(output,strlen(output),1,txt_wb);
 					error_flag++;
 				}
@@ -3802,14 +3739,14 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 			if( error_flag == 0 )
 			{
 				memset(output,0,sizeof(output));
-				sprintf(output,"3.时间间隔-----------------正确\r\n");
+				sprintf_s(output,"3.时间间隔-----------------正确\r\n");
 				fwrite(output,strlen(output),1,txt_wb);
 			}
 			/*-------------------------------------------------------------------------------*/
 		}else
 		{
 			memset(output,0,sizeof(output));
-			sprintf(output,"3.FPOS中记录数量与RT27记录打标点数量不匹配，相差%d，异常\r\n",fpos_point_num - enent_point_num);
+			sprintf_s(output,"3.FPOS中记录数量与RT27记录打标点数量不匹配，相差%d，异常\r\n",fpos_point_num - enent_point_num);
 			fwrite(output,strlen(output),1,txt_wb);
 			error_flag++;
 		}
@@ -3823,12 +3760,12 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	/*------------------------------------------------------------------------------*/
 	int error_fpos_lon_lat = 0;
 	/*------------------------------------------------------------------------------*/
-	for( int i = 1 ; i < param_list_show.param_list[GPS_LON_FPOS].point_num ; i ++ )
+	for(unsigned int i = 1 ; i < param_list_show.param_list[GPS_LON_FPOS].point_num ; i ++ )
 	{
 		if( lon_const[i] == lon_last && lat_const[i] == lat_last )
 		{
 			memset(output,0,sizeof(output));
-			sprintf(output,"4.FPOS中记录数量存在相同的位置点，异常，fpos行:%d\r\n",i);
+			sprintf_s(output,"4.FPOS中记录数量存在相同的位置点，异常，fpos行:%d\r\n",i);
 			fwrite(output,strlen(output),1,txt_wb);
 			error_flag++;
 			error_fpos_lon_lat++;
@@ -3842,7 +3779,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	if( error_fpos_lon_lat == 0 )
 	{
 		memset(output,0,sizeof(output));
-		sprintf(output,"4.FPOS中记录数量位置点，正确\r\n");
+		sprintf_s(output,"4.FPOS中记录数量位置点，正确\r\n");
 		fwrite(output,strlen(output),1,txt_wb);
 	}
 	/*--------------*/
@@ -3854,7 +3791,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	if( error_flag == 0 )
 	{
 		memset(output,0,sizeof(output));
-		sprintf(output,"\r\n\r\n总结：未发现问题\r\n");
+		sprintf_s(output,"\r\n\r\n总结：未发现问题\r\n");
 		fwrite(output,strlen(output),1,txt_wb);
 		/*--------------------------------------*/
 		//AfxMessageBox(_T("分析完成，未发现问题"));
@@ -3872,7 +3809,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 	}else
 	{
 		memset(output,0,sizeof(output));
-		sprintf(output,"\r\n\r\n总结：发现问题!!!!!!!!!!!!!!!\r\n");
+		sprintf_s(output,"\r\n\r\n总结：发现问题!!!!!!!!!!!!!!!\r\n");
 		fwrite(output,strlen(output),1,txt_wb);
 		/*--------------------------------------*/
 	    if( MessageBox(_T("分析完成，发现问题，点<确定>查看分析报告"),_T("分析报告"),1) == 1 )
@@ -3904,7 +3841,7 @@ void CTeeChart5_testDlg::combox_list_fresh(void)
 	/*------------------*/
 	m_combox_param_show.ResetContent();
     /*-------------------------------------------*/
-	for( int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
 		show = A2T(param_list_show.param_list[i].name);
 	    m_combox_param_show.AddString(show);
@@ -3924,7 +3861,7 @@ void CTeeChart5_testDlg::delete_point(void)
 		/*---------------------*/
 		CSeries line = (CSeries)m_chart.Series(system_delete_point.line_num);
 		/*---------------------*/
-		for( int i = system_delete_point.from ; i < system_delete_point.to + 1 ; i ++ )
+		for( unsigned int i = system_delete_point.from ; i < system_delete_point.to + 1 ; i ++ )
 		{
 			line.Delete(i);
 		}
@@ -3953,7 +3890,7 @@ int CTeeChart5_testDlg::function_thread(unsigned int start)
 {
 	int ret = 0;
 	/* find func */
-	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = start ; i < param_list_show.param_list_num ; i ++ )
 	{
 		if( param_list_show.param_list[i].function_enable == 1 )
 		{
@@ -4017,13 +3954,13 @@ int CTeeChart5_testDlg::func_copy2_0(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf(buffer[0],"-->%s",p0);
-	sprintf(buffer[1],"-->%s",p1);
+	sprintf_s(buffer[0],"-->%s",p0);
+	sprintf_s(buffer[1],"-->%s",p1);
 	/* find flag */
 	int pos_0 = 0xffff;
 	int pos_1 = 0xffff;
 	/* search */
-	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = start ; i < param_list_show.param_list_num ; i ++ )
 	{
 		char * c;
 		/* param one */
@@ -4106,15 +4043,15 @@ int CTeeChart5_testDlg::func_PCG2(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf(buffer[0],"-->%s",p0);
-	sprintf(buffer[1],"-->%s",p1);
-	sprintf(buffer[2],"-->%s",p2);
+	sprintf_s(buffer[0],"-->%s",p0);
+	sprintf_s(buffer[1],"-->%s",p1);
+	sprintf_s(buffer[2],"-->%s",p2);
 	/* find flag */
 	int pos_0 = 0xffff;
 	int pos_1 = 0xffff;
 	int pos_2 = 0xffff;
 	/* search */
-	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = start ; i < param_list_show.param_list_num ; i ++ )
 	{
 		char * c;
 		/* param one */
@@ -4197,11 +4134,11 @@ int CTeeChart5_testDlg::func_ky(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf(buffer[0],"-->%s",p0);
+	sprintf_s(buffer[0],"-->%s",p0);
 	/* find flag */
 	int pos_0 = 0xffff;
 	/* search */
-	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = start ; i < param_list_show.param_list_num ; i ++ )
 	{
 		char * c;
 		/* param one */
@@ -4254,11 +4191,11 @@ int CTeeChart5_testDlg::func_kyx(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf(buffer[0],"-->%s",p0);
+	sprintf_s(buffer[0],"-->%s",p0);
 	/* find flag */
 	int pos_0 = 0xffff;
 	/* search */
-	for( int i = start ; i < param_list_show.param_list_num ; i ++ )
+	for( unsigned int i = start ; i < param_list_show.param_list_num ; i ++ )
 	{
 		char * c;
 		/* param one */

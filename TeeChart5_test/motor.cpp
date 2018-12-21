@@ -119,7 +119,7 @@ void motor::OnBnClickedButton1()
 		c_string[i/2] = get_cs[i];
 	}  
 	/*--------------------------*/
-	if( sscanf(c_string,"%d",&time) != 1 )
+	if( sscanf_s(c_string,"%d",&time) != 1 )
 	{
 		MessageBox(_T("输入电机测试时间"),_T("tips"),0);
 		return;
@@ -134,7 +134,7 @@ void motor::OnBnClickedButton1()
 	*pd = 251;
 	param[0] = 1;
 	param[1] = 1500.0f;
-	param[2] = time;
+	param[2] = (float)time;
 	/*-------------------------*/   
 	/*-------------------------*/   
 	if( flags_tips || MessageBox(_T("进入电机测试模式之后，电机会转动，请确认环境是否安全！") , _T("tips") , 1 ) == 1 )
@@ -192,7 +192,7 @@ void motor::OnBnClickedButton3()
 	/*---------------------*/
 	*pd = 253;
 	param[0] = 3;
-	param[1] = pos;
+	param[1] = (float)pos;
 	/*-------------------------*/   
 	if( ct->fm_link_send(76,package,33) == (-1) )
 	{
@@ -224,7 +224,7 @@ unsigned int motor::get_pwm_value(void)
 		c_string[i/2] = get_cs[i];
 	}  
 	/*--------------------------*/
-	if( sscanf(c_string,"%d",&time) != 1 )
+	if( sscanf_s(c_string,"%d",&time) != 1 )
 	{
 		MessageBox(_T("输入油门大小"),_T("tips"),0);
 		return (-1);

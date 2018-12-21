@@ -39,7 +39,8 @@ char one_line_buffer[1024];
 /*---------------------*/
 int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode)
 {
-	FILE * rb = fopen(path,"rb");
+	FILE * rb = 0;
+	fopen_s(&rb,path,"rb");
 	/*------------------------*/
 	if( rb == NULL )
 	{
@@ -53,7 +54,8 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 	/*-----------------------*/
 	sprintf_s(fpos_name,"%s.tmp",path);
 	/*-----------------------------*/
-	FILE * wb = fopen(fpos_name,"wb+");
+	FILE * wb = 0;
+	fopen_s(&wb,fpos_name,"wb+");
 	/*------------------------*/
 	CString show;
     USES_CONVERSION;
@@ -68,7 +70,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 			return (-1);
 		}
 		/* open again */
-		wb = fopen(fpos_name,"wb+");
+		fopen_s(&wb,fpos_name,"wb+");
 	    /*------------------------*/
 	    if( wb == NULL )
 	    {
@@ -104,7 +106,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 			if( mode == 0 )
 			{
 				/* ok */
-				if( sscanf(one_line_buffer,"%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+				if( sscanf_s(one_line_buffer,"%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
 					&fpos.index,&fpos.lon,&fpos.lat,&fpos.height,&fpos.CT1,&fpos.CT2,&fpos.CT3,&fpos.CT4,&fpos.CT5,&fpos.PITCH,&fpos.ROLL,&fpos.YAW) == 12 )
 				{
 					fwrite(&fpos,1,sizeof(fpos),wb);
@@ -117,7 +119,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 			{
 				//pos
 				/* ok */
-				if( sscanf(one_line_buffer,"%d %lf %lf %lf %lf %lf %lf",
+				if( sscanf_s(one_line_buffer,"%d %lf %lf %lf %lf %lf %lf",
 					&pos.index,&pos.lon,&pos.lat,&pos.height,&pos.PITCH,&pos.ROLL,&pos.YAW) == 7 )
 				{
 					fwrite(&pos,1,sizeof(pos),wb);

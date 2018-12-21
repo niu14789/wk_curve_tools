@@ -6,8 +6,6 @@
 #include "afxdialogex.h"
 #include "TeeChart5_testDlg.h"
 
-extern SYSTEM_AUTO_SCALE_DEF auto_scale_g;
-
 SYSTEM_DELETE_POINT_DEF system_delete_point;
 
 // del_point ¶Ô»°¿ò
@@ -60,17 +58,17 @@ void del_point::line_list_init(void)
     /*-----------------------*/
 	m_del_point_list.ResetContent();
 	/*-----------------------*/
-	for( int i = 0 ; i < 20 ; i ++ )
-	{
-		if( auto_scale_g.line_cfg[i].opened )
-		{
+	//for( int i = 0 ; i < 20 ; i ++ )
+	//{
+	//	if( auto_scale_g.line_cfg[i].opened )
+	//	{
 
-			/*----------------------*/
-			show = A2T(auto_scale_g.line_cfg[i].title);
-			/*----------------------*/
-			m_del_point_list.AddString(show);
-		}
-	}
+	//		/*----------------------*/
+	//		show = A2T(auto_scale_g.line_cfg[i].title);
+	//		/*----------------------*/
+	//		m_del_point_list.AddString(show);
+	//	}
+	//}
 	/*----------------------------*/
 	m_del_point_list.SetCurSel(0);
 	/*----------------------------*/

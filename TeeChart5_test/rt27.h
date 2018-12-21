@@ -2,7 +2,7 @@
 #pragma once
 
 /*-------------------------------*/
-int rt27_decode(char *path_rt,char * tmp_file);
+int rt27_decode(char *path_rt,char * tmp_file,unsigned int sizetz);
 int file_licks(char * path,unsigned int len,char *lack,unsigned int len2);
 void raw_gps_parse(unsigned char *buffer,unsigned int len);
 void raw_gps_decode(unsigned char d);

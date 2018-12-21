@@ -498,7 +498,9 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 					/* show */
 					for( j = 0 ; j < num ; j ++ )
 					{
-						sprintf(chese_list.chese[chese_list.total_line].show_data + strlen(chese_list.chese[chese_list.total_line].show_data),
+						int leng = strlen(chese_list.chese[chese_list.total_line].show_data);
+						sprintf_s(chese_list.chese[chese_list.total_line].show_data + leng,
+							sizeof(chese_list.chese[chese_list.total_line].show_data)-leng,
 							"%s%d ",string_chese_table[i][j+2],show_uint8[j]);
 					}
 					break;
@@ -507,7 +509,9 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 					/* show */
 					for( j = 0 ; j < num ; j ++ )
 					{
-						sprintf(chese_list.chese[chese_list.total_line].show_data + strlen(chese_list.chese[chese_list.total_line].show_data),
+						int leng = strlen(chese_list.chese[chese_list.total_line].show_data);
+						sprintf_s(chese_list.chese[chese_list.total_line].show_data + leng,
+							sizeof(chese_list.chese[chese_list.total_line].show_data) - leng,
 							"%s%d ",string_chese_table[i][j+2],show_int16[j]);
 					}
 					break;
@@ -516,7 +520,9 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 					/* show */
 					for( j = 0 ; j < num ; j ++ )
 					{
-						sprintf(chese_list.chese[chese_list.total_line].show_data + strlen(chese_list.chese[chese_list.total_line].show_data),
+						int leng = strlen(chese_list.chese[chese_list.total_line].show_data);
+						sprintf_s(chese_list.chese[chese_list.total_line].show_data + leng,
+							sizeof(chese_list.chese[chese_list.total_line].show_data) - leng,
 							"%s%d ",string_chese_table[i][j+2],show_uint16[j]);
 					}
 					break;
@@ -525,7 +531,9 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 					/* show */
 					for( j = 0 ; j < num ; j ++ )
 					{
-						sprintf(chese_list.chese[chese_list.total_line].show_data + strlen(chese_list.chese[chese_list.total_line].show_data),
+						int leng = strlen(chese_list.chese[chese_list.total_line].show_data);
+						sprintf_s(chese_list.chese[chese_list.total_line].show_data + leng,
+							sizeof(chese_list.chese[chese_list.total_line].show_data) - leng,
 							"%s%d ",string_chese_table[i][j+2],show_int32[j]);
 					}
 					break;
@@ -534,7 +542,9 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 					/* show */
 					for( j = 0 ; j < num ; j ++ )
 					{
-						sprintf(chese_list.chese[chese_list.total_line].show_data + strlen(chese_list.chese[chese_list.total_line].show_data),
+						int leng = strlen(chese_list.chese[chese_list.total_line].show_data);
+						sprintf_s(chese_list.chese[chese_list.total_line].show_data + leng,
+							sizeof(chese_list.chese[chese_list.total_line].show_data) - leng,
 							"%s%d ",string_chese_table[i][j+2],show_uint32[j]);
 					}
 					break;
@@ -543,7 +553,9 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 					/* show */
 					for( j = 0 ; j < num ; j ++ )
 					{
-						sprintf(chese_list.chese[chese_list.total_line].show_data + strlen(chese_list.chese[chese_list.total_line].show_data),
+						int leng = strlen(chese_list.chese[chese_list.total_line].show_data);
+						sprintf_s(chese_list.chese[chese_list.total_line].show_data + leng,
+							sizeof(chese_list.chese[chese_list.total_line].show_data) - leng,
 							"%s%5.2f ",string_chese_table[i][j+2],show_float[j]);
 					}
 					break;

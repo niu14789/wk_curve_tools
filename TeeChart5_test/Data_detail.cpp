@@ -66,7 +66,7 @@ void Data_detail::Data_update_source(int seq,int now_select)
 	/*for( int j = 0 ; j < chese_list.chese[seq].num ; j ++ )
 	{*/
 		/*---*/
-		for( int i = 0 ; i < chese_list.chese[seq].mean_rms_num ; i ++ )
+		for(unsigned int i = 0 ; i < chese_list.chese[seq].mean_rms_num ; i ++ )
 		{
 			/*-----------------*/
 			sprintf_s(buffer,"%d",i);

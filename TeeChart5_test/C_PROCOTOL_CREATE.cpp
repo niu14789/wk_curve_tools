@@ -414,7 +414,7 @@ int C_PROCOTOL_CREATE::Get_param_OLAY(char * src , unsigned int src_len , unsign
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src+strlen(cmd),"[%d]",&get);
+			int ret = sscanf_s(src+strlen(cmd),"[%d]",&get);
 			/*---*/
 			if( ret != 1 )
 			{
@@ -444,9 +444,11 @@ int C_PROCOTOL_CREATE::Get_hotkey(char * src , unsigned int src_len , unsigned i
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src+strlen(cmd),"[%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
-				&param[0],&param[1],&param[2],&param[3],&param[4],&param[5],&param[6],&param[7],&param[8],&param[9],
-				&param[10],&param[11],&param[12],&param[13],&param[14],&param[15]);
+			int ret = sscanf_s(src+strlen(cmd),"[%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c][%c]",
+				&param[0],sizeof(char),&param[1],sizeof(char),&param[2],sizeof(char),&param[3],sizeof(char),&param[4],sizeof(char),
+				&param[5],sizeof(char),&param[6],sizeof(char),&param[7],sizeof(char),&param[8],sizeof(char),&param[9],sizeof(char),
+				&param[10],sizeof(char),&param[11],sizeof(char),&param[12],sizeof(char),&param[13],sizeof(char),&param[14],sizeof(char),
+				&param[15],sizeof(char));
 			/*------------------------*/
 			return ret;
 		}
@@ -472,7 +474,7 @@ int C_PROCOTOL_CREATE::Get_param_MARKS(char * src , unsigned int src_len , unsig
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src+strlen(cmd),"[%c%d]",&type,&get);
+			int ret = sscanf_s(src+strlen(cmd),"[%c%d]",&type,sizeof(char),&get);
 			/*---*/
 			if( ret != 2 )
 			{
@@ -516,7 +518,7 @@ int C_PROCOTOL_CREATE::Get_line_type(char * src , unsigned int src_len , unsigne
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src+strlen(cmd),"[%s]",get);
+			int ret = sscanf_s(src+strlen(cmd),"[%[^]]",get,sizeof(get));
 			/*---*/
 			if( ret != 1 )
 			{
@@ -597,7 +599,7 @@ int C_PROCOTOL_CREATE::Get_param_type(char * src , unsigned int src_len , unsign
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src+strlen(cmd),"[%s]",get);
+			int ret = sscanf_s(src+strlen(cmd),"[%[^]]",get,sizeof(get));
 			/*---*/
 			if( ret != 1 )
 			{
@@ -676,11 +678,11 @@ int C_PROCOTOL_CREATE::Get_function(char * src , unsigned int src_len , unsigned
 		/* get */
 		if( tmp != NULL )
 		{
-			for( int j = 0 ; j < strlen(tmp) ; j ++ )
+			for( unsigned int j = 0 ; j < strlen(tmp) ; j ++ )
 			{
 				if( tmp[j] == '[' )
 				{
-					if( sscanf(&tmp[j],"[%[^]]",p[n]) != 1 )
+					if( sscanf_s(&tmp[j],"[%[^]]",p[n],16) != 1 )
 					{
 						return (-1);
 					}
@@ -711,7 +713,7 @@ int C_PROCOTOL_CREATE::Get_check_if(char * src , unsigned int src_len , unsigned
 		/* get */
 		if( tmp != NULL )
 		{
-			int ret = sscanf(src,"IF[0X%x][0X%x]",param1,param2);
+			int ret = sscanf_s(src,"IF[0X%x][0X%x]",param1,param2);
 			/*---*/
 			if( ret != 2 )
 			{
@@ -879,109 +881,110 @@ int C_PROCOTOL_CREATE::decode_data_math(unsigned int index)
 		{
 			DATA_COMBOX.param_data[index].math_type = 0;
 			DATA_COMBOX.param_data[index].math_number = 0;
-			/* return ok */
-			return 0;
 		}
-		if( DATA_COMBOX.param_data[index].math_type == 1 )
+		else
 		{
-			DATA_COMBOX.param_data[index].math_type = 1;//short to float;
-			/*--------------*/
-			int ret = sscanf(tmp,"S2F[%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
-				&DATA_COMBOX.param_data[index].f_math[0],&DATA_COMBOX.param_data[index].asmf_type[0],
-				&DATA_COMBOX.param_data[index].f_math[1],&DATA_COMBOX.param_data[index].asmf_type[1],
-				&DATA_COMBOX.param_data[index].f_math[2],&DATA_COMBOX.param_data[index].asmf_type[2],
-				&DATA_COMBOX.param_data[index].f_math[3],&DATA_COMBOX.param_data[index].asmf_type[3],
-				&DATA_COMBOX.param_data[index].f_math[4],&DATA_COMBOX.param_data[index].asmf_type[4],
-				&DATA_COMBOX.param_data[index].f_math[5],&DATA_COMBOX.param_data[index].asmf_type[5],
-				&DATA_COMBOX.param_data[index].f_math[6],&DATA_COMBOX.param_data[index].asmf_type[6],
-				&DATA_COMBOX.param_data[index].f_math[7],&DATA_COMBOX.param_data[index].asmf_type[7],
-				&DATA_COMBOX.param_data[index].f_math[8],&DATA_COMBOX.param_data[index].asmf_type[8],
-				&DATA_COMBOX.param_data[index].f_math[9]);
-			/* if ok ? */
-			if( ret != 0 )
+			if( DATA_COMBOX.param_data[index].math_type == 1 )
 			{
-				if( ret == 1 )
+				DATA_COMBOX.param_data[index].math_type = 1;//short to float;
+				/*--------------*/
+				int ret = sscanf_s(tmp,"S2F[%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
+					&DATA_COMBOX.param_data[index].f_math[0],&DATA_COMBOX.param_data[index].asmf_type[0],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[1],&DATA_COMBOX.param_data[index].asmf_type[1],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[2],&DATA_COMBOX.param_data[index].asmf_type[2],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[3],&DATA_COMBOX.param_data[index].asmf_type[3],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[4],&DATA_COMBOX.param_data[index].asmf_type[4],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[5],&DATA_COMBOX.param_data[index].asmf_type[5],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[6],&DATA_COMBOX.param_data[index].asmf_type[6],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[7],&DATA_COMBOX.param_data[index].asmf_type[7],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[8],&DATA_COMBOX.param_data[index].asmf_type[8],sizeof(char),
+					&DATA_COMBOX.param_data[index].f_math[9]);
+				/* if ok ? */
+				if( ret != 0 )
 				{
-					DATA_COMBOX.param_data[index].math_number = 1;
+					if( ret == 1 )
+					{
+						DATA_COMBOX.param_data[index].math_number = 1;
+					}else
+					{
+						if( ret >= 3 && ( ret & 0x1 ) )
+						{
+							for( int i = 1 ; i < ret ; i += 2 )
+							{
+								if( !(DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '+' || 
+									DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '-' || 
+									DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '*' || 
+									DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '/' || 
+									DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '&'))
+								{
+									msg_out("S2F运算符参数错误");
+									/*---------------------*/
+									return (-1);
+								}
+							}
+						}else
+						{
+							msg_out("S2F参数错误");
+							/*---------------------*/
+							return (-1);
+						}
+						/*==========*/
+						DATA_COMBOX.param_data[index].math_number = ret;
+					}
 				}else
 				{
-					if( ret >= 3 && ( ret & 0x1 ) )
+					msg_out("S2F参数错误");
+					/*---------------------*/
+					return (-1);
+				}
+			}else if( DATA_COMBOX.param_data[index].math_type == 2 )
+			{
+				DATA_COMBOX.param_data[index].math_type = 2;//short to float with mupity data
+				/*-----------------------------------*/
+				int ret = sscanf_s(tmp,"THIS[%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
+					/* seek */
+					&DATA_COMBOX.param_data[index].asmf_type[0],sizeof(char),&DATA_COMBOX.param_data[index].f_math[0],
+					&DATA_COMBOX.param_data[index].asmf_type[1],sizeof(char),&DATA_COMBOX.param_data[index].f_math[1],
+					&DATA_COMBOX.param_data[index].asmf_type[2],sizeof(char),&DATA_COMBOX.param_data[index].f_math[2],
+					&DATA_COMBOX.param_data[index].asmf_type[3],sizeof(char),&DATA_COMBOX.param_data[index].f_math[3],
+					&DATA_COMBOX.param_data[index].asmf_type[4],sizeof(char),&DATA_COMBOX.param_data[index].f_math[4],
+					&DATA_COMBOX.param_data[index].asmf_type[5],sizeof(char),&DATA_COMBOX.param_data[index].f_math[5],
+					&DATA_COMBOX.param_data[index].asmf_type[6],sizeof(char),&DATA_COMBOX.param_data[index].f_math[6],
+					&DATA_COMBOX.param_data[index].asmf_type[7],sizeof(char),&DATA_COMBOX.param_data[index].f_math[7],
+					&DATA_COMBOX.param_data[index].asmf_type[8],sizeof(char),&DATA_COMBOX.param_data[index].f_math[8],
+					&DATA_COMBOX.param_data[index].asmf_type[9],sizeof(char),&DATA_COMBOX.param_data[index].f_math[9]);
+				/* if ok ? */
+				if( ret != 0 )
+				{
+					if( ret >= 2 && ( ! ( ret & 0x1 ) ) )
 					{
-						for( int i = 1 ; i < ret ; i += 2 )
+						for( int i = 0 ; i < ret ; i += 2 )
 						{
-							if( !(DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '+' || 
-								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '-' || 
-								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '*' || 
-								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '/' || 
-								DATA_COMBOX.param_data[index].asmf_type[(i-1)/2] == '&'))
+							if( !(DATA_COMBOX.param_data[index].asmf_type[i/2] == '+' || 
+								DATA_COMBOX.param_data[index].asmf_type[i/2] == '-' || 
+								DATA_COMBOX.param_data[index].asmf_type[i/2] == '*' || 
+								DATA_COMBOX.param_data[index].asmf_type[i/2] == '/' || 
+								DATA_COMBOX.param_data[index].asmf_type[i/2] == '&'))
 							{
-								msg_out("条件式参数错误");
+								msg_out("THIS运算符参数错误");
 								/*---------------------*/
 								return (-1);
 							}
 						}
 					}else
 					{
-						msg_out("条件式参数错误");
+						msg_out("THIS参数错误");
 						/*---------------------*/
 						return (-1);
 					}
 					/*==========*/
 					DATA_COMBOX.param_data[index].math_number = ret;
-				}
-			}else
-			{
-				msg_out("条件式参数错误");
-				/*---------------------*/
-				return (-1);
-			}
-		}else if( DATA_COMBOX.param_data[index].math_type == 2 )
-		{
-			DATA_COMBOX.param_data[index].math_type = 2;//short to float with mupity data
-			/*-----------------------------------*/
-			int ret = sscanf(tmp,"THIS[%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f][%c][%f]",
-				/* seek */
-				&DATA_COMBOX.param_data[index].asmf_type[0],&DATA_COMBOX.param_data[index].f_math[0],
-				&DATA_COMBOX.param_data[index].asmf_type[1],&DATA_COMBOX.param_data[index].f_math[1],
-				&DATA_COMBOX.param_data[index].asmf_type[2],&DATA_COMBOX.param_data[index].f_math[2],
-				&DATA_COMBOX.param_data[index].asmf_type[3],&DATA_COMBOX.param_data[index].f_math[3],
-				&DATA_COMBOX.param_data[index].asmf_type[4],&DATA_COMBOX.param_data[index].f_math[4],
-				&DATA_COMBOX.param_data[index].asmf_type[5],&DATA_COMBOX.param_data[index].f_math[5],
-				&DATA_COMBOX.param_data[index].asmf_type[6],&DATA_COMBOX.param_data[index].f_math[6],
-				&DATA_COMBOX.param_data[index].asmf_type[7],&DATA_COMBOX.param_data[index].f_math[7],
-				&DATA_COMBOX.param_data[index].asmf_type[8],&DATA_COMBOX.param_data[index].f_math[8],
-				&DATA_COMBOX.param_data[index].asmf_type[9],&DATA_COMBOX.param_data[index].f_math[9]);
-			/* if ok ? */
-			if( ret != 0 )
-			{
-				if( ret >= 2 && ( ! ( ret & 0x1 ) ) )
-				{
-					for( int i = 0 ; i < ret ; i += 2 )
-					{
-						if( !(DATA_COMBOX.param_data[index].asmf_type[i/2] == '+' || 
-							DATA_COMBOX.param_data[index].asmf_type[i/2] == '-' || 
-							DATA_COMBOX.param_data[index].asmf_type[i/2] == '*' || 
-							DATA_COMBOX.param_data[index].asmf_type[i/2] == '/' || 
-							DATA_COMBOX.param_data[index].asmf_type[i/2] == '&'))
-						{
-							msg_out("条件式参数错误");
-							/*---------------------*/
-							return (-1);
-						}
-					}
 				}else
 				{
-					msg_out("条件式参数错误");
+					msg_out("THIS参数错误");
 					/*---------------------*/
 					return (-1);
 				}
-				/*==========*/
-				DATA_COMBOX.param_data[index].math_number = ret;
-			}else
-			{
-				msg_out("条件式参数错误");
-				/*---------------------*/
-				return (-1);
 			}
 		}
 	}

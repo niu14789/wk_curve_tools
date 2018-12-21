@@ -55,13 +55,13 @@ void C_open::widget_init(void)
 	/*---------------------------*/
 	m_co1.ResetContent();
 	/*---------------*/
-	for( int i = 0 ; i < file_man.num ; i ++ )
+	for( unsigned int i = 0 ; i < file_man.num ; i ++ )
 	{
 		if( file_man.file[i].file_enable )
 		{
 			char buffer[128];
 			/*------------*/
-			sprintf(buffer,"%s.%s",file_man.file[i].file_name,file_man.file[i].file_point);
+			sprintf_s(buffer,"%s.%s",file_man.file[i].file_name,file_man.file[i].file_point);
 			show = A2T(buffer);
 			/* add to combox */
 			m_co1.AddString(show);
@@ -88,7 +88,7 @@ void C_open::focus_on(int index)
 	/*-----------------------*/
 	if( file_man.file[index].default_procotol_type == 0 )
 	{
-		sprintf(buffer,"%s.CFS",file_man.file[index].file_point);
+		sprintf_s(buffer,"%s.CFS",file_man.file[index].file_point);
 		CString show = A2T(buffer);
 		/*-----------------------*/
 		SetDlgItemText(IDC_EDIT1,show);

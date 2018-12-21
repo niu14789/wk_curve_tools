@@ -19,14 +19,14 @@ static unsigned char data_buffer_decode[1024];
 /*---------------------*/
 RT27_event_def rt27_event;
 /*--------enter--------*/
-int rt27_decode(char *path_rt,char * tmp_file)
+int rt27_decode(char *path_rt,char * tmp_file,unsigned int sizetz)
 {
 	/*-----------------------*/
 	char * file_name = path_rt;
 	unsigned int len;
 	char path_buffer[512];
 	/*-----------------------*/
-	fp = fopen(file_name,"rb");
+	fopen_s(&fp,file_name,"rb");
 	/*-----------------------*/
     if(fp == NULL)
 	{
@@ -44,7 +44,7 @@ int rt27_decode(char *path_rt,char * tmp_file)
 		/* create always */
 		char create_buffer[512];
 		/*---------------*/
-		sprintf(create_buffer,"%s.ent",path_buffer);
+		sprintf_s(create_buffer,"%s.ent",path_buffer);
 		/*-------------------------*/
 		fopen_s(&fp_creater_evt,create_buffer,"wb+");
 		/*---------------*/
@@ -62,7 +62,7 @@ int rt27_decode(char *path_rt,char * tmp_file)
 	/*-----------------------*/
 	sprintf_s(rt27_name,"%s.tmp",path_rt);
 	/*-----------------------------*/
-	wb = fopen(rt27_name,"wb+");
+	fopen_s(&wb,rt27_name,"wb+");
 	/*------------------------*/
 	CString show;
     USES_CONVERSION;
@@ -77,7 +77,7 @@ int rt27_decode(char *path_rt,char * tmp_file)
 			return (-1);
 		}
 		/* open again */
-		wb = fopen(rt27_name,"wb+");
+		fopen_s(&wb,rt27_name,"wb+");
 	    /*------------------------*/
 	    if( wb == NULL )
 	    {
@@ -142,7 +142,7 @@ int rt27_decode(char *path_rt,char * tmp_file)
 			fclose(fp);
 			fclose(wb);
 			/*------------------------------*/
-			strcpy(tmp_file,rt27_name);
+			strcpy_s(tmp_file,sizetz,rt27_name);
 			/*------------------------------*/
 			break;
 		}
@@ -279,7 +279,7 @@ void gps_raw_detail( unsigned char type,unsigned char *data,unsigned char len )
 				if( fp_creater_evt!= NULL )
 				{
 					memset(event_buffer,0,sizeof(event_buffer));
-					sprintf(event_buffer,"%d %lf\r\n",EventNumber,EventTime*1000);
+					sprintf_s(event_buffer,"%d %lf\r\n",EventNumber,EventTime*1000);
 					/*------------------------------------*/
 					fwrite(event_buffer,1,strlen(event_buffer),fp_creater_evt);
 					/*-------------*/
@@ -621,7 +621,7 @@ void gps_raw_detail( unsigned char type,unsigned char *data,unsigned char len )
 				//static unsigned long long last_times = 0;
 				//static unsigned int reduce = 0;
 				 //reduce = gps_nav.system_timestamps - last_times;
-				 sprintf(buffer,"st : %d \r\n", gps_nav.system_timestamps );//PDOP;//size 4Heading
+				 sprintf_s(buffer,"st : %d \r\n", gps_nav.system_timestamps );//PDOP;//size 4Heading
 				 // last_times = gps_nav.system_timestamps;
 				  // gps_nav.system_timestamps,
 				  // gps_nav.system_pps_num,
@@ -853,7 +853,7 @@ void real_time_gnss_survey_data(unsigned char * data/*beggin from the length */,
 		    if(raw_test)
 			{
 			   int len_str;
-			   sprintf(buffer_txt,"pps_num:%d gps_rec_time:%d num:%d id:%d gps_week:%d ",//pseud:%10.3f doppler:%10.3f\r\n",
+			   sprintf_s(buffer_txt,"pps_num:%d gps_rec_time:%d num:%d id:%d gps_week:%d ",//pseud:%10.3f doppler:%10.3f\r\n",
 				   //gps_psdu_doppler.system_timestamps,
 				   gps_psdu_doppler.system_pps_num,
 				   gps_psdu_doppler.GPS_receive_ms,
@@ -865,23 +865,23 @@ void real_time_gnss_survey_data(unsigned char * data/*beggin from the length */,
 
 				   len_str = strlen(buffer_txt);
 
-				   sprintf(buffer_txt + len_str,"st:%d ",gps_psdu_doppler.system_timestamps);
+				   sprintf_s(buffer_txt + len_str,"st:%d ",gps_psdu_doppler.system_timestamps);
 
 				   len_str = strlen(buffer_txt);
 
-				   sprintf(buffer_txt + len_str,"pseud:%10.3f ",gps_psdu_doppler.PSEUDORANGE);
+				   sprintf_s(buffer_txt + len_str,"pseud:%10.3f ",gps_psdu_doppler.PSEUDORANGE);
 
 				   len_str = strlen(buffer_txt);
 
-				   sprintf(buffer_txt + len_str,"doppler:%10.3f",gps_psdu_doppler.doppler);
+				   sprintf_s(buffer_txt + len_str,"doppler:%10.3f",gps_psdu_doppler.doppler);
 
 				   len_str = strlen(buffer_txt);
 
-				   sprintf(buffer_txt + len_str,"phase:%10.3f",gps_psdu_doppler.phase);
+				   sprintf_s(buffer_txt + len_str,"phase:%10.3f",gps_psdu_doppler.phase);
 
 				   len_str = strlen(buffer_txt);
 
-				   sprintf(buffer_txt + len_str,"snr:%10.3f\r\n",gps_psdu_doppler.SNR);
+				   sprintf_s(buffer_txt + len_str,"snr:%10.3f\r\n",gps_psdu_doppler.SNR);
 
 				   len_str = strlen(buffer_txt);
 
