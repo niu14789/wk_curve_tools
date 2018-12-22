@@ -87,7 +87,7 @@ void data_review::OnCbnSelchangeCombo1()
 	x = (double *)param_list_show.param_list[seq].data_x;
 	y = (double *)param_list_show.param_list[seq].data_y;
 	/*----------------------*/
-	for( unsigned int i = 0 ; i < param_list_show.param_list[seq].point_num ; i ++ )
+	for( unsigned int i = 0 ; i < param_list_show.param_list[seq].point_num; i ++ )
 	{
 		memset(buffer,0,sizeof(buffer));
 		sprintf_s(buffer,"%d",i);

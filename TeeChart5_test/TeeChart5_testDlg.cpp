@@ -3954,8 +3954,8 @@ int CTeeChart5_testDlg::func_copy2_0(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf_s(buffer[0],"-->%s",p0);
-	sprintf_s(buffer[1],"-->%s",p1);
+	sprintf_s(buffer[0],"->%s",p0);
+	sprintf_s(buffer[1],"->%s",p1);
 	/* find flag */
 	int pos_0 = 0xffff;
 	int pos_1 = 0xffff;
@@ -4043,9 +4043,9 @@ int CTeeChart5_testDlg::func_PCG2(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf_s(buffer[0],"-->%s",p0);
-	sprintf_s(buffer[1],"-->%s",p1);
-	sprintf_s(buffer[2],"-->%s",p2);
+	sprintf_s(buffer[0],"->%s",p0);
+	sprintf_s(buffer[1],"->%s",p1);
+	sprintf_s(buffer[2],"->%s",p2);
 	/* find flag */
 	int pos_0 = 0xffff;
 	int pos_1 = 0xffff;
@@ -4134,7 +4134,7 @@ int CTeeChart5_testDlg::func_ky(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf_s(buffer[0],"-->%s",p0);
+	sprintf_s(buffer[0],"->%s",p0);
 	/* find flag */
 	int pos_0 = 0xffff;
 	/* search */
@@ -4191,7 +4191,7 @@ int CTeeChart5_testDlg::func_kyx(unsigned int start , int index)
 	/* create buffer */
 	memset(buffer,0,sizeof(buffer));
 	/* get name and set param */
-	sprintf_s(buffer[0],"-->%s",p0);
+	sprintf_s(buffer[0],"->%s",p0);
 	/* find flag */
 	int pos_0 = 0xffff;
 	/* search */
