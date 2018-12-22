@@ -1918,6 +1918,12 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
     SAFEARRAYBOUND rgsabound;
 	/* temple */
 	double dval;
+	/* have no data */
+	if( param_list_show.param_list[num].point_num == 0 )
+	{
+		AfxMessageBox(_T("没有数据,无法绘制"));
+		return;
+	}
 	/* clear all line */
 	if( mode == 0 )
 	{

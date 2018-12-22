@@ -7,6 +7,8 @@
 #include "TeeChart5_testDlg.h"
 #include "stdio.h"
 
+#define MULTIPLE_PER    (1000)
+
 extern PARAM_LIST_DEF param_list_show;
 
 // data_review 对话框
@@ -30,6 +32,7 @@ void data_review::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO1, m_line_com);
 
 	Init();
+	DDX_Control(pDX, IDC_EDIT5, m_skip_edit);
 }
 
 
@@ -76,36 +79,71 @@ void data_review::OnCbnSelchangeCombo1()
 	{
 		return;
 	}
-	/*------------------------*/
+	/* default . show max */
+	data_anypostion(seq,0,MULTIPLE_PER);
+}
+/* show anypostion data */
+void data_review::data_anypostion(unsigned int index , unsigned int pos,unsigned int count)
+{
+   /*------------------------*/
 	m_data_review_list.DeleteAllItems();
 	/*-----------------------*/
 	USES_CONVERSION;
 	CString d0,d1,d2,c_index;
 	char buffer[64];
 	double * x,*y;
-	/*----------------------*/
-	x = (double *)param_list_show.param_list[seq].data_x;
-	y = (double *)param_list_show.param_list[seq].data_y;
-	/*----------------------*/
-	for( unsigned int i = 0 ; i < param_list_show.param_list[seq].point_num; i ++ )
+	/* filte the over ride */
+	if( pos >= param_list_show.param_list[index].point_num )
 	{
-		memset(buffer,0,sizeof(buffer));
-		sprintf_s(buffer,"%d",i);
+		if( param_list_show.param_list[index].point_num == 0 )
+		{
+			AfxMessageBox(_T("没有数据"));
+		}else
+		{
+			AfxMessageBox(_T("超过最大数据量"));
+		}
+		/* return */
+		return;
+	}
+	/* per page more than large */
+	if( count > MULTIPLE_PER )
+	{
+		AfxMessageBox(_T("每次数量超限"));
+		return;
+	}
+	/* calibrate the real leng of point num */
+	unsigned real_len = 0;
+	/* judging */
+	if( ( pos + count ) > param_list_show.param_list[index].point_num )
+	{
+		real_len = param_list_show.param_list[index].point_num - pos;
+	}
+	else
+	{
+		real_len = count;
+	}
+	/*----------------------*/
+	x = (double *)param_list_show.param_list[index].data_x;
+	y = (double *)param_list_show.param_list[index].data_y;
+	/* seek */
+	x += pos;
+	y += pos;
+	/*----------------------*/
+	for( unsigned int i = 0 ; i < real_len ; i ++ )
+	{
+		sprintf_s(buffer,"%d",i+pos);
 		/*-----------------*/
 		c_index = A2T(buffer);
 		/*------------------*/
-		memset(buffer,0,sizeof(buffer));
 		sprintf_s(buffer,"%lf",x[i]);
 		/*-----------------*/
 		d0 = A2T(buffer);
 		/*------------------*/
-		memset(buffer,0,sizeof(buffer));
 		sprintf_s(buffer,"%lf",y[i]);
 		/*-----------------*/
 		d1 = A2T(buffer);
 		/*------------------*/
-		memset(buffer,0,sizeof(buffer));
-		sprintf_s(buffer,"%d",i);
+		sprintf_s(buffer,"%d",i+pos);
 		/*-----------------*/
 		d2 = A2T(buffer);
 		/*------------------*/
@@ -114,4 +152,21 @@ void data_review::OnCbnSelchangeCombo1()
 		m_data_review_list.SetItemText(i, 2, d1);
 		m_data_review_list.SetItemText(i, 3, d2);
 	}
+	/* show */
+	page_msg(index,pos);
 }
+/* show page msg */
+void data_review::page_msg(unsigned int index , unsigned int pos)
+{
+    char buffer[32];
+	/*------------*/
+	sprintf_s(buffer,sizeof(buffer),"%d/%d",pos,param_list_show.param_list[index].point_num);
+	/* show */
+	USES_CONVERSION;
+	CString d0;
+	/* send to data */
+	d0 = A2T(buffer);
+	/*--------------*/
+	m_skip_edit.SetWindowTextW(d0);
+}
+/*-----------------------------------*/
