@@ -10,6 +10,8 @@ class data_review : public CDialogEx
 	DECLARE_DYNAMIC(data_review)
 
 public:
+	void data_review::jump_to_postion(double *num_array,unsigned int num,unsigned int in);
+	int data_review::get_dex_edit( int id,double* data);
 	void data_review::page_msg(unsigned int index , unsigned int pos);
 	void data_review::data_anypostion(unsigned int index , unsigned int pos,unsigned int count);
 	void data_review::Init(void);
@@ -27,5 +29,8 @@ public:
 	CListCtrl m_data_review_list;
 	CComboBox m_line_com;
 	afx_msg void OnCbnSelchangeCombo1();
-	CEdit m_skip_edit;
+	CComboBox m_mothed;
+	CEdit m_search_edit0;
+	afx_msg void OnCbnSelchangeCombo3();
+	afx_msg void OnBnClickedButton34();
 };
