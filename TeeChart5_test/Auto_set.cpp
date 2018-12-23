@@ -174,10 +174,6 @@ void Auto_set::OnBnClickedCheck1()
 		m_min_edit.EnableWindow(1);
 		m_max_edit.EnableWindow(1);
 		m_button_auto_set.EnableWindow(1);
-		/*------------------------------------*/
-		param_list_show.param_list[in].axis_auto = 1;//manal 
-		/* set mul axis to check */
-		param_list_show.param_list[in].axis_multiple = 1;
 	}
 }
 /*--------------------------------*/
@@ -214,34 +210,36 @@ void Auto_set::OnBnClickedButton1()
 		AfxMessageBox(_T("最小值>=最大值"));
 		return;
 	}
+	/*------------------------------------*/
+	param_list_show.param_list[in].axis_auto = 1;//manul
+	/*------------------------------------*/
+	param_list_show.param_list[in].axis_multiple = 1;
 	/*-----------------*/
 	AfxMessageBox(_T("设置成功"));
-	OnOK();
 }
 /*------------------------------*/
 void Auto_set::OnBnClickedCheck2()
 {
+	int check = m_auto_all.GetCheck() ? 0 : 1;
+	/* check */
 	unsigned int count = param_list_show.param_list_num;
 	/* set all lines to auto */
 	for( unsigned int i = 0 ; i < count ; i ++ )
 	{
-		param_list_show.param_list[i].axis_auto = 0;//all auto
+		param_list_show.param_list[i].axis_auto = check;//all auto
 	}
 }
 /*-----------------------------*/
 void Auto_set::OnBnClickedCheck4()
 {
-	if( what_line == 0xffff )
-	{
-		MessageBox(_T("未选择曲线"),_T("tips"),0);
-		return;
-	}
+	int check = m_checkbox_mutiple.GetCheck() ? 1 : 0;
+	/* check */
 	/*------------------------------------------*/
 	unsigned int count = param_list_show.param_list_num;
 	/* set all lines to auto */
 	for( unsigned int i = 0 ; i < count ; i ++ )
 	{
-		param_list_show.param_list[i].axis_multiple = 0;//all auto
+		param_list_show.param_list[i].axis_multiple = check;//all auto
 	}
 }
 /*---------------------------------*/

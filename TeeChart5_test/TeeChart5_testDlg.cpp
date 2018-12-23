@@ -1769,27 +1769,6 @@ void CTeeChart5_testDlg::release_current_line(unsigned int num)
 		line_cfs.put_ShowInLegend(0);
 		avs[param_list_show.param_list[num].line_num] = 0;
 		param_list_show.param_list[num].status = 0;
-		/*-----------------------*/
-		//if( auto_scale_g.mutiple_axis )
-		//{
-		//	/*---------------------------*/
-		//	CAxes chartaxis =(CAxes)m_chart.get_Axis();
-		//	CAxis axis;
-		//	/*---------------------------*/
-		//	if( param_list_show.param_list[num].line_num >= 1 )
-		//	{
-		//		 /*---------------------------------------------------*/
-		//		 axis = (CAxis)chartaxis.get_Custom( param_list_show.param_list[num].line_num - 1 );
-		//		 /*---------------------------------------------------*/
-		//		 axis.put_Visible(0);
-		//	}else
-		//	{
-		//		axis_reset();
-		//	}
-		//}
-		///*--------------------------*/
-		//auto_scale_g.line_cfg[param_list_show.param_list[num].line_num].opened = 0;
-		///*--------------------------*/
 	}
 }
 /*----------------------------*/
@@ -1812,22 +1791,36 @@ void CTeeChart5_testDlg::Legend_handle( unsigned int mode )
 /*---------------------------*/
 void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 {
-	for( unsigned int i = 0 ; i < 50 ; i ++ )
+	//for( unsigned int i = 0 ; i < 50 ; i ++ )
+	//{
+	//	CSeries line_cfs = (CSeries)m_chart.Series(i);
+	//	/* setting */
+	//	line_cfs.Clear();
+	//	line_cfs.put_ShowInLegend(0);
+	//	avs[i] = 0;
+	//}
+	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
-		CSeries line_cfs = (CSeries)m_chart.Series(i);
-		/* setting */
-		line_cfs.Clear();
-		line_cfs.put_ShowInLegend(0);
-		avs[i] = 0;
+		if( param_list_show.param_list[i].status == 0xff )
+		{
+			int seq = param_list_show.param_list[i].line_num;
+			/*-------------*/
+			CSeries line_cfs = (CSeries)m_chart.Series(seq);
+			/* setting */
+			line_cfs.Clear();
+			line_cfs.put_ShowInLegend(0);
+			avs[seq] = 0;
+		}
 	}
 	/*----------------*/
 	if( mode == 0 )
 	{
 		for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 		{
-			param_list_show.param_list[i].status = 0;
+		   param_list_show.param_list[i].status = 0;
 		}
-	}else
+	}
+	else
 	{
 		for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 		{
@@ -1840,10 +1833,7 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 	/*--------------*/
     Legend_handle(0);//hide
 	/*-----------*/
-	if( mode == 1 )
-	{
-		axis_reset();
-	}
+	axis_reset();
 	/*------------------*/
 	color_index = 0;
 	/* recreative the color table */
@@ -1851,61 +1841,86 @@ void CTeeChart5_testDlg::clear_all_line(unsigned int mode)
 	/*----------------------------*/
 }
 /*--------------------------*/
-void CTeeChart5_testDlg::draw_axis(unsigned int num,void * line,CString * title , unsigned int color,unsigned int mode)
+void CTeeChart5_testDlg::draw_axis(unsigned int num_index)
 {
-	///* mutiple axis supple flags */
-	//if( mode == 0 )
-	//{
-	//	CSeries * line_now = (CSeries *)line;
-	//	line_now->put_VerticalAxis(0);
-	//	return;
-	//}
-	///*-----------------------------*/
-	//CAxes chartaxis =(CAxes)m_chart.get_Axis();
-	//CAxis Custom_axis;
-	//CAxisTitle Custom_title;
-	//CTeeFont font;
-	//CPen0 pen;
-	//CAxisLabels label;
-	///* define lines */
-	//CSeries * line_now = (CSeries *)line;
-	///* show axis */
-	//if( num >= 1 )
-	//{
-	//	/* get axis */
-	//	Custom_axis = (CAxis)chartaxis.get_Custom(num-1);
-	//}else
-	//{
-	//	Custom_axis = (CAxis)chartaxis.get_Left();
-	//}
-	///* set position */
-	//Custom_axis.put_PositionPercent(num*4);
-	///* get title */
-	//Custom_title = Custom_axis.get_Title();
-	///* put vision */
-	//Custom_axis.put_Visible(1);
-	///*-------------------*/
-	//Custom_title.put_Caption(*title);
-	//Custom_title.put_Angle(90);
-	//Custom_title.put_Visible(1);
-	///* font set */
-	//font = Custom_title.get_Font();
-	//font.put_Color(color);
-	//font.put_Size(13);
-	//font.put_Bold(TRUE);
-	///*--------------------------------*/
-	//pen = Custom_axis.get_AxisPen(); 
-	///*--------------------------------*/
-	//pen.put_Color(color);
-	//pen.put_Width(2);
-	///*-------------------------------*/
-	//label = Custom_axis.get_Labels();
-	//font = label.get_Font();
-	//font.put_Color(color);
-	//font.put_Bold(TRUE);
-	///*-------------------------------*/
-	//line_now->put_VerticalAxisCustom(num-1);
-	///*-------------------------------*/
+	CAxes chartaxis =(CAxes)m_chart.get_Axis();
+	/* set */
+	int t_lnk = param_list_show.param_list[num_index].line_num;
+	/* create line data */
+	CSeries line_now = (CSeries)m_chart.Series(t_lnk);
+	/* mutiple axis supple flags */
+	if( param_list_show.param_list[num_index].axis_multiple == 0 )
+	{
+		/* return */
+		return;
+	}
+	/* multiple */
+	CAxis Custom_axis;
+	CAxisTitle Custom_title;
+	CTeeFont font;
+	CPen0 pen;
+	CAxisLabels label;
+	/*-----------------------------*/
+	if( t_lnk >= 1 )
+	{
+	   Custom_axis = (CAxis)chartaxis.get_Custom(t_lnk-1);
+	}
+	else
+	{
+		Custom_axis = (CAxis)chartaxis.get_Left();
+	}
+	/* set position */
+	Custom_axis.put_PositionPercent(t_lnk*5);
+	/* get title */
+	Custom_title = Custom_axis.get_Title();
+	/* put vision */
+	Custom_axis.put_Visible(1);
+	/* auto or not */
+	if( param_list_show.param_list[num_index].axis_auto == 1 )
+	{
+		//manul
+		Custom_axis.put_Automatic(0);
+		/* min and max */
+		Custom_axis.put_Minimum(param_list_show.param_list[num_index].axis_min);
+		Custom_axis.put_Maximum(param_list_show.param_list[num_index].axis_max);
+	}
+	else
+	{
+		Custom_axis.put_Automatic(1);
+	}
+	/* transfer */
+	USES_CONVERSION;
+	/*----------------------*/
+	CString show = A2T(param_list_show.param_list[num_index].name);
+	/*-------------------*/
+	Custom_title.put_Caption(show);
+	Custom_title.put_Angle(90);
+	Custom_title.put_Visible(1);
+	/* font set */
+	unsigned int color = param_list_show.param_list[num_index].color;
+	font = Custom_title.get_Font();
+	font.put_Color(color);
+	font.put_Size(13);
+	font.put_Bold(TRUE);
+	/*--------------------------------*/
+	pen = Custom_axis.get_AxisPen(); 
+	/*--------------------------------*/
+	pen.put_Color(color);
+	pen.put_Width(2);
+	/*-------------------------------*/
+	label = Custom_axis.get_Labels();
+	font = label.get_Font();
+	font.put_Color(color);
+	font.put_Bold(TRUE);
+	/*-------------------------------*/
+	if( t_lnk >= 1 )
+	{
+	    line_now.put_VerticalAxisCustom(t_lnk-1);
+	}else
+	{
+		line_now.put_VerticalAxis(0);		
+	}
+	/*-------------------------------*/
 }
 /*--------------------------*/
 void CTeeChart5_testDlg::draw_single(unsigned int num)
@@ -1924,17 +1939,19 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 		AfxMessageBox(_T("没有数据,无法绘制"));
 		return;
 	}
+	if( param_list_show.param_list[num].status == 0xff )
+	{
+		/* has been draw */
+		return;
+	}
 	/* clear all line */
 	if( mode == 0 )
 	{
 	   clear_all_line(0);
-	}else
-	{
-		release_current_line(num);
 	}
 	/* get line */
 	CSeries * line_p;
-		/* line type */
+	/* line type */
 	if( param_list_show.param_list[num].line_type == 0 )
 	{
 	    line_p = (CSeries *)Get_line_source(&line_num);
@@ -1975,11 +1992,6 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 		line_cfs = m_chart.Series(line_num);
 		line_3d = (CPoint3DSeries)line_cfs.get_asPoint3D();
 	}
-	/* has drawed . then clear */
-	if( param_list_show.param_list[num].status != 0 )
-	{
-		line_cfs.Clear();//clear 
-	}
 	/* get axis */
 	/*--------------------------*/
 	double *line_data_y = (double *)param_list_show.param_list[num].data_y;
@@ -2019,7 +2031,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	unsigned long cols = get_color(0);//(colorB<<16)|(colorG<<8)|(colorR);
 	/*---------------*/
 	param_list_show.param_list[num].color = cols;
-	param_list_show.param_list[num].status = 0xff;//has not drawed
+	param_list_show.param_list[num].status = 0xff;//has been drawed
 	param_list_show.param_list[num].line_num = line_num;
 	/*-------------*/
     /* show legend */
@@ -2035,7 +2047,7 @@ void CTeeChart5_testDlg::draw_single(unsigned int num)
 	/* put color */
 	line_cfs.put_Color(cols);
 	/*---------------------*/
-	draw_axis(line_num,&line_cfs,&show,cols,0);
+	draw_axis(num);
 	/*------------------------------------------------------------------------------------*/
 	CMarks line_mark = line_cfs.get_Marks();
 	/* mark show */
@@ -2087,6 +2099,7 @@ void CTeeChart5_testDlg::OnCbnSelchangeCombo1()
 /* close files */
 void CTeeChart5_testDlg::OnBnClickedButton5()
 {
+	clear_all_line(0);
 	/* release the memory */
 	release_memory();
 	memset(&param_list_show,0,sizeof(param_list_show));
@@ -3315,7 +3328,7 @@ void CTeeChart5_testDlg::reflush_chart(void)
 	/* redraw */
 	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
-		if( param_list_show.param_list[i].status != 0 )
+		if( param_list_show.param_list[i].status == 0xFE )
 		{
 			/* has not show */
 			if( param_list_show.param_list_num )
