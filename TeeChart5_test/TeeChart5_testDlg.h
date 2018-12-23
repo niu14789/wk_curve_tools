@@ -53,6 +53,10 @@ typedef struct
 	unsigned int status;//draw status
 	unsigned int line_num;
 	unsigned int axis_num;
+	unsigned int axis_multiple;// 0 is single axis , and 1 is single 
+	unsigned int axis_auto;//0 is auto , 1 is manual
+	double axis_min;
+	double axis_max;
 	unsigned int color;
 	unsigned int time_us;
 	unsigned int mark;

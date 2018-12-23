@@ -8,6 +8,13 @@
 
 // Auto_set 对话框
 
+extern PARAM_LIST_DEF param_list_show;
+
+static unsigned int seq_to_index[512];
+static unsigned int seq_g = 0;
+
+static unsigned int what_line = 0xffff;
+
 IMPLEMENT_DYNAMIC(Auto_set, CDialogEx)
 
 Auto_set::Auto_set(CWnd* pParent /*=NULL*/)
@@ -48,58 +55,74 @@ END_MESSAGE_MAP()
 /*-------------------------*/
 void Auto_set::line_list_init(void)
 {
-	//m_line_list.ResetContent();
-	///*-----------------------*/
-	//for( int i = 0 ; i < 20 ; i ++ )
-	//{
-	//	if( auto_scale_g.line_cfg[i].opened )
-	//	{
-	//		USES_CONVERSION;
-	//		/*----------------------*/
-	//		CString show = A2T(auto_scale_g.line_cfg[i].title);
-	//		/*----------------------*/
-	//		m_line_list.AddString(show);
-	//	}
-	//}
-	///*----------------------------*/
-	//m_line_list.SetCurSel(0);
-	///*----------------------------*/
+	m_line_list.ResetContent();
+	/*-----------------------*/
+	unsigned int count = param_list_show.param_list_num;
+	/*-----------------------*/
+	memset(seq_to_index,0,sizeof(seq_to_index));
+	seq_g = 0;
+	what_line = 0xffff;
+	/*-----------------------*/
+	for( unsigned int i = 0 ; i < count ; i ++ )
+	{
+		if( param_list_show.param_list[i].status == 0xff )
+		{
+			USES_CONVERSION;
+			/*----------------------*/
+			CString show = A2T(param_list_show.param_list[i].name);
+			/*----------------------*/
+			m_line_list.AddString(show);
+			/*----------------------*/
+			seq_to_index[seq_g++] = i;
+		}
+	}
+	/*----------------------------*/
+	m_line_list.SetCurSel(0);
+	/*----------------------------*/
 }
 // Auto_set 消息处理程序
 void Auto_set::settings_auto_axis(void)
 {
 	
 }
-void Auto_set::settings_show(unsigned int index)
+void Auto_set::settings_show(unsigned int indexs)
 {
-	///* set old */
-	//char buffer[100];
-	//sprintf_s(buffer,"%lf",auto_scale_g.line_cfg[index].min);
-	//USES_CONVERSION;
-	///*----------------------*/
-	//CString show = A2T(buffer);
-	//m_min_edit.SetWindowText(show);
-	///*------------------------------------*/
-	//sprintf_s(buffer,"%lf",auto_scale_g.line_cfg[index].max);
-	//show = A2T(buffer);
-	//m_max_edit.SetWindowText(show);
-	///*------------------------------------*/
-	//if( auto_scale_g.line_cfg[index].auto_scale == 1 )
-	//{
-	//	m_auto_scale.SetCheck(1);
-	//	/* disable the scale */
-	//	m_min_edit.EnableWindow(0);
-	//	m_max_edit.EnableWindow(0);
-	//	m_button_auto_set.EnableWindow(0);
-	//	/*------------------------------------*/
-	//}else
-	//{
-	//	m_auto_scale.SetCheck(0);
-	//	/* disable the scale */
-	//	m_min_edit.EnableWindow(1);
-	//	m_max_edit.EnableWindow(1);
-	//	m_button_auto_set.EnableWindow(1);
-	//}
+	/*-------------*/
+	if( seq_g == 0 )
+	{
+		return;
+	}
+	/*---------------*/
+	what_line = indexs;
+	/* set old */
+	char buffer[100];
+	unsigned int in = seq_to_index[indexs];
+	sprintf_s(buffer,sizeof(buffer),"%lf",param_list_show.param_list[in].axis_min);
+	USES_CONVERSION;
+	/*----------------------*/
+	CString show = A2T(buffer);
+	m_min_edit.SetWindowText(show);
+	/*------------------------------------*/
+	sprintf_s(buffer,sizeof(buffer),"%lf",param_list_show.param_list[in].axis_max);
+	show = A2T(buffer);
+	m_max_edit.SetWindowText(show);
+	/*------------------------------------*/
+	if( param_list_show.param_list[in].axis_auto == 0 )
+	{
+		m_auto_scale.SetCheck(1);
+		/* disable the scale */
+		m_min_edit.EnableWindow(0);
+		m_max_edit.EnableWindow(0);
+		m_button_auto_set.EnableWindow(0);
+		/*------------------------------------*/
+	}else
+	{
+		m_auto_scale.SetCheck(0);
+		/* disable the scale */
+		m_min_edit.EnableWindow(1);
+		m_max_edit.EnableWindow(1);
+		m_button_auto_set.EnableWindow(1);
+	}
 }
 
 int Auto_set::get_mm_edit( int id , void * data , unsigned int len )
@@ -108,6 +131,7 @@ int Auto_set::get_mm_edit( int id , void * data , unsigned int len )
 	char c_string[256];
     int len_t;
 	/*----------------------*/
+	memset(data,0,len);
 	memset(get_cs,0,sizeof(get_cs));
 	memset(c_string,0,sizeof(c_string));
 	/*----------------------*/
@@ -124,6 +148,13 @@ int Auto_set::get_mm_edit( int id , void * data , unsigned int len )
 }
 void Auto_set::OnBnClickedCheck1()
 {
+	if( what_line == 0xffff )
+	{
+		MessageBox(_T("未选择曲线"),_T("tips"),0);
+		return;
+	}
+	/* set */
+	unsigned int in = seq_to_index[what_line];
 	// TODO: 在此添加控件通知处理程序代码
 	int auto_set = m_auto_scale.GetCheck();
 	/*----------------------------------*/
@@ -134,6 +165,9 @@ void Auto_set::OnBnClickedCheck1()
 		m_max_edit.EnableWindow(0);
 		m_button_auto_set.EnableWindow(0);
 		/*------------------------------------*/
+		param_list_show.param_list[in].axis_auto = 0;//auto
+		/*------------------------------------*/
+		param_list_show.param_list[in].axis_multiple = 0;
 	}else
 	{
 		/* disable the scale */
@@ -141,103 +175,83 @@ void Auto_set::OnBnClickedCheck1()
 		m_max_edit.EnableWindow(1);
 		m_button_auto_set.EnableWindow(1);
 		/*------------------------------------*/
+		param_list_show.param_list[in].axis_auto = 1;//manal 
+		/* set mul axis to check */
+		param_list_show.param_list[in].axis_multiple = 1;
 	}
-	///*-------------------------------*/
-	//auto_scale_g.line_cfg[m_line_list.GetCurSel()].auto_scale = auto_set;
-	///*-------------------------------*/
-	//for( int i = 0 ; i < 20 ; i ++ )
-	//{
-	//	if( auto_scale_g.line_cfg[i].auto_scale == 0 )
-	//	{
-	//		auto_scale_g.mutiple_axis = 1;
-	//		m_checkbox_mutiple.SetCheck(1);
-	//	}
-	//}
-	///*-------------------------------*/
 }
-
-
+/*--------------------------------*/
 void Auto_set::OnBnClickedButton1()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	//char buffer[512];
-	///*-------------------------*/
-	//memset(buffer,0,sizeof(buffer));
-	///*-------------------------*/
-	//get_mm_edit(IDC_EDIT1,buffer,sizeof(buffer));
-	///*-----------------------------------------*/
-	//int seq = m_line_list.GetCurSel();
-	///* get min */
-	//if( sscanf(buffer,"%lf",&auto_scale_g.line_cfg[seq].min) != 1 )
-	//{
-	//	AfxMessageBox(_T("最小值错误"));
-	//	return;
-	//}
-	///*-------------------------*/
-	//memset(buffer,0,sizeof(buffer));
-	///*-------------------------*/
-	//get_mm_edit(IDC_EDIT55,buffer,sizeof(buffer));
-	///* get max */
-	//if( sscanf(buffer,"%lf",&auto_scale_g.line_cfg[seq].max) != 1 )
-	//{
-	//	AfxMessageBox(_T("最大值错误"));
-	//	return;
-	//}
-	///*---------------*/
-	//if( auto_scale_g.line_cfg[seq].max <= auto_scale_g.line_cfg[seq].min )
-	//{
-	//	AfxMessageBox(_T("最小值>=最大值"));
-	//	return;
-	//}
+	if( what_line == 0xffff )
+	{
+		MessageBox(_T("未选择曲线"),_T("tips"),0);
+		return;
+	}
+	//TODO: 在此添加控件通知处理程序代码
+	char buffer[32];
+	/*-------------------------*/
+	get_mm_edit(IDC_EDIT1,buffer,sizeof(buffer));
+	/*-----------------------------------------*/
+	unsigned int in = seq_to_index[what_line];
+	/* get min */
+	if( sscanf_s(buffer,"%lf",&param_list_show.param_list[in].axis_min) != 1 )
+	{
+		AfxMessageBox(_T("最小值错误"));
+		return;
+	}
+	/*-------------------------*/
+	get_mm_edit(IDC_EDIT55,buffer,sizeof(buffer));
+	/* get max */
+	if( sscanf_s(buffer,"%lf",&param_list_show.param_list[in].axis_max) != 1 )
+	{
+		AfxMessageBox(_T("最大值错误"));
+		return;
+	}
+	/*---------------*/
+	if( param_list_show.param_list[in].axis_max <= param_list_show.param_list[in].axis_min )
+	{
+		AfxMessageBox(_T("最小值>=最大值"));
+		return;
+	}
+	/*-----------------*/
+	AfxMessageBox(_T("设置成功"));
+	OnOK();
 }
-
+/*------------------------------*/
 void Auto_set::OnBnClickedCheck2()
 {
-	//// TODO: 在此添加控件通知处理程序代码
-	//auto_scale_g.global_auto = m_auto_all.GetCheck();
-	///* fresh */
-	//settings_auto_axis();
-	///*--------------*/
-	//settings_show(m_line_list.GetCurSel());
-	///*--------------*/
-	//if( auto_scale_g.global_auto )
-	//{
-	//	OnOK();
-	//}else
-	//{
-	//	for( int i = 0 ; i < 20 ; i ++ )
-	//	{
-	//		if( auto_scale_g.line_cfg[i].auto_scale == 0 )
-	//		{
-	//			auto_scale_g.mutiple_axis = 1;
-	//			m_checkbox_mutiple.SetCheck(1);
-	//		}
-	//	}
-	//}
+	unsigned int count = param_list_show.param_list_num;
+	/* set all lines to auto */
+	for( unsigned int i = 0 ; i < count ; i ++ )
+	{
+		param_list_show.param_list[i].axis_auto = 0;//all auto
+	}
 }
-
+/*-----------------------------*/
 void Auto_set::OnBnClickedCheck4()
 {
-	//// TODO: 在此添加控件通知处理程序代码
-	//auto_scale_g.mutiple_axis = m_checkbox_mutiple.GetCheck();
-	///*--------------------------------*/
-	//if( auto_scale_g.mutiple_axis == 0 )
-	//{
-	//	m_auto_all.SetCheck(1);
-	//	auto_scale_g.global_auto = 1;
-	//	/*------------*/
-	//	/* fresh */
-	//	settings_auto_axis();
-	//}
-	///*--------------------------------*/
+	if( what_line == 0xffff )
+	{
+		MessageBox(_T("未选择曲线"),_T("tips"),0);
+		return;
+	}
+	/*------------------------------------------*/
+	unsigned int count = param_list_show.param_list_num;
+	/* set all lines to auto */
+	for( unsigned int i = 0 ; i < count ; i ++ )
+	{
+		param_list_show.param_list[i].axis_multiple = 0;//all auto
+	}
 }
-
-
+/*---------------------------------*/
 void Auto_set::OnCbnSelchangeCombo1()
 {
-	//// TODO: 在此添加控件通知处理程序代码
-	//int seq = m_line_list.GetCurSel();
-	///*------------------------------*/
-	//settings_show(seq);
-	///*------------------------------*/
+	// TODO: 在此添加控件通知处理程序代码
+	int seq = m_line_list.GetCurSel();
+	/*------------------------------*/
+	settings_show(seq);
+	/*------------------------------*/
+	what_line = seq;
+	/*------------------------------*/
 }
