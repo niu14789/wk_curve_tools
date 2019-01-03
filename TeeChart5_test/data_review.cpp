@@ -6,6 +6,7 @@
 #include "afxdialogex.h"
 #include "TeeChart5_testDlg.h"
 #include "stdio.h"
+#include "export_tool.h"
 
 #define MULTIPLE_PER    (1000)
 
@@ -46,6 +47,7 @@ BEGIN_MESSAGE_MAP(data_review, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &data_review::OnCbnSelchangeCombo1)
 	ON_CBN_SELCHANGE(IDC_COMBO3, &data_review::OnCbnSelchangeCombo3)
 	ON_BN_CLICKED(IDC_BUTTON34, &data_review::OnBnClickedButton34)
+	ON_BN_CLICKED(IDC_BUTTON2, &data_review::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -326,4 +328,11 @@ void data_review::jump_to_postion(double *num_darray,unsigned int num,unsigned i
 	}
 	/*-----------------*/
 	data_anypostion(in,array0,count);
+}
+
+void data_review::OnBnClickedButton2()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	export_tool d;
+	d.DoModal();
 }

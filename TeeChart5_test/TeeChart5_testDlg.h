@@ -71,6 +71,7 @@ typedef struct
 	unsigned char * data_y;
 	unsigned char * data_x;
 	unsigned char * data_z;
+	unsigned int export_flag;
 }PARAM_LIST_SIGLE_DEF;
 
 typedef struct
@@ -202,6 +203,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	void CTeeChart5_testDlg::open_map(void);
 	void CTeeChart5_testDlg::draw_axis(unsigned int num);
 	void CTeeChart5_testDlg::open_data_review(void);
 	void CTeeChart5_testDlg::Open_cfg(void);
@@ -379,7 +381,6 @@ public:
 	afx_msg void OnBnClickedButton29();
 	afx_msg void OnBnClickedButton30();
 	CButton m_manul_test;
-	afx_msg void On32786();
 	CComboBox m_pic_cnt;
 	CButton m_btn_pic;
 	CEdit m_edit_pic;

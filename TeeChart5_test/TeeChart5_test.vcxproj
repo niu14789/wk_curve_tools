@@ -138,6 +138,7 @@
     <ClInclude Include="data_review.h" />
     <ClInclude Include="del_point.h" />
     <ClInclude Include="explorer1.h" />
+    <ClInclude Include="export_tool.h" />
     <ClInclude Include="limit_setting.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="motor.h" />
@@ -164,6 +165,7 @@
     <ClCompile Include="data_review.cpp" />
     <ClCompile Include="del_point.cpp" />
     <ClCompile Include="explorer1.cpp" />
+    <ClCompile Include="export_tool.cpp" />
     <ClCompile Include="fm_link.cpp" />
     <ClCompile Include="fm_link_lowlevel.cpp" />
     <ClCompile Include="FPOS_DECODE.cpp" />
@@ -183,6 +185,7 @@
     <ClCompile Include="tchart1.cpp" />
     <ClCompile Include="TeeChart5_test.cpp" />
     <ClCompile Include="TeeChart5_testDlg.cpp" />
+    <ClCompile Include="unity.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="TeeChart5_test.rc" />

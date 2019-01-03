@@ -33,4 +33,5 @@ public:
 	CEdit m_search_edit0;
 	afx_msg void OnCbnSelchangeCombo3();
 	afx_msg void OnBnClickedButton34();
+	afx_msg void OnBnClickedButton2();
 };

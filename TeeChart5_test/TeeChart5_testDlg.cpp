@@ -185,7 +185,6 @@ BEGIN_MESSAGE_MAP(CTeeChart5_testDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON27, &CTeeChart5_testDlg::OnBnClickedButton27)
 	ON_BN_CLICKED(IDC_BUTTON29, &CTeeChart5_testDlg::OnBnClickedButton29)
 	ON_BN_CLICKED(IDC_BUTTON30, &CTeeChart5_testDlg::OnBnClickedButton30)
-	ON_COMMAND(ID_32786, &CTeeChart5_testDlg::On32786)
 	ON_BN_CLICKED(IDC_BUTTON31, &CTeeChart5_testDlg::OnBnClickedButton31)
 	ON_BN_CLICKED(IDC_BUTTON32, &CTeeChart5_testDlg::OnBnClickedButton32)
 	ON_BN_CLICKED(IDC_BUTTON33, &CTeeChart5_testDlg::OnBnClickedButton33)
@@ -3135,7 +3134,7 @@ void CTeeChart5_testDlg::Arm_Distortion(char * path,unsigned int if_check)
 	m_taps.SetWindowTextW(show);
 }
 
-void CTeeChart5_testDlg::On32786()
+void CTeeChart5_testDlg::open_map(void)
 {
 	// TODO: 在此添加命令处理程序代码
 	map map_g;
@@ -3213,7 +3212,7 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				  open_data_review();
 				  break;
 			  case VK_F8:
-				 
+				 open_map();
 				  break;
 			  case VK_F9:
 				  
