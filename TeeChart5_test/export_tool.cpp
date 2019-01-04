@@ -335,6 +335,8 @@ void export_tool::OnBnClickedButton3()
 			max_point_num = param_list_show.param_list[index].point_num;
 		}
 	}
+	/* set process */
+	m_export_process.SetRange32(0,max_point_num);
 	/* every one */
 	for( unsigned int ti = 0 ; ti < max_point_num ; ti ++ )
 	{
@@ -383,9 +385,14 @@ void export_tool::OnBnClickedButton3()
 		/* write data to file */
 		fwrite(push_buffer,1,strlen(push_buffer),fp);
 		fwrite("\r\n",1,2,fp);
+		/*--------------------*/
+		m_export_process.SetPos(ti);
+		/*--------------------*/
 	}
-
+	/* close files */
 	fclose(fp);
+	/* msg */
+	AfxMessageBox(_T("导出成功"));
 }
 
 
