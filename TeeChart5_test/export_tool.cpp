@@ -293,8 +293,8 @@ void export_tool::OnBnClickedButton3()
 		return;
 	}
 	/* get title and axis */
-	char title_buffer[1024];
-	memset(title_buffer,0,sizeof(title_buffer));
+	char push_buffer[1024];
+	memset(push_buffer,0,sizeof(push_buffer));
 	/* create */
 	if( title_enable )
 	{
@@ -308,25 +308,81 @@ void export_tool::OnBnClickedButton3()
 			{
 				if( two_axis_enable == 0 )
 				{
-					sprintf_s(title_buffer+strlen(title_buffer),sizeof(title_buffer) - strlen(title_buffer),
-						"%s%s",c+2,format?"  ":",");
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%s%s",c+2,format?"   ":" , ");
 				}
 				else
 				{
-					sprintf_s(title_buffer+strlen(title_buffer),sizeof(title_buffer) - strlen(title_buffer),
-						"%s_DX%s%s_DY%s",c+2,format?"  ":",",c+2,format?"  ":",");
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%s_DX%s%s_DY%s",c+2,format?"   ":" , ",c+2,format?"   ":" , ");
 				}
 			}
 		}
 		/*----------------------*/
 		fwrite(format?"index  ":"index ,",1,7,fp);
-		fwrite(title_buffer,1,strlen(title_buffer),fp);
+		fwrite(push_buffer,1,strlen(push_buffer),fp);
 		fwrite("\r\n",1,2,fp);
 	}
-	/* create data */
-	if( format == 0 )//csv
+	/* get max point num */
+	unsigned int max_point_num = 0;
+	/* loop */
+	for( unsigned int i = 0 ; i < export_count ; i ++ )
 	{
-
+		int index = exp_change[i];
+		/* data log */
+		if( param_list_show.param_list[index].point_num > max_point_num )
+		{
+			max_point_num = param_list_show.param_list[index].point_num;
+		}
+	}
+	/* every one */
+	for( unsigned int ti = 0 ; ti < max_point_num ; ti ++ )
+	{
+		memset(push_buffer,0,sizeof(push_buffer));
+		/* create index */
+		sprintf_s(push_buffer,sizeof(push_buffer),"%d%s",ti,format?"   ":" , ");
+		/* write into */
+		fwrite(push_buffer,1,strlen(push_buffer),fp);
+		/* push one point */
+		memset(push_buffer,0,sizeof(push_buffer));
+		/* create data */
+		for( unsigned int i = 0 ; i < export_count ; i ++ )
+		{
+			int index = exp_change[i];
+			/* data log */
+			double * dx = (double *)param_list_show.param_list[index].data_x;
+			double * dy = (double *)param_list_show.param_list[index].data_y;
+			/*----------*/
+			if( ti < param_list_show.param_list[index].point_num )
+			{
+				if( two_axis_enable == 0 ) //one axis
+				{
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%lf%s",dy[ti],format?"   ":" , ");
+				}
+				else
+				{
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%lf%s%lf%s",dx[ti],format?"   ":" , ",dy[ti],format?"   ":" , ");
+				}
+			}
+			else
+			{
+				if( two_axis_enable == 0 ) //one axis
+				{
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%s%s%s%s"," ",format?"   ":" , "," ",format?"   ":" , ");
+				}
+				else
+				{
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+							"%s%s"," ",format?"   ":" , ");
+				}
+			}
+		}
+		/* write data to file */
+		fwrite(push_buffer,1,strlen(push_buffer),fp);
+		fwrite("\r\n",1,2,fp);
 	}
 
 	fclose(fp);
