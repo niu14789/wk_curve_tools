@@ -17,6 +17,9 @@ unsigned char factorty_ok = 0;
 /*------------------------------*/
 unsigned char motor_check_flags = 0xff;
 /*------------------------------*/
+unsigned char D_or_V = __D_SERIES__;
+unsigned char D_V_flag = 0;
+/*------------------------------*/
 IMPLEMENT_DYNAMIC(motor, CDialogEx)
 
 motor::motor(CWnd* pParent /*=NULL*/)
@@ -46,6 +49,9 @@ void motor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT2, m_edit_pwm);
 	DDX_Control(pDX, IDC_SLIDER1, m_silder_pwm);
 	/*----------------------*/
+	DDX_Control(pDX, IDC_COMBO1, m_test_item);
+	DDX_Control(pDX, IDC_EDIT3, m_edit_step);
+
 	motor_init();
 }
 
@@ -61,6 +67,12 @@ BEGIN_MESSAGE_MAP(motor, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON28, &motor::OnBnClickedButton28)
 	ON_BN_CLICKED(IDC_BUTTON13, &motor::OnBnClickedButton13)
 	ON_BN_CLICKED(IDC_BUTTON17, &motor::OnBnClickedButton17)
+	ON_BN_CLICKED(IDC_BUTTON6, &motor::OnBnClickedButton6)
+	ON_BN_CLICKED(IDC_BUTTON7, &motor::OnBnClickedButton7)
+	ON_BN_CLICKED(IDC_BUTTON22, &motor::OnBnClickedButton22)
+	ON_BN_CLICKED(IDC_BUTTON30, &motor::OnBnClickedButton30)
+	ON_BN_CLICKED(IDC_BUTTON9, &motor::OnBnClickedButton9)
+	ON_BN_CLICKED(IDC_BUTTON8, &motor::OnBnClickedButton8)
 END_MESSAGE_MAP()
 
 
@@ -98,7 +110,47 @@ void motor::motor_init(void)
 	/*----reset-----*/
 	OnBnClickedButton4();
 	OnBnClickedButton4();
+	/*-----------------------*/
+	m_test_item.ResetContent();
+	/* add data */
+	m_test_item.AddString(_T("左倾转"));
+	m_test_item.AddString(_T("右倾转"));
+	m_test_item.AddString(_T("尾倾转"));
+	m_test_item.AddString(_T("左副翼"));
+	m_test_item.AddString(_T("右副翼"));
+	m_test_item.AddString(_T("左V尾"));
+	m_test_item.AddString(_T("右V尾"));
+	/*---------*/
+	m_test_item.SetCurSel(0);
+	/* set step */
+	m_edit_step.SetWindowTextW(_T("50"));
+}
 
+int motor::get_dex_edit(int id, unsigned int * data)
+{
+	wchar_t get_cs[512];
+	char c_string[256];
+	int len_t;
+
+	len_t = GetDlgItem(id)->GetWindowTextW(get_cs, 512);
+
+	memset(c_string, 0, sizeof(c_string));
+
+	for (int i = 0; i < len_t; i++)
+	{
+		c_string[i] = (char)get_cs[i];
+	}
+	/*----------------------*/
+	int ret = sscanf_s(c_string, "%d", data);
+
+	if (ret == 1)
+	{
+		return 0;
+	}
+	else
+	{
+		return (-1);
+	}
 }
 
 void motor::OnBnClickedButton1()
@@ -133,7 +185,7 @@ void motor::OnBnClickedButton1()
 	/*---------------------*/
 	*pd = 251;
 	param[0] = 1;
-	param[1] = 1500.0f;
+	param[1] = 1000.0f;
 	param[2] = (float)time;
 	/*-------------------------*/   
 	/*-------------------------*/   
@@ -147,7 +199,7 @@ void motor::OnBnClickedButton1()
 				return;
 			}
 			/*--------------*/
-			m_silder_pwm.SetPos(1500);
+			m_silder_pwm.SetPos(1000);
 			/*--------------*/
 			flags_tips = 1;
 		}
@@ -241,11 +293,24 @@ unsigned int motor::get_pwm_value(void)
 /*--------------------------*/
 void motor::show_factory(unsigned char * data ,unsigned int len)
 {
-    unsigned short * fac = (unsigned short *)data;
+    unsigned short * facT = (unsigned short *)data;
 	/*------------------------------------------*/
 	USES_CONVERSION;
 	/*------------------------------------------*/
-	if( *fac == 251 )
+	unsigned short fac_tub;//
+	/* set */
+	if( (*facT) & 0x8000 )
+	{
+		//V
+		D_or_V = __V_SERIES__;
+	}else
+	{
+		D_or_V = __D_SERIES__;
+	}
+	/*------------------------------------------*/
+	fac_tub = (*facT) & 0x7fff;
+	/*------------------------------------------*/
+	if( fac_tub == 251 )
 	{
 		factorty_ok = 1;
 		if( data[2] == 0 )
@@ -255,7 +320,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 		{
 			MessageBox(_T("烤机模式进入失败，已经在烤机模式中，或烤机已经结束，若想重新进入，请复位后再次点击"),_T("tips"),0);
 		}
-	}else if( *fac == 252 )
+	}else if( fac_tub == 252 )
 	{
 		factorty_ok = 0;
 		/*if( data[2] == 0 )
@@ -265,7 +330,35 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 		{
 			MessageBox(_T("烤机模式退出失败"),_T("tips"),0);
 		}*/
-	}else if( *fac == 253 )
+	}else if( fac_tub == 259 )
+	{
+		if( data[2] == 0 )
+		{
+		    //MessageBox(_T("油门下发成功"),_T("tips"),0);
+		}else
+		{
+			MessageBox(_T("舵面控制量下发失败"),_T("tips"),0);
+		}
+	}else if( fac_tub == 260 )
+	{
+		if( data[2] == 0 )
+		{
+		    MessageBox(_T("写入校准值成功"),_T("tips"),0);
+		}else
+		{
+			MessageBox(_T("写入校准值失败"),_T("tips"),0);
+		}
+	}else if( fac_tub == 261 )
+	{
+		if( data[2] == 0 )
+		{
+		    MessageBox(_T("倾转校准下发成功"),_T("tips"),0);
+		}else
+		{
+			MessageBox(_T("倾转校准下发失败"),_T("tips"),0);
+		}
+	}
+	else if( fac_tub == 253 )
 	{
 		if( data[2] == 0 )
 		{
@@ -275,7 +368,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 			MessageBox(_T("油门下发失败"),_T("tips"),0);
 		}
 	}
-	else if( *fac == 254 )
+	else if( fac_tub == 254 )
 	{
 		if( data[2] == 0xff )
 		{
@@ -290,7 +383,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 				MessageBox(_T("电机标定成功"),_T("tips"),0);
 			}
 		}
-	}else if( *fac == 255 )
+	}else if( fac_tub == 255 )
 	{
 		if( data[2] == 0xff )
 		{
@@ -305,7 +398,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 				MessageBox(_T("磁力计校准成功"),_T("tips"),0);
 			}
 		}
-	}else if( *fac == 256 )
+	}else if( fac_tub == 256 )
 	{
 		if( data[2] == 0xff )
 		{
@@ -320,7 +413,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 				MessageBox(_T("水平标定成功"),_T("tips"),0);
 			}
 		}
-	}else if( *fac == 257 )
+	}else if( fac_tub == 257 )
 	{
 		if( data[2] == 0xff )
 		{
@@ -339,7 +432,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 				MessageBox(_T("SNR标定成功"),_T("tips"),0);
 			}
 		}
-	}else if( *fac == 258 )
+	}else if( fac_tub == 258 )
 	{
 		if( data[2] == 0xff )
 		{
@@ -535,7 +628,6 @@ void motor::OnBnClickedButton13()
 	ct->fm_link_send(76,package,33);
 }
 
-
 void motor::OnBnClickedButton17()
 {
 	// TODO: 在此添加控件通知处理程序代码
@@ -546,6 +638,181 @@ void motor::OnBnClickedButton17()
 	/*---------------------*/
 	*pd = 258;
 	param[0] = 5;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+/* static servo num */
+static unsigned short servo_value[7] = { 500,500,500,500,500,500,500 };
+/*------------------*/
+void motor::OnBnClickedButton6()
+{
+	unsigned int step;
+	/* get step */
+	if (get_dex_edit(IDC_EDIT3, &step) != 0)
+	{
+		AfxMessageBox(_T("步进输入错误"));
+		return;
+	}
+	/* less than 100 */
+	if (step > 100)
+	{
+		AfxMessageBox(_T("步进应小于100"));
+		return;
+	}
+	/* set */
+	int seq = m_test_item.GetCurSel();
+	/*------*/
+	if (seq >= 7)
+	{
+		AfxMessageBox(_T("错误的测试项"));
+		return;
+	}
+	/*------------------*/
+	if (servo_value[seq] < step)
+	{
+		AfxMessageBox(_T("已调整到最大位置"));
+		return;
+	}
+	/* set final */
+	servo_value[seq] -= step;
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton7()
+{
+    unsigned int step;
+	/* get step */
+	if (get_dex_edit(IDC_EDIT3, &step) != 0)
+	{
+		AfxMessageBox(_T("步进输入错误"));
+		return;
+	}
+	/* less than 100 */
+	if (step > 100)
+	{
+		AfxMessageBox(_T("步进应小于100"));
+		return;
+	}
+	/* set */
+	int seq = m_test_item.GetCurSel();
+	/*------*/
+	if (seq >= 7)
+	{
+		AfxMessageBox(_T("错误的测试项"));
+		return;
+	}
+	/*------------------*/
+	if (servo_value[seq] + step > 1000 )
+	{
+		AfxMessageBox(_T("已调整到最大位置"));
+		return;
+	}
+	/* set final */
+	servo_value[seq] += step;
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton22()
+{
+    int seq = m_test_item.GetCurSel();
+	/*------*/
+	if (seq >= 7)
+	{
+		AfxMessageBox(_T("错误的测试项"));
+		return;
+	}
+	/*------------------*/
+	/* set final */
+	servo_value[seq] = 500;
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton30()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void motor::OnBnClickedButton9()
+{
+    for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		/* set final */
+		servo_value[i] = 500;
+	}
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+/* set data */
+void motor::OnBnClickedButton8()
+{
+	// TODO: 在此添加控件通知处理程序代码
+    /* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 260;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
 }

@@ -4,6 +4,10 @@
 #include "afxcmn.h"
 #include "afxwin.h"
 
+
+#define __D_SERIES__   (0)
+#define __V_SERIES__   (1)
+
 // motor ¶Ô»°¿ò
 
 class motor : public CDialogEx
@@ -11,6 +15,7 @@ class motor : public CDialogEx
 	DECLARE_DYNAMIC(motor)
 
 public:
+	int motor::get_dex_edit(int id, unsigned int * data);
 	void motor::show_motor_msg(unsigned char * data ,unsigned int len);
 	void motor::show_factory(unsigned char * data ,unsigned int len);
 	unsigned int motor::get_pwm_value(void);
@@ -48,4 +53,12 @@ public:
 	afx_msg void OnBnClickedButton28();
 	afx_msg void OnBnClickedButton13();
 	afx_msg void OnBnClickedButton17();
+	CComboBox m_test_item;
+	CEdit m_edit_step;
+	afx_msg void OnBnClickedButton6();
+	afx_msg void OnBnClickedButton7();
+	afx_msg void OnBnClickedButton22();
+	afx_msg void OnBnClickedButton30();
+	afx_msg void OnBnClickedButton9();
+	afx_msg void OnBnClickedButton8();
 };

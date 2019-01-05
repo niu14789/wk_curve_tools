@@ -12,10 +12,10 @@ extern const char * string_chese_table[20][32];
 extern int list_click_seq;
 int now_seq = 0xffff;
 /*-------------------*/
-CEdit * low[16];
-CEdit * now[16];
-CEdit * upd[16];
-CStatic * param_name[16];
+CEdit * low[24];
+CEdit * now[24];
+CEdit * upd[24];
+CStatic * param_name[24];
 CButton * check_type_mode[4];
 /*-------------------*/
 IMPLEMENT_DYNAMIC(limit_setting, CDialogEx)
@@ -109,6 +109,40 @@ void limit_setting::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_STATIC17, m_down_text);
 	DDX_Control(pDX, IDC_STATIC12, m_up_text1);
 	DDX_Control(pDX, IDC_STATIC19, m_up_text);
+
+	DDX_Control(pDX, IDC_EDIT56, m_edit_l17);
+	DDX_Control(pDX, IDC_EDIT57, m_edit_l18);
+	DDX_Control(pDX, IDC_EDIT58, m_edit_l19);
+	DDX_Control(pDX, IDC_EDIT59, m_edit_l20);
+	DDX_Control(pDX, IDC_EDIT60, m_edit_l21);
+	DDX_Control(pDX, IDC_EDIT61, m_edit_l22);
+	DDX_Control(pDX, IDC_EDIT62, m_edit_l23);
+	DDX_Control(pDX, IDC_EDIT70, m_edit_l24);
+	DDX_Control(pDX, IDC_EDIT72, m_edit_u17);
+	DDX_Control(pDX, IDC_EDIT73, m_edit_u18);
+	DDX_Control(pDX, IDC_EDIT74, m_edit_u19);
+	DDX_Control(pDX, IDC_EDIT75, m_edit_u20);
+	DDX_Control(pDX, IDC_EDIT76, m_edit_u21);
+	DDX_Control(pDX, IDC_EDIT77, m_edit_u22);
+	DDX_Control(pDX, IDC_EDIT78, m_edit_u23);
+	DDX_Control(pDX, IDC_EDIT79, m_edit_u24);
+	DDX_Control(pDX, IDC_EDIT63, m_edit_c17);
+	DDX_Control(pDX, IDC_EDIT64, m_edit_c18);
+	DDX_Control(pDX, IDC_EDIT65, m_edit_c19);
+	DDX_Control(pDX, IDC_EDIT66, m_edit_c20);
+	DDX_Control(pDX, IDC_EDIT67, m_edit_c21);
+	DDX_Control(pDX, IDC_EDIT68, m_edit_c22);
+	DDX_Control(pDX, IDC_EDIT69, m_edit_c23);
+	DDX_Control(pDX, IDC_EDIT71, m_edit_c24);
+	DDX_Control(pDX, IDC_STATIC24, m_limit_static17);
+	DDX_Control(pDX, IDC_STATIC25, m_limit_static18);
+	DDX_Control(pDX, IDC_STATIC27, m_limit_static19);
+	DDX_Control(pDX, IDC_STATIC26, m_limit_static20);
+	DDX_Control(pDX, IDC_STATIC32, m_limit_static21);
+	DDX_Control(pDX, IDC_STATIC31, m_limit_static22);
+	DDX_Control(pDX, IDC_STATIC34, m_limit_static23);
+	DDX_Control(pDX, IDC_STATIC35, m_limit_static24);
+
 	/* init */
 	init_oncreate();
 }
@@ -126,6 +160,7 @@ BEGIN_MESSAGE_MAP(limit_setting, CDialogEx)
 	ON_BN_CLICKED(IDC_RADIO7, &limit_setting::OnBnClickedRadio7)
 	ON_BN_CLICKED(IDC_RADIO8, &limit_setting::OnBnClickedRadio8)
 	ON_STN_CLICKED(IDC_STATIC1, &limit_setting::OnStnClickedStatic1)
+	ON_STN_CLICKED(IDC_STATIC24, &limit_setting::OnStnClickedStatic24)
 END_MESSAGE_MAP()
 
 void limit_setting::init_oncreate(void)
@@ -163,6 +198,14 @@ void limit_setting::init_oncreate(void)
 	low[13] = &m_edit_l14;
 	low[14] = &m_edit_l15;
 	low[15] = &m_edit_l16;
+	low[16] = &m_edit_l17;
+	low[17] = &m_edit_l18;
+	low[18] = &m_edit_l19;
+	low[19] = &m_edit_l20;
+	low[20] = &m_edit_l21;
+	low[21] = &m_edit_l22;
+	low[22] = &m_edit_l23;
+	low[23] = &m_edit_l24;
 	/*------------*/
 	upd[0] = &m_edit_u1;
 	upd[1] = &m_edit_u2;
@@ -180,6 +223,14 @@ void limit_setting::init_oncreate(void)
 	upd[13] = &m_edit_u14;
 	upd[14] = &m_edit_u15;
 	upd[15] = &m_edit_u16;
+	upd[16] = &m_edit_u17;
+	upd[17] = &m_edit_u18;
+	upd[18] = &m_edit_u19;
+	upd[19] = &m_edit_u20;
+	upd[20] = &m_edit_u21;
+	upd[21] = &m_edit_u22;
+	upd[22] = &m_edit_u23;
+	upd[23] = &m_edit_u24;
 	/*-------------*/
 	now[0] = &m_edit_c1;
 	now[1] = &m_edit_c2;
@@ -197,6 +248,14 @@ void limit_setting::init_oncreate(void)
 	now[13] = &m_edit_c14;
 	now[14] = &m_edit_c15;
 	now[15] = &m_edit_c16;
+	now[16] = &m_edit_c17;
+	now[17] = &m_edit_c18;
+	now[18] = &m_edit_c19;
+	now[19] = &m_edit_c20;
+	now[20] = &m_edit_c21;
+	now[21] = &m_edit_c22;
+	now[22] = &m_edit_c23;
+	now[23] = &m_edit_c24;
 	/*------------*/
 	param_name[0] = &m_limit_static1;
 	param_name[1] = &m_limit_static2;
@@ -214,6 +273,14 @@ void limit_setting::init_oncreate(void)
 	param_name[13] = &m_limit_static14;
 	param_name[14] = &m_limit_static15;
 	param_name[15] = &m_limit_static16;
+	param_name[16] = &m_limit_static17;
+	param_name[17] = &m_limit_static18;
+	param_name[18] = &m_limit_static19;
+	param_name[19] = &m_limit_static20;
+	param_name[20] = &m_limit_static21;
+	param_name[21] = &m_limit_static22;
+	param_name[22] = &m_limit_static23;
+	param_name[23] = &m_limit_static24;
 	/*-------------------*/
 	check_type_mode[0] = ((CButton *)GetDlgItem(IDC_RADIO5));
 	check_type_mode[1] = ((CButton *)GetDlgItem(IDC_RADIO6));
@@ -244,7 +311,7 @@ void limit_setting::disable_check_none0(unsigned int mode)
 {
 	if( mode == 0 )
 	{
-		for( int i = 0 ; i < 16 ;i++)
+		for( int i = 0 ; i < 24 ;i++)
 		{
 			low[i]->EnableWindow(0);
 			upd[i]->EnableWindow(0);
@@ -255,7 +322,7 @@ void limit_setting::disable_check_none0(unsigned int mode)
 		/*----------*/
 	}else
 	{
-        for( int i = 0 ; i < 16 ; i++ )
+        for( int i = 0 ; i < 24 ; i++ )
 		{
 			low[i]->EnableWindow(1);
 			upd[i]->EnableWindow(1);
@@ -292,7 +359,7 @@ void limit_setting::click_one_line(unsigned int index)
 	unsigned int *show_uint32,*show_uint32_l,*show_uint32_u,*show_uint32_mean,*show_uint32_mean_error,*show_uint32_rms,*show_uint32_mean_now,*show_uint32_rms_now;;
 	int *show_int32,*show_int32_l,*show_int32_u,*show_int32_mean,*show_int32_mean_error,*show_int32_rms,*show_int32_mean_now,*show_int32_rms_now;;
 	float *show_float,*show_float_l,*show_float_u,*show_flaot_mean,*show_flaot_mean_error,*show_flaot_rms,*show_flaot_mean_now,*show_flaot_rms_now;
-	char buffer[16];
+	char buffer[24];
 	int tags;
 	unsigned int i;
 	/*---------*/
@@ -314,7 +381,7 @@ void limit_setting::click_one_line(unsigned int index)
 		m_check_if.SetCheck(1);
 	}
 	/* loop */
-	for( int i = 0 ; i < 16 ; i ++ )
+	for( int i = 0 ; i < 24 ; i ++ )
 	{
 		param_name[i]->SetWindowTextW(_T(""));
 		now[i]->SetWindowTextW(_T(""));
@@ -336,9 +403,9 @@ void limit_setting::click_one_line(unsigned int index)
 	/* get tags */
 	tags = search_chese_name(chese_list.chese[index].title);
 	/*--------------------------*/
-	if( chese_list.chese[index].num >= 16 )
+	if( chese_list.chese[index].num >= 24 )
 	{
-		chese_list.chese[index].num = 16;
+		chese_list.chese[index].num = 24;
 	}
 	/*--------------------------*/
 	switch(chese_list.chese[index].type)
@@ -823,7 +890,7 @@ void limit_setting::OnBnClickedButton2()
 	float *show_float_l,*show_float_u,*show_float_m,*show_float_e,*show_float_r;
 	unsigned int i;
 	float tmp,tmp2;
-	char buffer[16];
+	char buffer[24];
 	/*---------*/
     CString show;
 	/*---------*/
@@ -1322,6 +1389,12 @@ void limit_setting::mean_mode_enter(unsigned int mode)
 }
 
 void limit_setting::OnStnClickedStatic1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void limit_setting::OnStnClickedStatic24()
 {
 	// TODO: 在此添加控件通知处理程序代码
 }

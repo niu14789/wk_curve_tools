@@ -42,16 +42,19 @@ const char * string_chese_table[20][32] =
 	{"_baro_data","气压计","气压值:"},
 	{"sonar_m","超声波","高度(m):"},
 	{"ublox_msg","ublox_GPS","星数：","PDOP:"},
-	{"bd930_msg","BD930_GPS","星数：","PDOP:"},
+	{"bd930_msg","930/718D","星数：","PDOP:"},
 	{"_mag_data","磁力计3","x：","y:","z:"},
 	{"_mag_ems1","磁力计1","x：","y:","z:"},
 	{"_mag_board","磁力计0","x：","y:","z:"},
-    {"version_unit","版本号","GPS板：","底板:","磁力计1:","磁力计2:","超声波:","单云台:","五云台:","电调1：","电调2：","电调3：","电调4：",
+    {"version_unit","D系列版本号","GPS板：","底板:","磁力计1:","磁力计2:","超声波:","单云台:","五云台:","电调1：","电调2：","电调3：","电调4：",
 	 "飞控:","视觉：","CPLD:","FPGA:","电池版本:"},
 	{"battery_msg","智能电池","1#电压：","1#剩余:","1#电流","2#电压：","2#剩余:","2#电流","3#电压：","3#剩余:","3#电流"},
 	{"led_status","LED状态","1#:","2#:","3#:","4#:"},
 	{"cali_status","标定状态","磁力计:","水平标定：","电机标定："},
 	{"gimbal_msg","拍照计数","热靴计数：","执行计数:"},
+	{"_airspeed","空速计"," "},
+	{"version_v100","V系列版本号","GPS板","载荷","空速计","电调1","电调2","电调3","底板","倾转1","倾转2","倾转3","磁力计1","磁力计2","舵面控制板1"
+	,"舵面控制板2","舵面控制板3","405","rev2","rev3","rev4","rev5","rev6","radio","rev8","飞控"},
 };
 int CTeeChart5_testDlg::radio_sms(unsigned char data)
 {
@@ -467,7 +470,7 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 	unsigned int *show_uint32;
 	float *show_float;
 	/*---------------*/
-	for( int i = 0 ; i < 16 ; i ++ )
+	for( int i = 0 ; i < 18 ; i ++ )
 	{
 		if( strstr(list->title,string_chese_table[i][0]) != NULL )
 		{

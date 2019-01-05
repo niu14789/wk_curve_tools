@@ -87,7 +87,7 @@ typedef struct
 	unsigned int data_num;
 	unsigned int data_type;
 	char title[32];
-	unsigned char raw_data[32];
+	unsigned char raw_data[48];
 }SYS_LIST_DETAIL;
 typedef struct
 {
@@ -116,7 +116,7 @@ typedef struct
 	char title[32];
 	char title_chese[64];
 	char show_data[512];
-	unsigned char raw_data[32];
+	unsigned char raw_data[48];
 }SYS_LIST_CHESE_DETAIL_DEF;
 /*------*/
 typedef struct
