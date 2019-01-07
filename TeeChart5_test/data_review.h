@@ -10,6 +10,11 @@ class data_review : public CDialogEx
 	DECLARE_DYNAMIC(data_review)
 
 public:
+	void data_review::search_kx_rang(double *num_darray,unsigned int num,unsigned int in);
+	void data_review::search_ky_rang(double *num_darray,unsigned int num,unsigned int in);
+	void data_review::add_one_line(unsigned int in,unsigned int pos);
+	void data_review::search_x_rang(double *num_darray,unsigned int num,unsigned int in);
+	void data_review::search_y_rang(double *num_darray,unsigned int num,unsigned int in);
 	void data_review::jump_to_postion(double *num_array,unsigned int num,unsigned int in);
 	int data_review::get_dex_edit( int id,double* data);
 	void data_review::page_msg(unsigned int index , unsigned int pos);
@@ -34,4 +39,6 @@ public:
 	afx_msg void OnCbnSelchangeCombo3();
 	afx_msg void OnBnClickedButton34();
 	afx_msg void OnBnClickedButton2();
+	afx_msg void OnBnClickedButton4();
+	CButton m_single;
 };

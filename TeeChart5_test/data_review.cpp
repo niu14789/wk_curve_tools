@@ -16,6 +16,7 @@ static unsigned int current_pos = 0;
 
 extern PARAM_LIST_DEF param_list_show;
 
+static unsigned char single_time = 0;
 // data_review 对话框
 
 IMPLEMENT_DYNAMIC(data_review, CDialogEx)
@@ -38,7 +39,8 @@ void data_review::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO3, m_mothed);
 
 	DDX_Control(pDX, IDC_EDIT3, m_search_edit0);
-	
+	DDX_Control(pDX, IDC_BUTTON4, m_single);
+
 	Init();
 }
 
@@ -48,6 +50,7 @@ BEGIN_MESSAGE_MAP(data_review, CDialogEx)
 	ON_CBN_SELCHANGE(IDC_COMBO3, &data_review::OnCbnSelchangeCombo3)
 	ON_BN_CLICKED(IDC_BUTTON34, &data_review::OnBnClickedButton34)
 	ON_BN_CLICKED(IDC_BUTTON2, &data_review::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON4, &data_review::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -86,11 +89,13 @@ void data_review::Init(void)
 	m_mothed.AddString(_T("X轴范围"));//2
 	m_mothed.AddString(_T("Y轴范围"));//3
 	m_mothed.AddString(_T("X轴变化率"));//4
-	m_mothed.AddString(_T("X轴变化率"));//5
+	m_mothed.AddString(_T("Y轴变化率"));//5
 	/* focus on one */
 	m_mothed.SetCurSel(0);
 	/* disable the edit windows */
 	m_search_edit0.EnableWindow(0);
+	/* single mode */
+	single_time = 0;
 }
 /* skip */
 void data_review::OnCbnSelchangeCombo1()
@@ -256,13 +261,17 @@ void data_review::OnBnClickedButton34()
 		case 1://jump to the speciply position
 			jump_to_postion(cur_num,num,index_g);
 			break;
-		case 2:
+		case 2://x axis rang
+			search_x_rang(cur_num,num,index_g);
 			break;
 		case 3:
+			search_y_rang(cur_num,num,index_g);
 			break;
 		case 4:
+			search_kx_rang(cur_num,num,index_g);
 			break;
 		case 5:
+			search_ky_rang(cur_num,num,index_g);
 			break;
 		case 6:
 			break;
@@ -335,4 +344,190 @@ void data_review::OnBnClickedButton2()
 	// TODO: 在此添加控件通知处理程序代码
 	export_tool d;
 	d.DoModal();
+}
+/* this current line */
+static unsigned int line_zero = 0;
+/* add one line */
+void data_review::add_one_line(unsigned int in,unsigned int pos)
+{
+	if( line_zero >= MULTIPLE_PER )
+	{
+		//AfxMessageBox(_T("超过最大数据量"));
+		return;
+	}
+	/*-----------------*/
+	USES_CONVERSION;
+	CString d0,d1,d2,c_index;
+	char buffer[64];
+	double *x = (double *)param_list_show.param_list[in].data_x;
+	double *y = (double *)param_list_show.param_list[in].data_y;
+	/*-----------------*/
+	sprintf_s(buffer,"%d",pos);
+	/*-----------------*/
+	c_index = A2T(buffer);
+	/*------------------*/
+	sprintf_s(buffer,"%lf",x[pos]);
+	/*-----------------*/
+	d0 = A2T(buffer);
+	/*------------------*/
+	sprintf_s(buffer,"%lf",y[pos]);
+	/*-----------------*/
+	d1 = A2T(buffer);
+	/*------------------*/
+	sprintf_s(buffer,"%d",pos);
+	/*-----------------*/
+	d2 = A2T(buffer);
+	/*------------------*/
+	m_data_review_list.InsertItem(line_zero, c_index);
+	m_data_review_list.SetItemText(line_zero, 1, d0);
+	m_data_review_list.SetItemText(line_zero, 2, d1);
+	m_data_review_list.SetItemText(line_zero, 3, d2);
+
+	/*------------*/
+    line_zero++;
+	/*------------*/
+}
+/*---------------*/
+void data_review::search_x_rang(double *num_darray,unsigned int num,unsigned int in)
+{
+	if( num != 2 )
+	{
+		AfxMessageBox(_T("参数错误，支持两个参数xxx-xxx"));
+		return;
+	}
+	/*-----------*/
+	if( num_darray[0] > num_darray[1] )
+	{
+		AfxMessageBox(_T("范围错误，左值应该小于等于右值"));
+		return;
+	}
+	/* single */
+	if( single_time == 0 )
+	{
+		/* clear */
+		line_zero = 0;
+		m_data_review_list.DeleteAllItems();
+	}
+	/* search and add to list */
+	double *x = (double *)param_list_show.param_list[in].data_x;
+	unsigned int pm = param_list_show.param_list[in].point_num;
+	/* */
+	for( unsigned int i = 0 ; i < pm ; i ++ )
+	{
+		if( x[i] >= num_darray[0] && x[i] <= num_darray[1] )
+		{
+			add_one_line(in,i);
+		}
+	}
+}
+void data_review::search_y_rang(double *num_darray,unsigned int num,unsigned int in)
+{
+	if( num != 2 )
+	{
+		AfxMessageBox(_T("参数错误，支持两个参数xxx-xxx"));
+		return;
+	}
+	/*-----------*/
+	if( num_darray[0] > num_darray[1] )
+	{
+		AfxMessageBox(_T("范围错误，左值应该小于等于右值"));
+		return;
+	}
+	/* single */
+	if( single_time == 0 )
+	{
+		/* clear */
+		line_zero = 0;
+		m_data_review_list.DeleteAllItems();
+	}
+	/* search and add to list */
+	double *y = (double *)param_list_show.param_list[in].data_y;
+	unsigned int pm = param_list_show.param_list[in].point_num;
+	/* */
+	for( unsigned int i = 0 ; i < pm ; i ++ )
+	{
+		if( y[i] >= num_darray[0] && y[i] <= num_darray[1] )
+		{
+			add_one_line(in,i);
+		}
+	}
+}
+void data_review::search_kx_rang(double *num_darray,unsigned int num,unsigned int in)
+{
+	if( num != 2 )
+	{
+		AfxMessageBox(_T("参数错误，支持两个参数xxx-xxx"));
+		return;
+	}
+	/*-----------*/
+	if( num_darray[0] > num_darray[1] )
+	{
+		AfxMessageBox(_T("范围错误，左值应该小于等于右值"));
+		return;
+	}
+	/* single */
+	if( single_time == 0 )
+	{
+		/* clear */
+		line_zero = 0;
+		m_data_review_list.DeleteAllItems();
+	}
+	/* search and add to list */
+	double *x = (double *)param_list_show.param_list[in].data_x;
+	unsigned int pm = param_list_show.param_list[in].point_num;
+	/* */
+	for( unsigned int i = 1 ; i < pm ; i ++ )
+	{
+		if( (x[i] - x[i-1]) >= num_darray[0] && (x[i] - x[i-1]) <= num_darray[1] )
+		{
+			add_one_line(in,i);
+		}
+	}
+}
+void data_review::search_ky_rang(double *num_darray,unsigned int num,unsigned int in)
+{
+	if( num != 2 )
+	{
+		AfxMessageBox(_T("参数错误，支持两个参数xxx-xxx"));
+		return;
+	}
+	/*-----------*/
+	if( num_darray[0] > num_darray[1] )
+	{
+		AfxMessageBox(_T("范围错误，左值应该小于等于右值"));
+		return;
+	}
+	/* single */
+	if( single_time == 0 )
+	{
+		/* clear */
+		line_zero = 0;
+		m_data_review_list.DeleteAllItems();
+	}
+	/* search and add to list */
+	double *y = (double *)param_list_show.param_list[in].data_y;
+	unsigned int pm = param_list_show.param_list[in].point_num;
+	/* */
+	for( unsigned int i = 1 ; i < pm ; i ++ )
+	{
+		if( (y[i] - y[i-1]) >= num_darray[0] && (y[i] - y[i-1]) <= num_darray[1] )
+		{
+			add_one_line(in,i);
+		}
+	}
+}
+
+void data_review::OnBnClickedButton4()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	if( single_time == 0 )
+	{
+		m_single.SetWindowTextW(_T("多次"));
+		single_time = 1;
+	}
+	else
+	{
+		m_single.SetWindowTextW(_T("单次"));
+		single_time = 0;
+	}
 }
