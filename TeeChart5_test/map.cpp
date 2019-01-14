@@ -17,6 +17,8 @@ unsigned int curren_review_position = 0;
 unsigned char U3D_enable = 0;
 unsigned char pause_flag = 0;
 
+unsigned char ok_flag = 0;
+
 IMPLEMENT_DYNAMIC(map, CDialogEx)
 
 map::map(CWnd* pParent /*=NULL*/)
@@ -112,6 +114,70 @@ void map::init_map(void)
 	}
 	/* focus on */
 	m_list.SetCurSel(0);
+	/* open data */
+	unsigned char f = 0;
+	ok_flag = 0;
+	/* read data */
+	for(unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		if( strstr(param_list_show.param_list[i].name,"飞行航线轨迹") != NULL )
+		{
+			lon = (double *)param_list_show.param_list[i].data_x;
+			lat = (double *)param_list_show.param_list[i].data_y;
+			/* get num */
+			review_point_num = param_list_show.param_list[i].point_num;
+			/* get flag */
+			f |= 0x2;
+		}
+		/* ok */
+		char *c = strstr(param_list_show.param_list[i].name,"->PSI");
+		/* tail */
+		if( c != NULL && *(c+strlen("->PSI")) == 0 )
+		{
+			psi = (double *)param_list_show.param_list[i].data_y;
+			/* get flag */
+			f |= 0x1;
+		}
+		/* get ry */
+		c = strstr(param_list_show.param_list[i].name,"->RY");
+		/*--------*/
+		if( c != NULL && *(c+strlen("->RY")) == 0)
+		{
+			height = (double *)param_list_show.param_list[i].data_y;
+			/* get flag */
+			f |= 0x4;
+		}
+		/* gamma */
+		c = strstr(param_list_show.param_list[i].name,"->GAMMA");
+		/*-------*/
+		if( c != NULL && *(c+strlen("->GAMMA")) == 0)
+		{
+			gama = (double *)param_list_show.param_list[i].data_y;
+			/* get flag */
+			f |= 0x8;
+		}
+		/* teta */
+		c = strstr(param_list_show.param_list[i].name,"->TETA");
+		if( c != NULL && *(c+strlen("->TETA")) == 0)
+		{
+			teta = (double *)param_list_show.param_list[i].data_y;
+			/* get flag */
+			f |= 0x10;
+		}
+		/* return */
+		if( f == 0x1F )
+		{
+			break;
+		}
+	}
+	/* return */
+	if( f != 0x1F )
+	{
+		AfxMessageBox(_T("未打开日志文件或一些数据没有定义"));
+		return;
+	}
+	/* ok flag */
+	ok_flag = 1;
 }
 
 void map::OnCbnSelchangeCombo3()
@@ -131,80 +197,29 @@ void map::OnCbnSelchangeCombo3()
 /*--------------------------*/
 void map::OnBnClickedButton4()
 {
+	if( !ok_flag )
+	{
+		return;
+	}
 	// TODO: 在此添加控件通知处理程序代码
-	fucus_on_map(117.404019f,39.556881f);
+	fucus_on_map((float)lon[0],(float)lat[0]);
+	//lon[curren_review_position],(float)lat[curren_review_position],
 }
 
 
 void map::OnBnClickedButton2()
 {
+	if( !ok_flag )
+	{
+		return;
+	}
 	// TODO: 在此添加控件通知处理程序代码
 	if( pause_flag == 0 )
 	{
 		int rate = m_rate.GetCurSel();
 		/* skip num */
 		skip_num = (rate+1)*20;
-
-		unsigned char f = 0;
-		/* read data */
-		for(unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
-		{
-			if( strstr(param_list_show.param_list[i].name,"飞行航线轨迹") != NULL )
-			{
-				lon = (double *)param_list_show.param_list[i].data_x;
-				lat = (double *)param_list_show.param_list[i].data_y;
-				/* get num */
-				review_point_num = param_list_show.param_list[i].point_num;
-				/* get flag */
-				f |= 0x2;
-			}
-		    /* ok */
-			char *c = strstr(param_list_show.param_list[i].name,"->PSI");
-			/* tail */
-		    if( c != NULL && *(c+strlen("->PSI")) == 0 )
-			{
-				psi = (double *)param_list_show.param_list[i].data_y;
-				/* get flag */
-				f |= 0x1;
-			}
-			/* get ry */
-			c = strstr(param_list_show.param_list[i].name,"->RY");
-			/*--------*/
-			if( c != NULL && *(c+strlen("->RY")) == 0)
-			{
-				height = (double *)param_list_show.param_list[i].data_y;
-				/* get flag */
-				f |= 0x4;
-			}
-			/* gamma */
-			c = strstr(param_list_show.param_list[i].name,"->GAMMA");
-			/*-------*/
-			if( c != NULL && *(c+strlen("->GAMMA")) == 0)
-			{
-				gama = (double *)param_list_show.param_list[i].data_y;
-				/* get flag */
-				f |= 0x8;
-			}
-			/* teta */
-			c = strstr(param_list_show.param_list[i].name,"->TETA");
-			if( c != NULL && *(c+strlen("->TETA")) == 0)
-			{
-				teta = (double *)param_list_show.param_list[i].data_y;
-				/* get flag */
-				f |= 0x10;
-			}
-			/* return */
-			if( f == 0x1F )
-			{
-				break;
-			}
-		}
-		/* return */
-		if( f != 0x1F )
-		{
-			AfxMessageBox(_T("一些数据没有定义"));
-			return;
-		}
+        /* to head */
 		/*-----------*/
 		fucus_on_map((float)lon[0],(float)lat[0]);
 		/* set time */
