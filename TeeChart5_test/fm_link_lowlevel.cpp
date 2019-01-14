@@ -55,6 +55,7 @@ const char * string_chese_table[20][32] =
 	{"_airspeed","空速计"," "},
 	{"version_v100","V系列版本号","GPS板","载荷","空速计","电调1","电调2","电调3","底板","倾转1","倾转2","倾转3","磁力计1","磁力计2","舵面控制板1"
 	,"舵面控制板2","舵面控制板3","405","rev2","rev3","rev4","rev5","rev6","radio","rev8","飞控"},
+	{"version_vion","V100视觉版本","AP","CPLD","FPGA","电池","rev1","rev2","rev3","rev4","rev5","rev6","rev7","rev8"},
 };
 int CTeeChart5_testDlg::radio_sms(unsigned char data)
 {
@@ -470,7 +471,7 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 	unsigned int *show_uint32;
 	float *show_float;
 	/*---------------*/
-	for( int i = 0 ; i < 18 ; i ++ )
+	for( int i = 0 ; i < 19 ; i ++ )
 	{
 		if( strstr(list->title,string_chese_table[i][0]) != NULL )
 		{

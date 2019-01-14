@@ -103,8 +103,8 @@ void motor::motor_init(void)
 	m_time.SetWindowTextW(_T("5"));
 	/*---------------*/
 	m_silder_pwm.SetRange(1000,2000);
-	m_silder_pwm.SetPos(1500);
-	m_edit_pwm.SetWindowTextW(_T("1500"));
+	m_silder_pwm.SetPos(1000);
+	m_edit_pwm.SetWindowTextW(_T("1000"));
 	/* disable the windows */
 	ct->set_test_mode(0);
 	/*----reset-----*/
@@ -113,9 +113,9 @@ void motor::motor_init(void)
 	/*-----------------------*/
 	m_test_item.ResetContent();
 	/* add data */
-	m_test_item.AddString(_T("×óÇã×ª"));
-	m_test_item.AddString(_T("ÓÒÇã×ª"));
 	m_test_item.AddString(_T("Î²Çã×ª"));
+	m_test_item.AddString(_T("ÓÒÇã×ª"));
+	m_test_item.AddString(_T("×óÇã×ª"));
 	m_test_item.AddString(_T("×ó¸±Òí"));
 	m_test_item.AddString(_T("ÓÒ¸±Òí"));
 	m_test_item.AddString(_T("×óVÎ²"));
@@ -200,6 +200,7 @@ void motor::OnBnClickedButton1()
 			}
 			/*--------------*/
 			m_silder_pwm.SetPos(1000);
+			m_edit_pwm.SetWindowTextW(_T("1000"));
 			/*--------------*/
 			flags_tips = 1;
 		}
