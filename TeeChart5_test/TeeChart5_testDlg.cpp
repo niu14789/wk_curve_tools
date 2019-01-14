@@ -996,6 +996,11 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	else
 #endif
 	{
+		if( strcmp(file_man.file[index].file_point,"bin") == 0 )
+		{
+			/* log type */
+			log_type = 1;
+		}
 		char buffer_other[256];
 		/* procotol */
 		if( file_man.file[index].default_procotol_type == 0 )
