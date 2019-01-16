@@ -19,6 +19,30 @@ unsigned char motor_check_flags = 0xff;
 /*------------------------------*/
 unsigned char D_or_V = __D_SERIES__;
 unsigned char D_V_flag = 0;
+/* ID and cmd */
+
+/* dir */
+
+#define TM_CMD_HEAD1			0xA0
+#define TM_CMD_HEAD2			0xE0
+#define TM_CMD_TAIL				0x0C
+
+#define CAN_R1_ID       (0x60<<2)
+#define CAN_R2_ID       (0x70<<2)
+#define CAN_R3_ID       (0x90<<2)
+
+#define NORMAL       (0x0<<4)
+
+#define TM_TO_FC_DIR	0x01
+#define FC_TO_TM_DIR	0x02
+/* can id */
+#define FC_TO_TM1_CAN_ID		(CAN_R1_ID | NORMAL | FC_TO_TM_DIR)
+#define FC_TO_TM2_CAN_ID		(CAN_R2_ID | NORMAL | FC_TO_TM_DIR)
+#define FC_TO_TM3_CAN_ID		(CAN_R3_ID | NORMAL | FC_TO_TM_DIR)
+
+static int can_id[3] = {FC_TO_TM1_CAN_ID,FC_TO_TM2_CAN_ID,FC_TO_TM3_CAN_ID};
+
+static int can_cmd[8] = {0xE1,0xCC,0xE2,0xE3,0x00,0x01,0xE9,0xEA};
 /*------------------------------*/
 IMPLEMENT_DYNAMIC(motor, CDialogEx)
 
@@ -52,6 +76,9 @@ void motor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO1, m_test_item);
 	DDX_Control(pDX, IDC_EDIT3, m_edit_step);
 
+	DDX_Control(pDX, IDC_COMBO2, m_rotation);
+	DDX_Control(pDX, IDC_COMBO13, m_active);
+
 	motor_init();
 }
 
@@ -73,6 +100,7 @@ BEGIN_MESSAGE_MAP(motor, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON30, &motor::OnBnClickedButton30)
 	ON_BN_CLICKED(IDC_BUTTON9, &motor::OnBnClickedButton9)
 	ON_BN_CLICKED(IDC_BUTTON8, &motor::OnBnClickedButton8)
+	ON_BN_CLICKED(IDC_BUTTON35, &motor::OnBnClickedButton35)
 END_MESSAGE_MAP()
 
 
@@ -114,14 +142,35 @@ void motor::motor_init(void)
 	m_test_item.ResetContent();
 	/* add data */
 	m_test_item.AddString(_T("尾倾转"));
-	m_test_item.AddString(_T("右倾转"));
 	m_test_item.AddString(_T("左倾转"));
+	m_test_item.AddString(_T("右倾转"));
 	m_test_item.AddString(_T("左副翼"));
 	m_test_item.AddString(_T("右副翼"));
 	m_test_item.AddString(_T("左V尾"));
 	m_test_item.AddString(_T("右V尾"));
-	/*---------*/
+
 	m_test_item.SetCurSel(0);
+	/*---------*/
+	m_rotation.ResetContent();
+	/* add data */
+	m_rotation.AddString(_T("尾倾转"));
+	m_rotation.AddString(_T("左倾转"));
+	m_rotation.AddString(_T("右倾转"));
+
+	m_rotation.SetCurSel(0);
+	/*---------*/
+	m_active.ResetContent();
+	/* add data */
+	m_active.AddString(_T("卸力"));//0xE1
+	m_active.AddString(_T("进入"));//0xCC
+	m_active.AddString(_T("10度3HZ"));//0xE2
+	m_active.AddString(_T("0-90度1HZ"));//0xE3
+	m_active.AddString(_T("转至水平"));//0x00
+	m_active.AddString(_T("转至垂直"));//0x01
+	m_active.AddString(_T("0-90慢转"));//0xE9
+	m_active.AddString(_T("90-0慢转"));//0xEA
+
+	m_active.SetCurSel(0);
 	/* set step */
 	m_edit_step.SetWindowTextW(_T("50"));
 }
@@ -353,7 +402,7 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 	{
 		if( data[2] == 0 )
 		{
-		    MessageBox(_T("倾转校准下发成功"),_T("tips"),0);
+		    //MessageBox(_T("倾转校准下发成功"),_T("tips"),0);
 		}else
 		{
 			MessageBox(_T("倾转校准下发失败"),_T("tips"),0);
@@ -773,6 +822,32 @@ void motor::OnBnClickedButton22()
 void motor::OnBnClickedButton30()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	int mr = m_rotation.GetCurSel();
+	int mactive = m_active.GetCurSel();
+	/*-------------*/
+	if( mr >= 3 || mactive >= 8 )
+	{
+		AfxMessageBox(_T("不支持的倾转机构或不支持的动作类型"));
+		return;
+	}
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	unsigned short * param = ( unsigned short * )package;
+	/*---------------------*/
+	*pd = 261;
+	/*---------------------*/
+	param[0] = can_id[mr];
+	param[1] = 0;//can 0
+	param[2] = 4;
+	/* create cmd data */
+	param[3] =  TM_CMD_HEAD1;
+	param[4] =  TM_CMD_HEAD2;
+	param[5] =  can_cmd[mactive];
+	param[6] =  TM_CMD_TAIL;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
 }
 
 
@@ -816,4 +891,10 @@ void motor::OnBnClickedButton8()
 	}
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton35()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }
