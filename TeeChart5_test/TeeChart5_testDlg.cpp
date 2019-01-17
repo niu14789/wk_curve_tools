@@ -3942,6 +3942,7 @@ int CTeeChart5_testDlg::function_thread(unsigned int start)
 				ret = func_ky(start,i);
 				break;
 			case 10:
+				ret = func_PCG1(start,i);
 				break;
 			case 11:
 				ret = func_PCG2(start,i);
@@ -4043,6 +4044,78 @@ int CTeeChart5_testDlg::func_copy2_0(unsigned int start , int index)
 		{
 			line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i];
 			line_dst_x[param_list_show.param_list[index].point_num] = line_src_y1[i];
+			/* set param ok */
+			param_list_show.param_list[index].point_num++;
+		}
+	}
+	/*---------------------------------------------------*/
+	return 0;
+}
+/* function exe */
+int CTeeChart5_testDlg::func_PCG1(unsigned int start , int index)
+{
+	char buffer[2][128];
+	/* copy2_0 need two params */
+	if( param_list_show.param_list[index].func_param_count != 3 )
+	{
+		return (-1);//param error
+	}
+	/* template */
+	char * p0 = param_list_show.param_list[index].func_param[0];
+	char * p1 = param_list_show.param_list[index].func_param[1];
+	/* create buffer */
+	memset(buffer,0,sizeof(buffer));
+	/* get name and set param */
+	sprintf_s(buffer[0],"->%s",p0);
+	sprintf_s(buffer[1],"->%s",p1);
+	/* find flag */
+	int pos_0 = 0xffff;
+	int pos_1 = 0xffff;
+	/* search */
+	for( unsigned int i = start ; i < param_list_show.param_list_num ; i ++ )
+	{
+		char * c;
+		/* param one */
+		c = strstr(param_list_show.param_list[i].name,buffer[0]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[0])) == 0 )
+		{
+			pos_0 = i;
+		}
+		/* param two */
+		c = strstr(param_list_show.param_list[i].name,buffer[1]);
+		/* ok */
+		if( c != NULL && *(c+strlen(buffer[1])) == 0 )
+		{
+			pos_1 = i;
+		}
+		/* over */
+		if( pos_0 != 0xffff && pos_1 != 0xffff )
+		{
+			break;// get first package
+		}
+	}
+	/* ok ? */
+	if( pos_0 == 0xffff || pos_1 == 0xffff )
+	{
+		return (-2);
+	}
+	/*--------------------------------*/
+	int point_num = param_list_show.param_list[pos_0].point_num;
+	/* get data and decode */
+	double  *line_src_p = (double *)param_list_show.param_list[pos_0].data_y;
+	double  *line_src_y0 = (double *)param_list_show.param_list[pos_1].data_y;
+	double  *line_dst_y = (double *)param_list_show.param_list[index].data_y;
+	/* clear point num */
+	param_list_show.param_list[index].point_num = 0;
+	double last = 0;
+	/*---------------------*/
+	for( int i = 0 ; i < point_num ; i ++ )
+	{
+		if( last != line_src_p[i] )
+		{
+			last = line_src_p[i];
+			line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i];
 			/* set param ok */
 			param_list_show.param_list[index].point_num++;
 		}

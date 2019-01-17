@@ -203,6 +203,7 @@ class CTeeChart5_testDlg : public CDialogEx
 {
 // ππ‘Ï
 public:
+	int CTeeChart5_testDlg::func_PCG1(unsigned int start , int index);
 	void CTeeChart5_testDlg::open_map(void);
 	void CTeeChart5_testDlg::draw_axis(unsigned int num);
 	void CTeeChart5_testDlg::open_data_review(void);
