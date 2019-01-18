@@ -64,4 +64,6 @@ public:
 	afx_msg void OnBnClickedButton35();
 	CComboBox m_rotation;
 	CComboBox m_active;
+	afx_msg void OnBnClickedButton37();
+	afx_msg void OnBnClickedButton36();
 };

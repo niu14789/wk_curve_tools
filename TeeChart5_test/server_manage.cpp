@@ -70,7 +70,7 @@ int exmail_initial(void)
 			char data_buffer[200];
 			char sub_buffer[64];
 			/*-------------------------------------------*/
-			sprintf_s(data_buffer,"软件版本：v0.5.8 在名为%s，用户名为%s的计算机上成功打开%d次",pc_name,user_name,socket_file.open_count);
+			sprintf_s(data_buffer,"软件版本：v0.5.9 在名为%s，用户名为%s的计算机上成功打开%d次",pc_name,user_name,socket_file.open_count);
 			sprintf_s(sub_buffer,"计算机%s 用户%s 次数%d",pc_name,user_name,socket_file.open_count);
 			/*------------------------------------------*/
 			if( send_email(&smtp_online_config,"用户上线通知",sub_buffer,data_buffer) == 0 )

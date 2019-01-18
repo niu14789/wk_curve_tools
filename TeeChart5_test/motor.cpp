@@ -101,6 +101,8 @@ BEGIN_MESSAGE_MAP(motor, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON9, &motor::OnBnClickedButton9)
 	ON_BN_CLICKED(IDC_BUTTON8, &motor::OnBnClickedButton8)
 	ON_BN_CLICKED(IDC_BUTTON35, &motor::OnBnClickedButton35)
+	ON_BN_CLICKED(IDC_BUTTON37, &motor::OnBnClickedButton37)
+	ON_BN_CLICKED(IDC_BUTTON36, &motor::OnBnClickedButton36)
 END_MESSAGE_MAP()
 
 
@@ -648,21 +650,16 @@ void motor::OnBnClickedButton5()
 /*-------------------------------*/
 void motor::OnBnClickedButton28()
 {
-	//for( unsigned int i = 0 ; i < chese_list.total_line ; i ++ )
-	//{
-	//	if( strstr( chese_list.chese[i].title , "g_mrs") != NULL )
-	//	{
-	//		chese_list.chese[i].check_type = 5;//check and err
-	//		MessageBox(_T("设置成功") , _T("tips") , 0 ); 
-	//		/*------------------------------*/
-	//		ct->refresh_result_all();
-	//		/*------------------------------*/
-	//		return;
-	//	}
-	//}
-	motor_check_flags = 5;
-}
+	unsigned char package[33];
 
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 255;
+	param[0] = 5;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
 
 void motor::OnBnClickedButton13()
 {
@@ -897,4 +894,32 @@ void motor::OnBnClickedButton8()
 void motor::OnBnClickedButton35()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void motor::OnBnClickedButton37()
+{
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 254;
+	param[0] = 5;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton36()
+{
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 256;
+	param[0] = 5;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
 }
