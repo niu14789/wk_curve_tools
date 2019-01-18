@@ -29,6 +29,7 @@ map::map(CWnd* pParent /*=NULL*/)
 
 map::~map()
 {
+
 }
 
 void map::DoDataExchange(CDataExchange* pDX)
@@ -40,9 +41,10 @@ void map::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO2, m_rate);
 	DDX_Control(pDX, IDC_COMBO1, m_list);
 
-	init_map();
 	DDX_Control(pDX, IDC_BUTTON2, m_start);
 	DDX_Control(pDX, IDC_PROGRESS1, m_process);
+	/*-------------*/
+	init_map();
 }
 
 
@@ -178,6 +180,7 @@ void map::init_map(void)
 	}
 	/* ok flag */
 	ok_flag = 1;
+	curren_review_position = 0;
 }
 
 void map::OnCbnSelchangeCombo3()
@@ -269,9 +272,10 @@ void map::aircraft_move_thread(void)
 	if( curren_review_position >= review_point_num )
 	{
 		curren_review_position = 0;
-		review_point_num = 0;
 		/* kill */
 		KillTimer(1);
+		pause_flag = 0;
+		m_start.SetWindowTextW(_T("开始回放"));
 	}
 	/*- set process */
 	m_process.SetPos(curren_review_position);
