@@ -79,6 +79,10 @@ void motor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_COMBO2, m_rotation);
 	DDX_Control(pDX, IDC_COMBO13, m_active);
 
+	DDX_Control(pDX, IDC_BUTTON38, m_min);
+	DDX_Control(pDX, IDC_BUTTON40, m_osd);
+	DDX_Control(pDX, IDC_BUTTON39, m_max);
+
 	motor_init();
 }
 
@@ -103,6 +107,9 @@ BEGIN_MESSAGE_MAP(motor, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON35, &motor::OnBnClickedButton35)
 	ON_BN_CLICKED(IDC_BUTTON37, &motor::OnBnClickedButton37)
 	ON_BN_CLICKED(IDC_BUTTON36, &motor::OnBnClickedButton36)
+	ON_BN_CLICKED(IDC_BUTTON40, &motor::OnBnClickedButton40)
+	ON_BN_CLICKED(IDC_BUTTON38, &motor::OnBnClickedButton38)
+	ON_BN_CLICKED(IDC_BUTTON39, &motor::OnBnClickedButton39)
 END_MESSAGE_MAP()
 
 
@@ -155,9 +162,9 @@ void motor::motor_init(void)
 	/*---------*/
 	m_rotation.ResetContent();
 	/* add data */
-	m_rotation.AddString(_T("Î²Çã×ª"));
 	m_rotation.AddString(_T("×óÇã×ª"));
 	m_rotation.AddString(_T("ÓÒÇã×ª"));
+	m_rotation.AddString(_T("Î²Çã×ª"));
 
 	m_rotation.SetCurSel(0);
 	/*---------*/
@@ -175,6 +182,10 @@ void motor::motor_init(void)
 	m_active.SetCurSel(0);
 	/* set step */
 	m_edit_step.SetWindowTextW(_T("50"));
+	/* disable the btn */
+	m_min.EnableWindow(0);
+	m_osd.EnableWindow(0);
+	m_max.EnableWindow(0);
 }
 
 int motor::get_dex_edit(int id, unsigned int * data)
@@ -690,6 +701,7 @@ void motor::OnBnClickedButton17()
 }
 /* static servo num */
 static unsigned short servo_value[7] = { 500,500,500,500,500,500,500 };
+static unsigned short servo_after[7];
 /*------------------*/
 void motor::OnBnClickedButton6()
 {
@@ -885,9 +897,14 @@ void motor::OnBnClickedButton8()
 	for( unsigned int i = 0 ; i < 7 ; i ++ )
 	{
 		param[i] = (float)servo_value[i];
+		servo_after[i] = servo_value[i];
 	}
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
+	/*-------------------------*/
+	m_min.EnableWindow(1);
+	m_osd.EnableWindow(1);
+	m_max.EnableWindow(1);
 }
 
 
@@ -920,6 +937,93 @@ void motor::OnBnClickedButton36()
 	/*---------------------*/
 	*pd = 256;
 	param[0] = 5;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton40()
+{
+    int seq = m_test_item.GetCurSel();
+	/*------*/
+	if (seq >= 7)
+	{
+		AfxMessageBox(_T("´íÎóµÄ²âÊÔÏî"));
+		return;
+	}
+	/*------------------*/
+	/* set final */
+	servo_value[seq] = servo_after[seq];
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton38()
+{
+    int seq = m_test_item.GetCurSel();
+	/*------*/
+	if (seq >= 7)
+	{
+		AfxMessageBox(_T("´íÎóµÄ²âÊÔÏî"));
+		return;
+	}
+	/*------------------*/
+	/* set final */
+	servo_value[seq] = 0;
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton39()
+{
+    int seq = m_test_item.GetCurSel();
+	/*------*/
+	if (seq >= 7)
+	{
+		AfxMessageBox(_T("´íÎóµÄ²âÊÔÏî"));
+		return;
+	}
+	/*------------------*/
+	/* set final */
+	servo_value[seq] = 1000;
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	float * param = ( float * )package;
+	/*---------------------*/
+	*pd = 259;
+	/*---------------------*/
+	for( unsigned int i = 0 ; i < 7 ; i ++ )
+	{
+		param[i] = (float)servo_value[i];
+	}
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
 }

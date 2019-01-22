@@ -66,4 +66,10 @@ public:
 	CComboBox m_active;
 	afx_msg void OnBnClickedButton37();
 	afx_msg void OnBnClickedButton36();
+	CButton m_min;
+	afx_msg void OnBnClickedButton40();
+	CButton m_osd;
+	CButton m_max;
+	afx_msg void OnBnClickedButton38();
+	afx_msg void OnBnClickedButton39();
 };
