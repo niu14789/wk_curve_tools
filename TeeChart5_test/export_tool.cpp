@@ -13,9 +13,10 @@ static unsigned int exp_change[1000];
 
 /* create */
 char file_buffer_base[128];
-
+char file_buffer_base_file[128];
 // export_tool 对话框
-
+char push_buffer[1024*1024*2];
+/*--------------------*/
 IMPLEMENT_DYNAMIC(export_tool, CDialogEx)
 
 export_tool::export_tool(CWnd* pParent /*=NULL*/)
@@ -40,7 +41,9 @@ void export_tool::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LIST2, m_out_list);
 
 	DDX_Control(pDX, IDC_CHECK2, two_axis);
-	
+
+	DDX_Control(pDX, IDC_CHECK3, m_default_path);
+
 	init();
 }
 
@@ -51,6 +54,8 @@ BEGIN_MESSAGE_MAP(export_tool, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON4, &export_tool::OnBnClickedButton4)
 	ON_BN_CLICKED(IDC_BUTTON3, &export_tool::OnBnClickedButton3)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &export_tool::OnCbnSelchangeCombo1)
+	ON_BN_CLICKED(IDC_CHECK3, &export_tool::OnBnClickedCheck3)
+	ON_BN_CLICKED(IDC_BUTTON1, &export_tool::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -79,6 +84,8 @@ void export_tool::init(void)
 	m_out_list.InsertColumn(1, _T("导出曲线列表"), LVCFMT_LEFT, 160);
 	/* list data */
 	m_out_list.DeleteAllItems();
+	/*---------------------------*/
+	m_default_path.SetCheck(0);//default.h
 	/*---------------------------*/
 	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
@@ -126,6 +133,8 @@ void export_tool::init(void)
 		   dir_ok = 1;
 	   }
     }
+	/* set */
+	char buff_b[128];
     /* create file */
 	if( dir_ok == 0 )
 	{
@@ -139,7 +148,6 @@ void export_tool::init(void)
 		int nPos = GetCurrentDirectory( MAX_PATH, pFileName);
 		/* transfer and create */
 		p = T2A(pFileName);
-		char buff_b[128];
 		/*---------------------*/
        int seq = m_format.GetCurSel();
 	   /* create base name */
@@ -160,8 +168,28 @@ void export_tool::init(void)
 	{
 		fpath = A2T("<输出文件夹创建失败，需要手动输入文件路径>");
 	}
-	/*------------*/
-	m_export_file.SetWindowTextW(fpath);
+	/* create file base */
+    if( param_list_show.param_list_num > 0 )
+	{
+        sprintf_s(file_buffer_base_file,sizeof(file_buffer_base_file),"%s",param_list_show.param_list[0].from_file);
+	}
+	/*-----------------*/
+	if( m_default_path.GetCheck() )
+	{
+		m_export_file.SetWindowTextW(fpath);
+	}
+	else
+	{
+        if( param_list_show.param_list_num > 0 )
+		{
+			/*---------------------------*/
+			sprintf_s(buff_b,sizeof(buff_b),"%s.%s",file_buffer_base_file,(m_format.GetCurSel()==0)?"CSV":"TXT");
+			/*--------------------------------*/
+			fpath = A2T(buff_b);
+			m_export_file.SetWindowTextW(fpath);
+		}
+	}
+	
 }
 /* flush list */
 void export_tool::export_list_flush(void)
@@ -293,8 +321,8 @@ void export_tool::OnBnClickedButton3()
 		return;
 	}
 	/* get title and axis */
-	char push_buffer[1024];
 	memset(push_buffer,0,sizeof(push_buffer));
+#if 1
 	/* create */
 	if( title_enable )
 	{
@@ -337,6 +365,17 @@ void export_tool::OnBnClickedButton3()
 	}
 	/* set process */
 	m_export_process.SetRange32(0,max_point_num);
+	/* set disable */
+	m_export_file.EnableWindow(0);
+	m_format.EnableWindow(0);
+	m_output_title.EnableWindow(0);
+	m_btn_export.EnableWindow(0);
+	m_default_path.EnableWindow(0);
+	two_axis.EnableWindow(0);
+	m_btn_export.EnableWindow(0);
+	m_default_path.EnableWindow(0);
+	m_list_p.EnableWindow(0);
+	m_out_list.EnableWindow(0);
 	/* every one */
 	for( unsigned int ti = 0 ; ti < max_point_num ; ti ++ )
 	{
@@ -393,6 +432,18 @@ void export_tool::OnBnClickedButton3()
 	fclose(fp);
 	/* msg */
 	AfxMessageBox(_T("导出成功"));
+	/* set enable */
+	m_export_file.EnableWindow(1);
+	m_format.EnableWindow(1);
+	m_output_title.EnableWindow(1);
+	m_btn_export.EnableWindow(1);
+	m_default_path.EnableWindow(1);
+	two_axis.EnableWindow(1);
+	m_btn_export.EnableWindow(1);
+	m_default_path.EnableWindow(1);
+	m_list_p.EnableWindow(1);
+	m_out_list.EnableWindow(1);
+#endif
 }
 
 
@@ -402,13 +453,13 @@ void export_tool::OnCbnSelchangeCombo1()
 	char buf[128];
 	int seq = m_format.GetCurSel();
 	/* format */
-	if( seq == 0 )
+    if( m_default_path.GetCheck() )
 	{
-		sprintf_s(buf,sizeof(buf),"%s.csv",file_buffer_base);
+		sprintf_s(buf,sizeof(buf),"%s.%s",file_buffer_base,seq?"txt":"csv");
 	}
-	else if( seq == 1 )
+	else
 	{
-		sprintf_s(buf,sizeof(buf),"%s.txt",file_buffer_base);
+		sprintf_s(buf,sizeof(buf),"%s.%s",file_buffer_base_file,seq?"txt":"csv");
 	}
 	/* transfer */
 	USES_CONVERSION;
@@ -416,4 +467,39 @@ void export_tool::OnCbnSelchangeCombo1()
 	CString ctr = A2T(buf);
 	/* show */
 	m_export_file.SetWindowTextW(ctr);
+}
+
+
+void export_tool::OnBnClickedCheck3()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	char buf[128];
+	int seq = m_format.GetCurSel();
+	/* format */
+    if( m_default_path.GetCheck() )
+	{
+		sprintf_s(buf,sizeof(buf),"%s.%s",file_buffer_base,seq?"txt":"csv");
+	}
+	else
+	{
+		sprintf_s(buf,sizeof(buf),"%s.%s",file_buffer_base_file,seq?"txt":"csv");
+	}
+	/* transfer */
+	USES_CONVERSION;
+	/* set data */
+	CString ctr = A2T(buf);
+	/* show */
+	m_export_file.SetWindowTextW(ctr);
+}
+
+
+void export_tool::OnBnClickedButton1()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	for( unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
+	{
+		param_list_show.param_list[i].export_flag = 1;
+	}
+	/* flush the lish */
+	export_list_flush();
 }

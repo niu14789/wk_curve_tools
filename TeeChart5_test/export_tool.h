@@ -38,4 +38,7 @@ public:
 	afx_msg void OnBnClickedButton3();
 	afx_msg void OnCbnSelchangeCombo1();
 	CButton two_axis;
+	afx_msg void OnBnClickedCheck3();
+	CButton m_default_path;
+	afx_msg void OnBnClickedButton1();
 };
