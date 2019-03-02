@@ -4034,14 +4034,12 @@ int CTeeChart5_testDlg::func_copy2_0(unsigned int start , int index)
 	/*---------------------*/
 	for( int i = 0 ; i < point_num ; i ++ )
 	{
-		if( filter == 0 )
+		/* ---------------------- */
+		if( filter || ( line_src_y0[i] != 0 && line_src_y1[i] != 0 ) )
 		{
-			if( line_src_y0[i] != 0 && line_src_y1[i] != 0 )
-			{
-				filter = 1;
-			}
-		}else
-		{
+			/* set filter disable */
+			filter = 1;
+			/**/
 			line_dst_y[param_list_show.param_list[index].point_num] = line_src_y0[i];
 			line_dst_x[param_list_show.param_list[index].point_num] = line_src_y1[i];
 			/* set param ok */
