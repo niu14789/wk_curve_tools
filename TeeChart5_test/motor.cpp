@@ -453,13 +453,72 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 		    MessageBox(_T("磁力计校准下发成功"),_T("tips"),0);
 		}else
 		{
-			if(data[2] == 1)
-			{
-				MessageBox(_T("磁力计校准失败"),_T("tips"),0);
-			}else
+			/*
+			0： 校准成功
+			1：校准超时
+			2：飞机倾斜角度过大
+			3：环境磁场干扰大
+			4：读取磁力计参数不成功
+			5：磁力计数据异常
+			6：磁场偏差大
+			7：航向转动过快
+			8:俯仰转动过快
+			9：滚转转动过快
+			10：写入磁力计参数不成功
+			15：正在校准中...			
+			*/
+			if(data[2] == 0)
 			{
 				MessageBox(_T("磁力计校准成功"),_T("tips"),0);
 			}
+			else if( data[2] == 1)
+			{
+				MessageBox(_T("校准超时"),_T("tips"),0);
+			}
+			else if( data[2] == 2)
+			{
+				MessageBox(_T("飞机倾斜角度过大"),_T("tips"),0);
+			}
+			else if( data[2] == 3)
+			{
+				MessageBox(_T("环境磁场干扰大"),_T("tips"),0);
+			}
+			else if( data[2] == 4)
+			{
+				MessageBox(_T("读取磁力计参数不成功"),_T("tips"),0);
+			}
+			else if( data[2] == 5)
+			{
+				MessageBox(_T("磁力计数据异常"),_T("tips"),0);
+			}
+			else if( data[2] == 6)
+			{
+				MessageBox(_T("磁场偏差大"),_T("tips"),0);
+			}
+			else if( data[2] == 7)
+			{
+				MessageBox(_T("航向转动过快"),_T("tips"),0);
+			}
+			else if( data[2] == 8)
+			{
+				MessageBox(_T("俯仰转动过快"),_T("tips"),0);
+			}
+			else if( data[2] == 9)
+			{
+				MessageBox(_T("滚转转动过快"),_T("tips"),0);
+			}else if( data[2] == 10)
+			{
+				MessageBox(_T("写入磁力计参数不成功"),_T("tips"),0);
+			}
+			else if( data[2] == 15)
+			{
+				MessageBox(_T("正在校准中..."),_T("tips"),0);
+			}
+			else
+			{
+
+			}
+
 		}
 	}else if( fac_tub == 256 )
 	{
