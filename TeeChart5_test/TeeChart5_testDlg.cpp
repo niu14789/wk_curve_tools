@@ -37,6 +37,8 @@
 #include "rt27.h"
 #include "del_point.h"
 #include "data_review.h"
+#include "contribution.h"
+#include "help.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -272,7 +274,6 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	}
 
 	/* */
-
 	/* open */
 	if( system_config_inf.inf[2] )
 	{
@@ -294,8 +295,10 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	evn.put_MouseWheelScroll(0);
 	/*----------*/
 	create_color_table();
+#if !VERSION_CTRL
 	/* send a email to devolopers */
 	exmail_initial();
+#endif
 	/*-----------------------------*/
 #if !VERSION_CTRL
 	/* hide some funstions first . because we won't need them */
@@ -307,13 +310,14 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	check_list_show(0);
 	/* hide some functions */
 	GetDlgItem(IDC_BUTTON7)->ShowWindow(SW_HIDE);
-	GetDlgItem(IDC_BUTTON31)->ShowWindow(SW_HIDE);
+	//GetDlgItem(IDC_BUTTON31)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUTTON32)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUTTON33)->ShowWindow(SW_HIDE);
 	/* ----------------------- */
 	m_show_test.SetWindowTextW(_T("帮助文档"));
+	m_btn_ex0.SetWindowTextW(_T("捐助软件"));
 	char buffer[64];
-	sprintf_s(buffer,"%s 点击<帮助文档>获取更多帮助。",SOFTVERSION);
+	sprintf_s(buffer,"点击<帮助文档>获取更多帮助");
 	/* transform */
 	USES_CONVERSION;
 	/*---------------------------*/
@@ -496,50 +500,11 @@ void CTeeChart5_testDlg::OnBnClickedButton4()
 	/*----------------------------------*/
 	Auto_set dl;
 	dl.DoModal();
-	/*------set scale------*/
-	//if( auto_scale_g.global_auto )
-	//{
-	//	axis.put_Automatic(1);
-	//	/*----------------------*/
-	//	for( int i = 0 ; i < 20 ; i ++ )
-	//	{
-	//		axis = (CAxis)chartaxis.get_Custom(i);
-	//		/* put automatic */
-	//		axis.put_Automatic(1);
-	//	}
-	//}else
-	//{
-	//	if( auto_scale_g.line_cfg[0].auto_scale )
-	//	{
-	//		axis.put_Automatic(1);
-	//	}else
-	//	{
-	//		axis.put_Automatic(0);
-	//		axis.put_Minimum(auto_scale_g.line_cfg[0].min);
-	//		axis.put_Maximum(auto_scale_g.line_cfg[0].max);
-	//	}
-	//	/*--- others ---------------------------------*/
-	//	for( int i = 0 ; i < 19 ; i ++ )
-	//	{
-	//		axis = (CAxis)chartaxis.get_Custom(i);
-	//		/*---------------------------------*/
-	//		if( auto_scale_g.line_cfg[i+1].auto_scale )
-	//		{
-	//			axis.put_Automatic(1);
-	//		}else
-	//		{
-	//			axis.put_Automatic(0);
-	//			axis.put_Minimum(auto_scale_g.line_cfg[i+1].min);
-	//			axis.put_Maximum(auto_scale_g.line_cfg[i+1].max);
-	//		}
-	//	}
-	//	/*---------------------------------------------*/
-	//}
 	/*-------------------------------------------------*/
-	//if( axis_changed != auto_scale_g.mutiple_axis )
-	//{
-	//	reflush_chart();
-	//}
+	if( MessageBox(_T("是否立即刷新曲线？") , _T("tips") , 1 ) == 1 )
+	{
+		reflush_chart();
+	}
 	/*-------------------------------------------------*/
 }
 void CTeeChart5_testDlg::OnBnClickedButton6()
@@ -688,7 +653,8 @@ void CTeeChart5_testDlg::OnBnClickedButton9()
 	///* fresh the data */
 	system_config_fresh(1,system_config_inf.inf[1]);
 #else
-	AfxMessageBox(_T("程序目录：使用说明.pdf"));
+	help hp;
+	hp.DoModal();
 #endif
 }
 
@@ -946,63 +912,31 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	}
 	/* read cfs files */
 	FILE * pf_cfs_file;
-#if VERSION_CTRL
-	if( strstr(file_man.file[index].file_point,"bin") != NULL )
+#if !VERSION_CTRL
+    /* common ctrl */
+	if( strcmp(file_man.file[index].file_point,"bin") == 0 )
 	{
-		/* open */
-		fopen_s(&pf_cfs_file,"D200_log.CFS","rb");
 		/* log type */
 		log_type = 1;
-		/* open ok ? */
-		if( pf_cfs_file == NULL )
-		{
-			MessageBox(_T("找不到.bin文件对应的配置文件D200_log.CFG"),_T("tips"),0);
-			return;
-		}
-	}
-#if 0
-	else if( strstr(file_man.file[index].file_point,"gsof") != NULL )
-	{
-		/* open */
-		fopen_s(&pf_cfs_file,"D200_GSOF.CFS","rb");
-		/* open ok ? */
-		if( pf_cfs_file == NULL )
-		{
-			MessageBox(_T("找不到.gsof文件对应的配置文件D200_GSOF.CFG"),_T("tips"),0);
-			return;
-		}
-	}else if( strstr(file_man.file[index].file_point,"gim") != NULL )
-	{
-		/* open */
-		fopen_s(&pf_cfs_file,"D200_GIM.CFS","rb");
-		/* open ok ? */
-		if( pf_cfs_file == NULL )
-		{
-			MessageBox(_T("找不到.gim文件对应的配置文件D200_GIM.CFG"),_T("tips"),0);
-			return;
-		}
-	}else if( strstr(file_man.file[index].file_point,"imr") != NULL )
-    {
-		/* open */
-		fopen_s(&pf_cfs_file,"D200_IMR.CFS","rb");
-		/* open ok ? */
-		if( pf_cfs_file == NULL )
-		{
-			MessageBox(_T("找不到.imr文件对应的配置文件D200_IMR.CFG"),_T("tips"),0);
-			return;
-		}
 	}
 #endif
+	char buffer_other[256];
+	/* procotol */
+	if( file_man.file[index].default_procotol_type == 0 )
+	{
+		sprintf_s(buffer_other,"%s.CFS",file_man.file[index].file_point);
+	}
 	else
-#endif
 	{
-		if( strcmp(file_man.file[index].file_point,"bin") == 0 )
-		{
-			/* log type */
-			log_type = 1;
-		}
-		char buffer_other[256];
-		/* procotol */
+		strcpy_s(buffer_other,file_man.file[index].procotol_file);
+	}
+	/* open */
+	fopen_s(&pf_cfs_file,buffer_other,"rb");
+	/* open ok ? */
+	if( pf_cfs_file == NULL )
+	{
+		m_taps.SetWindowTextW(_T("未找到解析文件，重新选择"));
+		Open_cfg();//select one file
 		if( file_man.file[index].default_procotol_type == 0 )
 		{
 			sprintf_s(buffer_other,"%s.CFS",file_man.file[index].file_point);
@@ -1011,39 +945,23 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		{
 			strcpy_s(buffer_other,file_man.file[index].procotol_file);
 		}
-		/* open */
+	    /* open */
 		fopen_s(&pf_cfs_file,buffer_other,"rb");
 		/* open ok ? */
 		if( pf_cfs_file == NULL )
 		{
-			m_taps.SetWindowTextW(_T("未找到配置文件，重新选择"));
-			Open_cfg();//select one file
-			if( file_man.file[index].default_procotol_type == 0 )
-			{
-				sprintf_s(buffer_other,"%s.CFS",file_man.file[index].file_point);
-			}
-			else
-			{
-				strcpy_s(buffer_other,file_man.file[index].procotol_file);
-			}
-	        /* open */
-		    fopen_s(&pf_cfs_file,buffer_other,"rb");
-		    /* open ok ? */
-		    if( pf_cfs_file == NULL )
-		    {
-				char buffer_tmp[1024];
+			char buffer_tmp[1024];
 
-				sprintf_s(buffer_tmp,"找不到.%s文件对应的配置文件 %s",file_man.file[index].file_point,buffer_other);
+			sprintf_s(buffer_tmp,"找不到.%s文件对应的解析文件 %s",file_man.file[index].file_point,buffer_other);
 
-				CString d = A2T(buffer_tmp);
+			CString d = A2T(buffer_tmp);
 
-				MessageBox(d,_T("tips"),0);
-				/* clear some msg */
-				file_man.file[index].file_enable = 0;
-				file_man.num --;
-				/*-------------------------------------*/
-				return;
-			}
+			MessageBox(d,_T("tips"),0);
+			/* clear some msg */
+			file_man.file[index].file_enable = 0;
+			file_man.num --;
+			/*-------------------------------------*/
+			return;
 		}
 	}
 	/* found */
@@ -3209,7 +3127,6 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 			  case VK_F5:
 				  reflush_chart();
 				  break;
-#if !VERSION_CTRL
 			  case VK_F6:
                   Open_cfg();
 				  break;
@@ -3220,17 +3137,13 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 				 open_map();
 				  break;
 			  case VK_F9:
-				  
+				  delete_point();
 				  break;
+#if !VERSION_CTRL
 			  case 0x56:
 				  /* show version . one by one */
 				  create_version_line(0);
 				  /*---------------------------*/
-				  break;
-#else
-			  case VK_F6:
-				  //-------------------------------
-				  delete_point();
 				  break;
 #endif
 #if !VERSION_CTRL
@@ -3896,6 +3809,8 @@ void CTeeChart5_testDlg::delete_point(void)
 void CTeeChart5_testDlg::OnBnClickedButton31()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	contribution df;
+	df.DoModal();
 }
 
 void CTeeChart5_testDlg::OnBnClickedButton32()
@@ -4381,6 +4296,12 @@ void CTeeChart5_testDlg::Open_cfg(void)
 {
 	C_open openDlg;
 	openDlg.DoModal();
+	/*-------------------------------------------------*/
+	if( MessageBox(_T("是否立即刷新曲线？") , _T("tips") , 1 ) == 1 )
+	{
+		reflush_chart();
+	}
+	/*-------------------------------------------------*/
 }
 void CTeeChart5_testDlg::open_data_review(void)
 {

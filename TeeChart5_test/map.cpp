@@ -122,7 +122,7 @@ void map::init_map(void)
 	/* read data */
 	for(unsigned int i = 0 ; i < param_list_show.param_list_num ; i ++ )
 	{
-		if( strstr(param_list_show.param_list[i].name,"飞行航线轨迹") != NULL )
+		if( strstr(param_list_show.param_list[i].name,"GPS航线轨迹") != NULL )
 		{
 			lon = (double *)param_list_show.param_list[i].data_x;
 			lat = (double *)param_list_show.param_list[i].data_y;
@@ -175,8 +175,15 @@ void map::init_map(void)
 	/* return */
 	if( f != 0x1F )
 	{
-		AfxMessageBox(_T("未打开日志文件或一些数据没有定义"));
-		return;
+		if( f & 0x02 )
+		{
+			AfxMessageBox(_T("一些变量没有定义，飞放可能不正常！！！"));
+		}
+		else
+		{
+			AfxMessageBox(_T("未打开日志文件或“GPS航线轨迹”数据没有定义,无法回放"));
+			return;
+		}
 	}
 	/* ok flag */
 	ok_flag = 1;
@@ -264,9 +271,19 @@ void map::aircraft_move_thread(void)
 		spy_send_data_to_unity(0,0,0,
 			(float)(lon[curren_review_position]-lon[0]) * PR,(float)height[curren_review_position] ,(float)(lat[curren_review_position]-lat[0]) * PR);
 	}
-	/*------------*/
-	move_aircraft((float)lon[curren_review_position],(float)lat[curren_review_position],(int)psi[curren_review_position],2);
-	/*--------------------*/
+	/* judging */
+	if( psi != NULL )
+	{
+		/*------------*/
+		move_aircraft((float)lon[curren_review_position],(float)lat[curren_review_position],(int)psi[curren_review_position],2);
+		/*--------------------*/
+	}
+	else
+	{
+		/*------------*/
+		move_aircraft((float)lon[curren_review_position],(float)lat[curren_review_position],0,2);
+		/*--------------------*/
+	}
 	curren_review_position += skip_num;
 	/*--------------------*/
 	if( curren_review_position >= review_point_num )
