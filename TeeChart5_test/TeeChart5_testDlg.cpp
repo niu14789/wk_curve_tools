@@ -877,6 +877,12 @@ void CTeeChart5_testDlg::On32781()
 	// TODO: 在此添加命令处理程序代码
 	C_PROCOTOL_CREATE procotol_create;
 	procotol_create.DoModal();
+	/*-------------------------------------------------*/
+	if( MessageBox(_T("是否立即刷新曲线？") , _T("tips") , 1 ) == 1 )
+	{
+		reflush_chart();
+	}
+	/*-------------------------------------------------*/
 }
 /*---------read and decode area-----------*/
 void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
