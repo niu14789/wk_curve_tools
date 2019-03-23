@@ -297,15 +297,18 @@ BOOL CTeeChart5_testDlg::OnInitDialog()
 	create_color_table();
 #if !VERSION_CTRL
 	/* send a email to devolopers */
-	exmail_initial();
+	// exmail_initial();
 #endif
 	/*-----------------------------*/
 #if !VERSION_CTRL
 	/* hide some funstions first . because we won't need them */
 	GetDlgItem(IDC_BUTTON7)->ShowWindow(SW_HIDE);
-	GetDlgItem(IDC_BUTTON31)->ShowWindow(SW_HIDE);
+	//GetDlgItem(IDC_BUTTON31)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUTTON32)->ShowWindow(SW_HIDE);
 	GetDlgItem(IDC_BUTTON33)->ShowWindow(SW_HIDE);
+
+	m_btn_ex0.SetWindowTextW(_T("帮助文档"));
+
 #else
 	check_list_show(0);
 	/* hide some functions */
@@ -3809,8 +3812,12 @@ void CTeeChart5_testDlg::delete_point(void)
 void CTeeChart5_testDlg::OnBnClickedButton31()
 {
 	// TODO: 在此添加控件通知处理程序代码
+#if VERSION_CTRL
 	contribution df;
 	df.DoModal();
+#else
+	MessageBox(_T("功能开发中..."),_T("分析报告"),0);
+#endif
 }
 
 void CTeeChart5_testDlg::OnBnClickedButton32()

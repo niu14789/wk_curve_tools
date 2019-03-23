@@ -71,7 +71,6 @@ void motor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_EDIT1, m_time);
 	/*------------------------*/
 	DDX_Control(pDX, IDC_EDIT2, m_edit_pwm);
-	DDX_Control(pDX, IDC_SLIDER1, m_silder_pwm);
 	/*----------------------*/
 	DDX_Control(pDX, IDC_COMBO1, m_test_item);
 	DDX_Control(pDX, IDC_EDIT3, m_edit_step);
@@ -139,8 +138,6 @@ void motor::motor_init(void)
 	/*-----------------------------*/
 	m_time.SetWindowTextW(_T("5"));
 	/*---------------*/
-	m_silder_pwm.SetRange(1000,2000);
-	m_silder_pwm.SetPos(1000);
 	m_edit_pwm.SetWindowTextW(_T("1000"));
 	/* disable the windows */
 	ct->set_test_mode(0);
@@ -183,9 +180,9 @@ void motor::motor_init(void)
 	/* set step */
 	m_edit_step.SetWindowTextW(_T("50"));
 	/* disable the btn */
-	m_min.EnableWindow(0);
+	//m_min.EnableWindow(0);
 	m_osd.EnableWindow(0);
-	m_max.EnableWindow(0);
+	//m_max.EnableWindow(0);
 }
 
 int motor::get_dex_edit(int id, unsigned int * data)
@@ -261,7 +258,6 @@ void motor::OnBnClickedButton1()
 				return;
 			}
 			/*--------------*/
-			m_silder_pwm.SetPos(1000);
 			m_edit_pwm.SetWindowTextW(_T("1000"));
 			/*--------------*/
 			flags_tips = 1;
@@ -288,18 +284,29 @@ void motor::OnBnClickedButton2()
 /*----------------------------*/
 void motor::OnBnClickedButton3()
 {
-	unsigned int pos = m_silder_pwm.GetPos();
+	//unsigned int pos = m_silder_pwm.GetPos();
+    int pos;
 
-	char buffer[100];
+	char get_cs[100],c_string[50];
 
-	sprintf_s(buffer,"%d",pos);
+	memset(get_cs,0,sizeof(get_cs));
+	memset(c_string,0,sizeof(c_string));
 
 	USES_CONVERSION;
+			/* offset */
+	m_edit_pwm.GetWindowTextW((LPTSTR)get_cs,100);
 
-	CString show = A2T(buffer);
-
-	m_edit_pwm.SetWindowTextW(show);
-
+	for(int i=0;i<100;i+=2)
+	{
+		c_string[i/2] = get_cs[i];
+	}  
+	/*--------------------------*/
+	if( sscanf_s(c_string,"%d",&pos) != 1 )
+	{
+		MessageBox(_T("请输入电机PWM值"),_T("tips"),0);
+		return;
+	}
+	/* send */
 	unsigned char package[33];
 
 	unsigned short * pd = (unsigned short *)&package[28];
