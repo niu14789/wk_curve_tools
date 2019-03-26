@@ -109,6 +109,8 @@ BEGIN_MESSAGE_MAP(motor, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON40, &motor::OnBnClickedButton40)
 	ON_BN_CLICKED(IDC_BUTTON38, &motor::OnBnClickedButton38)
 	ON_BN_CLICKED(IDC_BUTTON39, &motor::OnBnClickedButton39)
+	ON_BN_CLICKED(IDC_BUTTON41, &motor::OnBnClickedButton41)
+	ON_BN_CLICKED(IDC_BUTTON11, &motor::OnBnClickedButton11)
 END_MESSAGE_MAP()
 
 
@@ -581,6 +583,29 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 			}
 		}
 	}
+	else if( fac_tub == 264 )
+	{
+		if( data[2] == 0 )
+		{
+			MessageBox(_T("机型设置失败"),_T("tips"),0);
+		}
+		else if( data[2] == 100 )
+		{
+			MessageBox(_T("成功将机型设置为V100"),_T("tips"),0);
+		}
+		else if( data[2] == 200 )
+		{
+			MessageBox(_T("成功将机型设置为V200"),_T("tips"),0);
+		}
+		else if( data[2] == ( 300 & 0xff ) )
+		{
+			MessageBox(_T("成功将机型设置为V300"),_T("tips"),0);
+		}
+		else
+		{
+			MessageBox(_T("未知的机型"),_T("tips"),0);
+		}
+	}
 }
 
 void motor::OnBnClickedButton4()
@@ -706,23 +731,16 @@ void motor::OnDestroy()
 /*-------------------------------------*/
 void motor::OnBnClickedButton5()
 {
-	// TODO: 在此添加控件通知处理程序代码
-	if( MessageBox(_T("请确认转向、转速及电流正常") , _T("tips") , 1 ) == 1 )
-	{
-		//for( unsigned int i = 0 ; i < chese_list.total_line ; i ++ )
-	 //   {
-		//	if( strstr( chese_list.chese[i].title , "g_mrs") != NULL )
-		//	{
-		//		chese_list.chese[i].check_type = 4;//check and ok
-		//		MessageBox(_T("设置成功") , _T("tips") , 0 ); 
-		//		/*------------------------------*/
-		//		ct->refresh_result_all();
-		//		/*------------------------------*/
-		//		return;
-		//	}
-		//}
-		motor_check_flags = 4;
-	}
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	unsigned short * param = ( unsigned short * )package;
+	/*---------------------*/
+	*pd = 264;
+	/*---------------------*/
+	param[0] = 200;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
 }
 /*-------------------------------*/
 void motor::OnBnClickedButton28()
@@ -1090,6 +1108,69 @@ void motor::OnBnClickedButton39()
 	{
 		param[i] = (float)servo_value[i];
 	}
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+/* get value */
+void motor::get_calibration_value(unsigned short * data,unsigned int len)
+{
+	static unsigned char f1 = 1,f2 = 1,f3 = 1;
+
+	if( len != 14 )
+	{
+		if( f1 == 1 )
+		{
+			f1 = 0;
+			AfxMessageBox(_T("错误的校准值，舵面可能无法正常回中"));
+		}
+		return;
+	}
+	/*--------------*/
+	if( data[0] == 0 && data[1] == 0 && data[2] == 0 && data[3] == 0)
+	{
+		if( f2 == 1 )
+		{
+		   f2 = 0;
+		   AfxMessageBox(_T("错误的校准值，舵面需要重新校准"));
+		}
+		return;
+	}
+	if( f3 == 1 )
+	{
+		f3 = 0;
+		/* copy data */
+		memcpy(servo_value,data,len);
+		m_osd.EnableWindow(1);
+	}
+}
+
+void motor::OnBnClickedButton41()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	unsigned short * param = ( unsigned short * )package;
+	/*---------------------*/
+	*pd = 264;
+	/*---------------------*/
+	param[0] = 100;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
+
+
+void motor::OnBnClickedButton11()
+{
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	unsigned short * param = ( unsigned short * )package;
+	/*---------------------*/
+	*pd = 264;
+	/*---------------------*/
+	param[0] = 300;
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
 }

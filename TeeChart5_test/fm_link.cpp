@@ -174,7 +174,14 @@ int CTeeChart5_testDlg::fm_data_decode(unsigned char ID , unsigned char *data,un
 		{
 		   motor_dlg.show_motor_msg(data,len_p);
 		}
-	}else if( ID == 180 )
+	}else if( ID == 251 )
+	{
+		if( motor_close )
+		{
+			motor_dlg.get_calibration_value((unsigned short *)data,len_p);
+		}
+	}
+	else if( ID == 180 )
 	{
 		unsigned char tmp = data[44];
 		/*--------------*/
