@@ -2,7 +2,7 @@
 #ifndef __SYSTEM_CONFIG_H__
 #define __SYSTEM_CONFIG_H__
 
-#define SOFTVERSION  "V1.0.7"
+#define SOFTVERSION  "V1.0.8"
 
 #define V_FM            0
 #define V_PUBLIC        1

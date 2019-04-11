@@ -381,7 +381,7 @@ void export_tool::OnBnClickedButton3()
 	{
 		memset(push_buffer,0,sizeof(push_buffer));
 		/* create index */
-		sprintf_s(push_buffer,sizeof(push_buffer),"%d%s",ti,format?"   ":" , ");
+		sprintf_s(push_buffer,sizeof(push_buffer),"%d%s",ti+1,format?"   ":" , ");
 		/* write into */
 		fwrite(push_buffer,1,strlen(push_buffer),fp);
 		/* push one point */
