@@ -15,6 +15,7 @@ class motor : public CDialogEx
 	DECLARE_DYNAMIC(motor)
 
 public:
+	void motor::mid_show(unsigned short * d);
 	void motor::get_calibration_value(unsigned short * data,unsigned int len);
 	int motor::get_dex_edit(int id, unsigned int * data);
 	void motor::show_motor_msg(unsigned char * data ,unsigned int len);
@@ -75,4 +76,5 @@ public:
 	afx_msg void OnBnClickedButton39();
 	afx_msg void OnBnClickedButton41();
 	afx_msg void OnBnClickedButton11();
+	CEdit m_mid_value_show;
 };

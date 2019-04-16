@@ -82,6 +82,8 @@ void motor::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_BUTTON40, m_osd);
 	DDX_Control(pDX, IDC_BUTTON39, m_max);
 
+	DDX_Control(pDX, IDC_EDIT10, m_mid_value_show);
+
 	motor_init();
 }
 
@@ -185,6 +187,9 @@ void motor::motor_init(void)
 	//m_min.EnableWindow(0);
 	m_osd.EnableWindow(0);
 	//m_max.EnableWindow(0);
+
+	unsigned short dsfs[7] = {500,500,500,500,500,500,500};
+	mid_show(dsfs);
 }
 
 int motor::get_dex_edit(int id, unsigned int * data)
@@ -983,6 +988,8 @@ void motor::OnBnClickedButton8()
 		param[i] = (float)servo_value[i];
 		servo_after[i] = servo_value[i];
 	}
+	/* show off */
+	mid_show(servo_after);
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
 	/*-------------------------*/
@@ -1141,6 +1148,8 @@ void motor::get_calibration_value(unsigned short * data,unsigned int len)
 		/* copy data */
 		memcpy(servo_value,data,len);
 		m_osd.EnableWindow(1);
+
+		mid_show(servo_value);
 	}
 }
 
@@ -1174,3 +1183,19 @@ void motor::OnBnClickedButton11()
 	/*-------------------------*/   
 	ct->fm_link_send(76,package,33);
 }
+
+void motor::mid_show(unsigned short * d)
+{
+	char buffer[128];
+
+	sprintf_s(buffer,sizeof(buffer),"ÖÐÎ»Öµ:Î²Çã%d ×óÇã%d ÓÒÇã%d ×ó¸±%d ÓÒ¸±%d ×óVÎ²%d,ÓÒVÎ²%d",d[0],d[1],d[2],d[3],d[4],d[5],d[6]);
+
+	CString show;
+
+	USES_CONVERSION;
+	
+	show = A2T(buffer);
+
+	m_mid_value_show.SetWindowTextW(show);
+}
+
