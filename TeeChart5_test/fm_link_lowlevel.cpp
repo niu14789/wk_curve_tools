@@ -33,7 +33,7 @@ int mulit_cnt = 0;
 /*-------------*/
 extern unsigned char motor_check_flags;
 /*-------------*/
-const char * string_chese_table[21][32] = 
+const char * string_chese_table[22][32] = 
 {
 	{"imu1","imu1","ax:","ay:","az:","gx:","gy:","gz:","tmp:"},
 	{"imu2","imu2","ax:","ay:","az:","gx:","gy:","gz:","tmp:"},
@@ -58,6 +58,7 @@ const char * string_chese_table[21][32] =
 	{"version_vion","V100视觉版本","AP","CPLD","FPGA","电池","rev1","rev2","rev3","rev4","rev5","rev6","rev7","rev8"},
 	{"airspeed_temperature","空速计温度","(度):"},
 	{"diff_press_pa_raw","空速计动压","(pa):"},
+	{"plane_type_g","机型","V"},
 };
 int CTeeChart5_testDlg::radio_sms(unsigned char data)
 {
@@ -473,7 +474,7 @@ int CTeeChart5_testDlg::list_transfer(SYS_LIST_DETAIL * list)
 	unsigned int *show_uint32;
 	float *show_float;
 	/*---------------*/
-	for( int i = 0 ; i < 21 ; i ++ )
+	for( int i = 0 ; i < 22 ; i ++ )
 	{
 		if( strstr(list->title,string_chese_table[i][0]) != NULL )
 		{
