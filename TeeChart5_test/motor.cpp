@@ -187,9 +187,6 @@ void motor::motor_init(void)
 	//m_min.EnableWindow(0);
 	m_osd.EnableWindow(0);
 	//m_max.EnableWindow(0);
-
-	unsigned short dsfs[7] = {500,500,500,500,500,500,500};
-	mid_show(dsfs);
 }
 
 int motor::get_dex_edit(int id, unsigned int * data)
