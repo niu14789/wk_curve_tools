@@ -51,6 +51,9 @@ extern SYS_LIST_CHESE_DEF chese_list;
 extern SYS_LIST_CHESE_DEF  limit_file;
 extern LINE_MULIT_DEF line_mulit[128];
 static CFG_FILE_DEF READ_CFS;
+
+extern int App_100Hz_Main( const char *raw_file_path, const char *out_file_path , char * path_create);
+
 PARAM_LIST_DEF param_list_show;
 static unsigned char read_buffer_block[10240];//10KB
 static unsigned char * dynamic_area = NULL;
@@ -1018,7 +1021,23 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 				return;
 			}
 			/*-----------------------------------------------*/
-		}else if( READ_CFS.cfs_global_msg.procotol_select == 1 )
+		}else if( READ_CFS.cfs_global_msg.procotol_select == 5 )
+		{
+			//compb
+			if( App_100Hz_Main(file_man.file[index].file_path,NULL,file_man.file[index].file_tmp) != 0 )
+			{
+				return;
+			}
+		}
+		else if( READ_CFS.cfs_global_msg.procotol_select == 6 )
+		{
+			//fmnav
+			if( App_100Hz_Main(file_man.file[index].file_path,NULL,file_man.file[index].file_tmp) != 0 )
+			{
+				return;
+			}
+		}
+		else if( READ_CFS.cfs_global_msg.procotol_select == 1 )
 		{
 			MessageBox(_T("暂不支持外部协议"),_T("tips"),0);
 			return;

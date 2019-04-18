@@ -162,6 +162,9 @@
     <ClInclude Include="TeeChart5_testDlg.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="718d_crc32.cpp" />
+    <ClCompile Include="Algo.cpp" />
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="Auto_set.cpp" />
     <ClCompile Include="base64.cpp" />
     <ClCompile Include="contribution.cpp" />
@@ -169,6 +172,7 @@
     <ClCompile Include="C_PROCOTOL_CREATE.cpp" />
     <ClCompile Include="Data_detail.cpp" />
     <ClCompile Include="data_review.cpp" />
+    <ClCompile Include="decode.cpp" />
     <ClCompile Include="del_point.cpp" />
     <ClCompile Include="explorer1.cpp" />
     <ClCompile Include="export_tool.cpp" />
