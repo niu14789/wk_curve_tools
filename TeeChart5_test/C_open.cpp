@@ -7,6 +7,8 @@
 
 // C_open ¶Ô»°¿ò
 
+unsigned char flush_flash = 0;
+
 IMPLEMENT_DYNAMIC(C_open, CDialogEx)
 
 C_open::C_open(CWnd* pParent /*=NULL*/)
@@ -125,6 +127,8 @@ void C_open::OnBnClickedButton1()
 	/* personal procotol */
 	file_man.file[file_index].default_procotol_type = 0;
 	/*-------------------*/
+	flush_flash = 1;
+	/*-------------------*/
 	OnOK();
 }
 
@@ -153,6 +157,9 @@ void C_open::OnBnClickedButton2()
 		char * tc = T2A(strFilePath);
 		/* set */
 		Set_procotol(tc);
+		/*-------------------*/
+		flush_flash = 1;
+		/*-------------------*/
 		/* exit */
 		OnOK();
 	}

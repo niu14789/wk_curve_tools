@@ -93,6 +93,8 @@ static unsigned int version_ctrl = 0;
 /*------------------------------------*/
 extern SYSTEM_DELETE_POINT_DEF system_delete_point;
 /*------------------------------------*/
+extern unsigned char flush_flash;
+/*------------------------------------*/
 // ÓÃÓÚÓ¦ÓÃ³ÌÐò¡°¹ØÓÚ¡±²Ëµ¥ÏîµÄ CAboutDlg ¶Ô»°¿ò
 
 class CAboutDlg : public CDialogEx
@@ -950,6 +952,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 	if( pf_cfs_file == NULL )
 	{
 		m_taps.SetWindowTextW(_T("未找到解析文件，重新选择"));
+		flush_flash = 0;
 		Open_cfg();//select one file
 		if( file_man.file[index].default_procotol_type == 0 )
 		{
@@ -4392,12 +4395,17 @@ void CTeeChart5_testDlg::Open_cfg(void)
 {
 	C_open openDlg;
 	openDlg.DoModal();
-	/*-------------------------------------------------*/
-	if( MessageBox(_T("是否立即刷新曲线？") , _T("tips") , 1 ) == 1 )
+	/*-----------------------------*/
+	if( flush_flash == 1 )
 	{
-		reflush_chart();
+		flush_flash = 0;
+		/*-------------------------------------------------*/
+		if( MessageBox(_T("是否立即刷新曲线？") , _T("tips") , 1 ) == 1 )
+		{
+			reflush_chart();
+		}
+		/*-------------------------------------------------*/
 	}
-	/*-------------------------------------------------*/
 }
 void CTeeChart5_testDlg::open_data_review(void)
 {
