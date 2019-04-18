@@ -107,7 +107,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 			{
 				/* ok */
 				if( sscanf_s(one_line_buffer,"%d %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-					&fpos.index,&fpos.lon,&fpos.lat,&fpos.height,&fpos.CT1,&fpos.CT2,&fpos.CT3,&fpos.CT4,&fpos.CT5,&fpos.PITCH,&fpos.ROLL,&fpos.YAW) == 12 )
+					&fpos.index,&fpos.lon,&fpos.lat,&fpos.height,&fpos.CT1,&fpos.CT2,&fpos.CT3,&fpos.CT4,&fpos.CT5,&fpos.PITCH,&fpos.ROLL,&fpos.YAW) > 0 )
 				{
 					fwrite(&fpos,1,sizeof(fpos),wb);
 				}else
@@ -120,7 +120,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 				//pos
 				/* ok */
 				if( sscanf_s(one_line_buffer,"%d %lf %lf %lf %lf %lf %lf",
-					&pos.index,&pos.lon,&pos.lat,&pos.height,&pos.PITCH,&pos.ROLL,&pos.YAW) == 7 )
+					&pos.index,&pos.lon,&pos.lat,&pos.height,&pos.PITCH,&pos.ROLL,&pos.YAW) > 0 )
 				{
 					fwrite(&pos,1,sizeof(pos),wb);
 				}else

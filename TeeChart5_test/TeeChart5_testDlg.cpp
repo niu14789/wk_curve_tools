@@ -857,6 +857,8 @@ void CTeeChart5_testDlg::OnDropFiles(HDROP hDropInfo)
 
 	        USES_CONVERSION;
 
+			memset(path_c,0,sizeof(path_c));
+
 	        char * file_name = T2A(filePath);
 			/*-----------------------------*/
 			memcpy(path_c,file_name,strlen(file_name));
@@ -3177,8 +3179,8 @@ BOOL CTeeChart5_testDlg::PreTranslateMessage(MSG* pMsg)
 #if !VERSION_CTRL
 			  case 90:
 				  fpos_analysis(0);
-#endif
 				  break;
+#endif
 			  default:
 				  HOTKEY_THREAD(pMsg->wParam);
 				  break;
@@ -4304,7 +4306,21 @@ int CTeeChart5_testDlg::func_kyx(unsigned int start , int index)
 /* hot key ideal */
 void CTeeChart5_testDlg::HOTKEY_THREAD(char key)
 {
+#if !VERSION_CTRL
+	static FILE * fp = 0;
+	char buffer_n[200];
+
+	if( key == 'X' && param_list_show.param_list_num != 0 )
+	{
+        /* */
+		sprintf_s(buffer_n,sizeof(buffer_n),"%s.txt",param_list_show.param_list[0].from_file);
+        /* */
+		fopen_s(&fp,buffer_n,"wb+");
+	}
+#endif
 	int num = param_list_show.param_list_num;
+	/* hold */
+	int hold = 0;
 	/*-----------------------------------*/
 	for( int i = 0 ; i < num ; i ++ )
 	{
@@ -4312,7 +4328,7 @@ void CTeeChart5_testDlg::HOTKEY_THREAD(char key)
 		{
 			if( param_list_show.param_list[i].hot_key[j] == key )
 			{
-				draw_single(i);
+				hold ++;
 				break;
 			}
 			/* break */
@@ -4322,6 +4338,54 @@ void CTeeChart5_testDlg::HOTKEY_THREAD(char key)
 			}
 		}
 	}
+	/* hold ? */
+	if( hold > 1 )
+	{
+		//set hold 
+		m_check_hold.SetCheck(1);
+	}
+	/*-------------------------------------*/
+	for( int i = 0 ; i < num ; i ++ )
+	{
+		for( int j = 0 ; j < 16 ; j ++ )
+		{
+			if( param_list_show.param_list[i].hot_key[j] == key )
+			{
+				draw_single(i);
+#if !VERSION_CTRL
+				/*-----------------------------*/
+				if( key == 'X')
+				{
+					double * line_data = (double *)param_list_show.param_list[i].data_y;
+
+					char saveb[200];
+
+					sprintf_s(saveb,sizeof(saveb),"%s:%5.0lf\r\n",param_list_show.param_list[i].name,line_data[param_list_show.param_list[i].point_num-1]);
+
+					fwrite(saveb,1,strlen(saveb),fp);
+				}
+				/*-----------------------------*/
+#endif
+				break;
+			}
+			/* break */
+			if( param_list_show.param_list[i].hot_key[j] == 0 )
+			{
+				break;
+			}
+		}
+	}
+#if !VERSION_CTRL
+	if( key == 'X' && fp != NULL )
+	{
+		fclose(fp);
+	}
+	/* open file */
+	CString show;
+    USES_CONVERSION;
+	show = A2T(buffer_n);
+	ShellExecute(NULL,_T("open"),show,NULL,NULL,SW_SHOW);	
+#endif
 }
 /*-----------------------------*/
 void CTeeChart5_testDlg::Open_cfg(void)

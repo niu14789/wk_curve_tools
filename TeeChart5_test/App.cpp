@@ -24,7 +24,8 @@ int App_100Hz_Main( const char *raw_file_path, const char *out_file_path , char 
 {
 	/* process do work flag */
 	static unsigned char loop_flag = 1u;
-	unsigned char temp_file[128], nlength, nbytes,temp_fix[32] ;
+	char temp_file[128];
+	unsigned char nlength, nbytes,temp_fix[32] ;
 	/* read raw data buffer */
 	loop_flag = 1;
 	/* restart parse seq */
@@ -60,7 +61,32 @@ int App_100Hz_Main( const char *raw_file_path, const char *out_file_path , char 
 	memcpy(temp_file+nlength-nbytes+5,temp_fix, nbytes+1);
 	/* create 100hz file */
 	fopen_s(&Filep_MarkInfo, (const char *)temp_file, "wb+");
-
+	/*---------------------------------------------*/
+	/*---------------------------------------------*/
+	CString show;
+    USES_CONVERSION;
+	/*---------------------------------------------*/
+	show = A2T(temp_file);
+	/*---------------------------------------------*/
+    if( Filep_MarkInfo == NULL )
+	{
+		if( DeleteFile(show) == 0 )
+		{
+			AfxMessageBox(_T("文件无法删除"));
+			return (-1);
+		}
+		/* open again */
+		fopen_s(&Filep_MarkInfo, (const char *)temp_file, "wb+");
+	    /*------------------------*/
+	    if( Filep_MarkInfo == NULL )
+	    {
+			AfxMessageBox(_T("文件无法创建"));
+			return (-1);
+		}
+	}
+	/*-----------------------*/
+	SetFileAttributes(show,FILE_ATTRIBUTE_HIDDEN);
+	/*-----------------------*/
 	while(loop_flag)
 	{
 		static size_t nlength = 0;
