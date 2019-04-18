@@ -973,7 +973,7 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 
 			CString d = A2T(buffer_tmp);
 
-			MessageBox(d,_T("tips"),0);
+			m_taps.SetWindowTextW(d);
 			/* clear some msg */
 			file_man.file[index].file_enable = 0;
 			file_man.num --;
