@@ -788,7 +788,12 @@ void CTeeChart5_testDlg::On32771()//open file
 		USES_CONVERSION;
 		/* transfer */
 		char * path_c = T2A(cFilePath);
-        /*----------*/
+		/* file name is too long that It can not parse */
+		if( strlen(path_c) >= 512 )
+		{
+            MessageBox(_T("文件路径太长,无法处理"),_T("tips"),0);
+		    return;
+		}
 		/* get name */
 		int file_sec = allocate_file_area(path_c, strlen(path_c));
 		/* if */
@@ -835,7 +840,7 @@ void CTeeChart5_testDlg::OnDropFiles(HDROP hDropInfo)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	UINT count;            
-    WCHAR  filePath[256];       
+    WCHAR  filePath[1024];       
     char path_c[512];
 	unsigned int i;
 	int file_sec;
@@ -862,7 +867,13 @@ void CTeeChart5_testDlg::OnDropFiles(HDROP hDropInfo)
 			memset(path_c,0,sizeof(path_c));
 
 	        char * file_name = T2A(filePath);
-			/*-----------------------------*/
+			/* file name is too long that It can not parse */
+			if( strlen(file_name) >= 512 )
+			{
+				MessageBox(_T("文件路径太长,无法处理"),_T("tips"),0);
+				return;
+			}
+			/*--------------------------------------------*/
 			memcpy(path_c,file_name,strlen(file_name));
 			/* get name */
 		    file_sec = allocate_file_area(path_c, sizeof(path_c));
