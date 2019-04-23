@@ -4322,7 +4322,7 @@ void CTeeChart5_testDlg::HOTKEY_THREAD(char key)
 {
 #if !VERSION_CTRL
 	static FILE * fp = 0;
-	char buffer_n[200];
+	char buffer_n[512];
 
 	if( key == 'X' && param_list_show.param_list_num != 0 )
 	{
