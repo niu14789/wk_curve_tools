@@ -48,7 +48,7 @@ int CTeeChart5_testDlg::fpos_process(char *path,char *path_tmp,unsigned int mode
 		return (-1);
 	}
 	/*-----------------------*/
-	char fpos_name[200];
+	char fpos_name[512];
 	/*-----------------------*/
 	memset(fpos_name,0,sizeof(fpos_name));
 	/*-----------------------*/

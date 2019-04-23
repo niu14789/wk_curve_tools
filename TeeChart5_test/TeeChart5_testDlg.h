@@ -67,7 +67,7 @@ typedef struct
 	char func_param[5][16];
 	unsigned int func_param_count;
 	unsigned int function_enable;
-	char from_file[128];
+	char from_file[512];
 	unsigned char * data_y;
 	unsigned char * data_x;
 	unsigned char * data_z;

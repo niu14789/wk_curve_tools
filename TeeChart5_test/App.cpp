@@ -24,7 +24,7 @@ int App_100Hz_Main( const char *raw_file_path, const char *out_file_path , char 
 {
 	/* process do work flag */
 	static unsigned char loop_flag = 1u;
-	char temp_file[128];
+	char temp_file[512];
 	unsigned char nlength, nbytes,temp_fix[32] ;
 	/* read raw data buffer */
 	loop_flag = 1;
