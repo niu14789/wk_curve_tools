@@ -399,12 +399,27 @@ void export_tool::OnBnClickedButton3()
 				if( two_axis_enable == 0 ) //one axis
 				{
 					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
-						"%lf%s",dy[ti],format?"   ":" , ");
+						"%.10lf",dy[ti]);
+					/*-----------------*/
+					remove_zero(push_buffer,strlen(push_buffer));
+					/*-----------------*/
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+											"%s",format?"   ":" , ");
 				}
 				else
 				{
 					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
-						"%lf%s%lf%s",dx[ti],format?"   ":" , ",dy[ti],format?"   ":" , ");
+						"%.10lf",dx[ti]);
+					/*-----------------*/
+					remove_zero(push_buffer,strlen(push_buffer));
+					/*-----------------*/
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%s%.10lf",format?"   ":" , ",dy[ti]);
+					/*-----------------*/
+					remove_zero(push_buffer,strlen(push_buffer));
+					/*-----------------*/
+					sprintf_s(push_buffer+strlen(push_buffer),sizeof(push_buffer) - strlen(push_buffer),
+						"%s",format?"   ":" , ");
 				}
 			}
 			else
@@ -502,4 +517,23 @@ void export_tool::OnBnClickedButton1()
 	}
 	/* flush the lish */
 	export_list_flush();
+}
+void export_tool::remove_zero(char * d , unsigned int len)
+{
+	for( unsigned int i = 0 ; i < len ; i ++ )
+	{
+		if( d[ len - 1 - i ] == '0' )
+		{
+			d[ len - 1 - i ] = 0;
+		}
+		else if( d[ len - 1 - i ] == '.' )
+		{
+			d[ len - 1 - i ] = 0;
+			break;
+		}
+		else
+		{
+			break;
+		}
+	}
 }

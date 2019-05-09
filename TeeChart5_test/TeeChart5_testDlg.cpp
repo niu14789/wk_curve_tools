@@ -3657,7 +3657,7 @@ int CTeeChart5_testDlg::fpos_analysis(unsigned int mode)
 				if( abs(diff) > TIME_PERIOD )//50 ms
 				{
 					memset(output,0,sizeof(output));
-					sprintf_s(output,"3.时间间隔EVENT-CT1异常 RT27:%d,%lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct1_const[i],diff);
+					sprintf_s(output,"3.时间间隔EVENT-CT1异常 RT27:%d,%.10lf FPOS:%d,%lf diff:%lf\r\n",i+diff_basic+firt_num_event,e_time[diff_basic+i],i+1,ct1_const[i],diff);
 					fwrite(output,strlen(output),1,txt_wb);
 					error_flag++;
 				}

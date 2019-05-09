@@ -10,6 +10,7 @@ class data_review : public CDialogEx
 	DECLARE_DYNAMIC(data_review)
 
 public:
+	void data_review::remove_zero(char * d , unsigned int len);
 	void data_review::search_kx_rang(double *num_darray,unsigned int num,unsigned int in);
 	void data_review::search_ky_rang(double *num_darray,unsigned int num,unsigned int in);
 	void data_review::add_one_line(unsigned int in,unsigned int pos);

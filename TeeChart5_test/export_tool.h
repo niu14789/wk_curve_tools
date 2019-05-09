@@ -11,6 +11,7 @@ class export_tool : public CDialogEx
 	DECLARE_DYNAMIC(export_tool)
 
 public:
+	void export_tool::remove_zero(char * d , unsigned int len);
 	int export_tool::get_string_edit( int id,void * data , unsigned int len );
 	void export_tool::export_list_flush(void);
 	void export_tool::init(void);

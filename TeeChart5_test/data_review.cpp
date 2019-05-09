@@ -166,19 +166,23 @@ void data_review::data_anypostion(unsigned int index , unsigned int pos,unsigned
 	/*----------------------*/
 	for( unsigned int i = 0 ; i < real_len ; i ++ )
 	{
-		sprintf_s(buffer,"%d",i+pos);
+		sprintf_s(buffer,sizeof(buffer),"%d",i+pos);
 		/*-----------------*/
 		c_index = A2T(buffer);
 		/*------------------*/
-		sprintf_s(buffer,"%lf",x[i]);
+		sprintf_s(buffer,sizeof(buffer),"%.10lf",(double)x[i]);
+		/*-----------------*/
+		remove_zero(buffer,strlen(buffer));
 		/*-----------------*/
 		d0 = A2T(buffer);
 		/*------------------*/
-		sprintf_s(buffer,"%lf",y[i]);
+		sprintf_s(buffer,sizeof(buffer),"%.10lf",(double)y[i]);
+		/*-----------------*/
+		remove_zero(buffer,strlen(buffer));
 		/*-----------------*/
 		d1 = A2T(buffer);
 		/*------------------*/
-		sprintf_s(buffer,"%d",i+pos);
+		sprintf_s(buffer,sizeof(buffer),"%d",i+pos);
 		/*-----------------*/
 		d2 = A2T(buffer);
 		/*------------------*/
@@ -366,11 +370,15 @@ void data_review::add_one_line(unsigned int in,unsigned int pos)
 	/*-----------------*/
 	c_index = A2T(buffer);
 	/*------------------*/
-	sprintf_s(buffer,"%lf",x[pos]);
+	sprintf_s(buffer,"%.10lf",x[pos]);
+	/*-----------------*/
+	remove_zero(buffer,strlen(buffer));
 	/*-----------------*/
 	d0 = A2T(buffer);
 	/*------------------*/
-	sprintf_s(buffer,"%lf",y[pos]);
+	sprintf_s(buffer,"%.10lf",y[pos]);
+	/*-----------------*/
+	remove_zero(buffer,strlen(buffer));
 	/*-----------------*/
 	d1 = A2T(buffer);
 	/*------------------*/
@@ -529,5 +537,25 @@ void data_review::OnBnClickedButton4()
 	{
 		m_single.SetWindowTextW(_T("µ¥´Î"));
 		single_time = 0;
+	}
+}
+/* remove 0 */
+void data_review::remove_zero(char * d , unsigned int len)
+{
+	for( unsigned int i = 0 ; i < len ; i ++ )
+	{
+		if( d[ len - 1 - i ] == '0' )
+		{
+			d[ len - 1 - i ] = 0;
+		}
+		else if( d[ len - 1 - i ] == '.' )
+		{
+			d[ len - 1 - i ] = 0;
+			break;
+		}
+		else
+		{
+			break;
+		}
 	}
 }
