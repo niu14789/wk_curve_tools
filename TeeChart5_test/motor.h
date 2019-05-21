@@ -77,4 +77,5 @@ public:
 	afx_msg void OnBnClickedButton41();
 	afx_msg void OnBnClickedButton11();
 	CEdit m_mid_value_show;
+	afx_msg void OnBnClickedButton12();
 };

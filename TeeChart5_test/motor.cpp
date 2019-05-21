@@ -113,6 +113,7 @@ BEGIN_MESSAGE_MAP(motor, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON39, &motor::OnBnClickedButton39)
 	ON_BN_CLICKED(IDC_BUTTON41, &motor::OnBnClickedButton41)
 	ON_BN_CLICKED(IDC_BUTTON11, &motor::OnBnClickedButton11)
+	ON_BN_CLICKED(IDC_BUTTON12, &motor::OnBnClickedButton12)
 END_MESSAGE_MAP()
 
 
@@ -607,6 +608,25 @@ void motor::show_factory(unsigned char * data ,unsigned int len)
 		{
 			MessageBox(_T("未知的机型"),_T("tips"),0);
 		}
+	}else if( fac_tub == 265 )
+	{
+		if( data[2] == 0xff )
+		{
+			MessageBox(_T("浆叶类型设置失败"),_T("tips"),0);
+		}
+		else if( data[2] == ( 0x3514 & 0xff ) )
+		{
+			MessageBox(_T("设置为两叶浆成功！！！"),_T("tips"),0);
+		}
+		else if( data[2] == ( 0x7825 & 0xff ) )
+		{
+			MessageBox(_T("设置为三叶浆成功！！！"),_T("tips"),0);
+		}
+		else
+		{
+			MessageBox(_T("未知指令！！！"),_T("tips"),0);
+		}
+
 	}
 }
 
@@ -999,6 +1019,17 @@ void motor::OnBnClickedButton8()
 void motor::OnBnClickedButton35()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	unsigned short * param = ( unsigned short * )package;
+	/*---------------------*/
+	*pd = 265;
+	/*---------------------*/
+	param[0] = 0x3514;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
 }
 
 
@@ -1196,3 +1227,19 @@ void motor::mid_show(unsigned short * d)
 	m_mid_value_show.SetWindowTextW(show);
 }
 
+
+
+void motor::OnBnClickedButton12()
+{
+	/* create buffer */
+	unsigned char package[33];
+
+	unsigned short * pd = (unsigned short *)&package[28];
+	unsigned short * param = ( unsigned short * )package;
+	/*---------------------*/
+	*pd = 265;
+	/*---------------------*/
+	param[0] = 0x7825;
+	/*-------------------------*/   
+	ct->fm_link_send(76,package,33);
+}
