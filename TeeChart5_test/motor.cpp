@@ -42,7 +42,7 @@ unsigned char D_V_flag = 0;
 
 static int can_id[3] = {FC_TO_TM1_CAN_ID,FC_TO_TM2_CAN_ID,FC_TO_TM3_CAN_ID};
 
-static int can_cmd[8] = {0xE1,0xCC,0xE2,0xE3,0x00,0x01,0xE9,0xEA};
+static int can_cmd[9] = {0xE1,0xCC,0xE2,0xE3,0x00,0x01,0xE9,0xEA,0xE6};
 /*------------------------------*/
 IMPLEMENT_DYNAMIC(motor, CDialogEx)
 
@@ -180,6 +180,7 @@ void motor::motor_init(void)
 	m_active.AddString(_T("转至垂直"));//0x01
 	m_active.AddString(_T("0-90慢转"));//0xE9
 	m_active.AddString(_T("90-0慢转"));//0xEA
+	m_active.AddString(_T("倾转自检"));//0xE6
 
 	m_active.SetCurSel(0);
 	/* set step */
@@ -940,7 +941,7 @@ void motor::OnBnClickedButton30()
 	int mr = m_rotation.GetCurSel();
 	int mactive = m_active.GetCurSel();
 	/*-------------*/
-	if( mr >= 3 || mactive >= 8 )
+	if( mr >= 3 || mactive >= 9 )
 	{
 		AfxMessageBox(_T("不支持的倾转机构或不支持的动作类型"));
 		return;
