@@ -1135,6 +1135,24 @@ void CTeeChart5_testDlg::Read_Procotol_decode_waves(unsigned int index)
 		/*-------------------------------------*/
 		return;
 	}
+	/* offset */
+    if( READ_CFS.cfs_global_msg.offset != 0 )
+	{
+		if( file_size >= READ_CFS.cfs_global_msg.offset )
+		{
+			file_size -= READ_CFS.cfs_global_msg.offset;
+		}
+		else
+		{
+			MessageBox(_T("文件大小于偏移大小 "),_T("tips"),0);
+			/*------------------------------------*/
+			/* clear some msg */
+			file_man.file[index].file_enable = 0;
+			file_man.num --;
+			/*-------------------------------------*/
+			return;
+		}
+	}
 	/* flag */
 	int allocate_flag = 0;
 	unsigned char * memory_t = 0;
