@@ -37,8 +37,6 @@
 #include "rt27.h"
 #include "del_point.h"
 #include "data_review.h"
-#include "contribution.h"
-#include "help.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
